@@ -94,26 +94,39 @@ export default function CustomerSalePage() {
 
               return (
                 <section key={cat.id} className="animate-fade-in-up">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-1.5 border-b-2 border-gray-900 pb-1.5 inline-flex">
-                    <span>{cat.icon}</span> {cat.id} 코너
-                  </h3>
                   
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-1 flex flex-col">
+                  {/* 세련된 카테고리 헤더 */}
+                  <div className="flex items-center gap-2.5 mb-3 px-1">
+                    <span className="text-2xl bg-white p-2 rounded-2xl shadow-sm border border-gray-100 leading-none flex items-center justify-center">
+                      {cat.icon}
+                    </span>
+                    <h3 className="text-[19px] font-extrabold text-gray-900 tracking-tight">
+                      {cat.id} <span className="text-[#5F0080]">특가</span>
+                    </h3>
+                  </div>
+                  
+                  {/* 리스트 카드 */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-2 flex flex-col">
                     {catItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
-                        <div className="flex items-center flex-1 min-w-0 pr-3 gap-2">
-                          <h4 className="text-[14px] font-bold text-gray-900 truncate">
+                      <div key={item.id} className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 gap-4">
+                        
+                        {/* 좌측: 상품명 & 중량 */}
+                        <div className="flex flex-col flex-1 min-w-0 gap-1.5">
+                          <h4 className="text-[16px] font-bold text-gray-900 truncate leading-tight">
                             {item.product_name}
                           </h4>
-                          <span className="text-[11px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0">
+                          <span className="text-[14px] font-extrabold text-[#5F0080] bg-[#5F0080]/10 px-2.5 py-1 rounded-md self-start tracking-tight">
                             {item.quantity}
                           </span>
                         </div>
+                        
+                        {/* 우측: 시선 강탈 가격 */}
                         <div className="text-right flex-shrink-0">
-                          <span className="text-[15px] font-extrabold text-[#5F0080] tracking-tight">
+                          <span className="text-[22px] font-black text-[#5F0080] tracking-tighter">
                             {item.sale_price}
                           </span>
                         </div>
+                        
                       </div>
                     ))}
                   </div>
