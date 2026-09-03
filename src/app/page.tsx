@@ -13,6 +13,7 @@ export default function Nao3Page() {
   const [activeTab, setActiveTab] = useState('정육');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   // 현재 탭에 새 상품 추가
   const handleAddItem = () => {
@@ -53,8 +54,8 @@ export default function Nao3Page() {
         throw error;
       }
       
-      alert('성공적으로 세일 품목이 등록되었습니다!');
       setItems([]);
+      setSubmitted(true);
     } catch (err: any) {
       console.error(err);
       alert(err.message || '저장 중 오류가 발생했습니다.');
@@ -65,6 +66,29 @@ export default function Nao3Page() {
 
   const currentItems = items.filter(item => item.category === activeTab);
   const totalItemsCount = items.filter(item => item.product_name && item.sale_price).length;
+
+  if (submitted) {
+    return (
+      <main className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 text-center max-w-md w-full animate-fade-in-up">
+          <div className="w-16 h-16 bg-[#5F0080]/10 text-[#5F0080] rounded-full flex items-center justify-center mx-auto mb-5">
+            <span className="text-3xl">🎉</span>
+          </div>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">등록이 완료되었습니다</h2>
+          <p className="text-gray-500 mb-8 text-sm leading-relaxed">
+            세일 품목이 성공적으로 데이터베이스에 저장되었습니다.<br/>
+            추후 세일 템플릿 배너와 연동될 예정입니다.
+          </p>
+          <button 
+            onClick={() => setSubmitted(false)}
+            className="w-full py-4 bg-[#5F0080] hover:bg-[#4a0066] text-white font-bold rounded-2xl transition-all shadow-md"
+          >
+            새로운 품목 추가하기
+          </button>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main>
