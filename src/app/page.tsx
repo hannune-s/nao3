@@ -69,6 +69,9 @@ export default function Nao3Page() {
     }
   }, [qtyIdx]);
 
+  // 이력 수정 모드 상태
+  const [editingHistoryItemId, setEditingHistoryItemId] = useState<{pushId: string, itemId: string} | null>(null);
+
   // 이력 데이터 불러오기 함수
   const fetchHistories = async () => {
     const { data, error } = await supabase
@@ -114,24 +117,58 @@ export default function Nao3Page() {
     localStorage.setItem('nao3_staging_items', JSON.stringify(items));
   }, [items]);
 
-  // 목록에 추가
-  const handleAddItem = (e?: React.FormEvent) => {
+  // 목록에 추가 또는 즉시 수정
+  const handleAddItem = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!newItem.product_name.trim() || !newItem.sale_price.trim()) {
       alert('상품명과 세일 가격은 필수입니다.');
       return;
     }
 
-    const insertData = { 
-      id: Date.now().toString(),
-      category: activeTab, 
-      product_name: newItem.product_name, 
-      quantity: newItem.quantity, 
-      sale_price: newItem.sale_price,
-      is_sold_out: false
-    };
+    if (editingHistoryItemId) {
+      // 즉시 수정 모드
+      try {
+        const { error } = await supabase.from('nao3_sale_items')
+          .update({ 
+            product_name: newItem.product_name, 
+            quantity: newItem.quantity, 
+            sale_price: newItem.sale_price,
+            category: activeTab
+          })
+          .eq('id', editingHistoryItemId.itemId);
+          
+        if (error) throw error;
+        
+        // 로컬 상태 즉시 갱신
+        setHistories(prev => prev.map(h => h.id === editingHistoryItemId.pushId ? {
+          ...h,
+          nao3_sale_items: h.nao3_sale_items.map((i: any) => i.id === editingHistoryItemId.itemId ? {
+            ...i,
+            category: activeTab,
+            product_name: newItem.product_name,
+            quantity: newItem.quantity,
+            sale_price: newItem.sale_price
+          } : i)
+        } : h));
+        
+        setEditingHistoryItemId(null);
+      } catch (err) {
+        alert('이력 수정에 실패했습니다.');
+        return;
+      }
+    } else {
+      // 일반 대기열 추가 모드
+      const insertData = { 
+        id: Date.now().toString(),
+        category: activeTab, 
+        product_name: newItem.product_name, 
+        quantity: newItem.quantity, 
+        sale_price: newItem.sale_price,
+        is_sold_out: false
+      };
+      setItems([...items, insertData]);
+    }
 
-    setItems([...items, insertData]);
     setNewItem({ product_name: '', quantity: '', sale_price: '' });
     setNameIdx(-1);
     setQtyIdx(-1);
@@ -180,28 +217,16 @@ export default function Nao3Page() {
     }
   };
 
-  // 이력 아이템 수정 (즉시 반영)
-  const handleHistoryEditItem = async (pushId: string, item: any) => {
-    const newName = window.prompt('수정할 상품명을 입력하세요.', item.product_name);
-    if (newName === null) return;
-    const newPrice = window.prompt('수정할 가격을 입력하세요.', item.sale_price);
-    if (newPrice === null) return;
-    const newQty = window.prompt('수정할 중량을 입력하세요.', item.quantity);
-    if (newQty === null) return;
-
-    try {
-      const { error } = await supabase.from('nao3_sale_items')
-        .update({ product_name: newName, sale_price: newPrice, quantity: newQty })
-        .eq('id', item.id);
-      if (error) throw error;
-
-      setHistories(prev => prev.map(h => h.id === pushId ? {
-        ...h,
-        nao3_sale_items: h.nao3_sale_items.map((i: any) => i.id === item.id ? { ...i, product_name: newName, sale_price: newPrice, quantity: newQty } : i)
-      } : h));
-    } catch (err) {
-      alert('수정에 실패했습니다.');
-    }
+  // 이력 아이템 수정 (폼으로 끌어올림)
+  const handleHistoryEditItem = (pushId: string, item: any) => {
+    setEditingHistoryItemId({ pushId, itemId: item.id });
+    setActiveTab(item.category || '정육');
+    setNewItem({ 
+      product_name: item.product_name, 
+      quantity: item.quantity, 
+      sale_price: item.sale_price 
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   // 최종 전송 버튼
   const handleSave = async () => {
@@ -246,6 +271,7 @@ export default function Nao3Page() {
       if (itemsError) throw itemsError;
 
       // 3. 성공 후 데이터 갱신
+      setItems([]); // 대기열 초기화
       localStorage.removeItem('nao3_staging_items');
       await fetchHistories(); 
       setSubmitted(true);
@@ -439,12 +465,26 @@ export default function Nao3Page() {
                 className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] font-bold text-[#5F0080] placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
               />
             </div>
-            <button 
-              type="submit"
-              className="w-full py-2 bg-white border border-[#5F0080] text-[#5F0080] font-bold rounded-lg hover:bg-[#5F0080]/5 transition-colors flex items-center justify-center gap-1.5"
-            >
-              <span className="text-lg leading-none">+</span> 추가하기
-            </button>
+            <div className="flex gap-2">
+              <button 
+                type="submit"
+                className={`flex-1 py-2 font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${editingHistoryItemId ? 'bg-[#5F0080] text-white' : 'bg-white border border-[#5F0080] text-[#5F0080] hover:bg-[#5F0080]/5'}`}
+              >
+                {editingHistoryItemId ? '✓ 수정 완료 (즉시 반영)' : <><span className="text-lg leading-none">+</span> 추가하기</>}
+              </button>
+              {editingHistoryItemId && (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setEditingHistoryItemId(null);
+                    setNewItem({ product_name: '', quantity: '', sale_price: '' });
+                  }}
+                  className="px-4 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  취소
+                </button>
+              )}
+            </div>
           </form>
         </div>
       </div>
