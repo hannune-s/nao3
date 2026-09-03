@@ -95,22 +95,41 @@ export default function Nao3Page() {
         return new Date(dt.getTime() - offset).toISOString().slice(0, 16);
       };
 
-      // 항상 임시 저장 데이터 로드 및 기본 기간 설정 (Top section is only for NEW drafts)
+      // 1. 진행 중인 세일이 있는지 확인해서 기간/멘트 기본값으로 깔아주기
+      const { data: latestPush } = await supabase
+        .from('nao3_push_history')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      let isAppendingToActive = false;
+      
+      if (latestPush && latestPush.sale_end && new Date(latestPush.sale_end) > now) {
+        // 아직 종료되지 않은 세일이 있다면 그 시간을 기본값으로
+        if (!saleStart) setSaleStart(toLocalStr(latestPush.sale_start));
+        if (!saleEnd) setSaleEnd(toLocalStr(latestPush.sale_end));
+        isAppendingToActive = true;
+      } else {
+        if (!saleStart) setSaleStart(toLocalStr(now));
+        const tmrw = new Date(now);
+        tmrw.setDate(tmrw.getDate() + 1);
+        tmrw.setHours(23, 59, 0, 0);
+        if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
+      }
+
+      // 항상 임시 저장 데이터 로드
       const saved = localStorage.getItem('nao3_staging_items');
       if (saved) {
         try { setItems(JSON.parse(saved)); } catch (e) { console.error(e); }
       }
 
       const savedBossMsg = localStorage.getItem('nao3_boss_message');
-      if (savedBossMsg) {
+      if (savedBossMsg !== null && savedBossMsg !== undefined) {
         setBossMessage(savedBossMsg);
+      } else if (isAppendingToActive && latestPush?.boss_message) {
+        setBossMessage(latestPush.boss_message);
       }
-      
-      if (!saleStart) setSaleStart(toLocalStr(now));
-      const tmrw = new Date(now);
-      tmrw.setDate(tmrw.getDate() + 1);
-      tmrw.setHours(23, 59, 0, 0);
-      if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
 
       fetchHistories();
     };
@@ -253,20 +272,47 @@ export default function Nao3Page() {
 
     setLoading(true);
     try {
-      // 새로운 세일 발송
-      const { data: historyData, error: historyError } = await supabase
+      // 1. 가장 최근 이력을 가져와서 기간 비교
+      const { data: latestPush } = await supabase
         .from('nao3_push_history')
-        .insert([{ 
-          item_count: validItems.length,
-          sale_start: new Date(saleStart).toISOString(),
-          sale_end: new Date(saleEnd).toISOString(),
-          boss_message: bossMessage.trim() || null
-        }])
-        .select()
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
         .single();
 
-      if (historyError) throw historyError;
-      const pushId = historyData.id;
+      const newStart = new Date(saleStart).toISOString();
+      const newEnd = new Date(saleEnd).toISOString();
+
+      let pushId = '';
+
+      // 만약 방금 입력한 세일 기간이 최근 등록된 이력의 기간과 정확히 일치한다면? (동일 세일 그룹으로 간주)
+      const isSamePeriod = latestPush && 
+        new Date(latestPush.sale_start).getTime() === new Date(newStart).getTime() && 
+        new Date(latestPush.sale_end).getTime() === new Date(newEnd).getTime();
+
+      if (isSamePeriod) {
+        // 기존 그룹에 추가 (업데이트)
+        pushId = latestPush.id;
+        await supabase.from('nao3_push_history').update({
+          item_count: latestPush.item_count + validItems.length,
+          boss_message: bossMessage.trim() || null
+        }).eq('id', pushId);
+      } else {
+        // 완전히 새로운 기간이므로 새로운 세일 그룹 생성
+        const { data: historyData, error: historyError } = await supabase
+          .from('nao3_push_history')
+          .insert([{ 
+            item_count: validItems.length,
+            sale_start: newStart,
+            sale_end: newEnd,
+            boss_message: bossMessage.trim() || null
+          }])
+          .select()
+          .single();
+
+        if (historyError) throw historyError;
+        pushId = historyData.id;
+      }
 
       // 발급받은 push_id로 아이템 일괄 Insert
       const dbPayload = validItems.map(item => ({
