@@ -127,14 +127,6 @@ export default function CustomerSalePage() {
         )}
       </div>
 
-      {/* 하단 공유/주문 플로팅 버튼 (UI용) */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent z-20">
-        <div className="max-w-md mx-auto">
-          <button className="w-full py-4 bg-[#5F0080] hover:bg-[#4a0066] text-white font-bold rounded-2xl transition-all shadow-lg text-lg flex items-center justify-center gap-2">
-            🛒 앱에서 쇼핑하러 가기
-          </button>
-        </div>
-      </div>
     </main>
   );
 }
