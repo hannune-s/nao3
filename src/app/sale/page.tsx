@@ -9,6 +9,7 @@ interface SaleItem {
   quantity: string;
   sale_price: string;
   created_at: string;
+  is_sold_out?: boolean;
 }
 
 export default function CustomerSalePage() {
@@ -141,8 +142,14 @@ export default function CustomerSalePage() {
                   {/* 리스트 카드 (컴팩트 1단 레이아웃) */}
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-1.5 flex flex-col">
                     {catItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 gap-2">
+                      <div key={item.id} className={`flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 gap-2 relative ${item.is_sold_out ? 'opacity-40 grayscale' : ''}`}>
                         
+                        {item.is_sold_out && (
+                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 -rotate-12 bg-red-600 text-white font-black text-xl px-4 py-1 border-2 border-white rounded shadow-lg tracking-widest whitespace-nowrap">
+                            SOLD OUT
+                          </div>
+                        )}
+
                         {/* 좌측: 상품명 & 중량 (가로 나란히) */}
                         <div className="flex items-center flex-1 min-w-0 gap-2 pr-2">
                           <h4 className="text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-[60%]">
@@ -154,8 +161,8 @@ export default function CustomerSalePage() {
                         </div>
                         
                         {/* 우측: 시선 강탈 가격 */}
-                        <div className="text-right flex-shrink-0">
-                          <span className="text-[19px] font-black text-[#5F0080] tracking-tight">
+                        <div className="text-right flex-shrink-0 flex flex-col items-end">
+                          <span className={`text-[19px] font-black tracking-tight ${item.is_sold_out ? 'text-gray-500 line-through decoration-red-500 decoration-2' : 'text-[#5F0080]'}`}>
                             {item.sale_price}
                           </span>
                         </div>
