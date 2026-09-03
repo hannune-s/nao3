@@ -693,23 +693,21 @@ export default function Nao3Page() {
           </div>
         )}
 
-      </div>
-
-      {/* 하단 플로팅 저장 버튼 */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-md border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.05)] z-20">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-          <div className="flex flex-col pl-2">
-            <span className="text-[11px] text-gray-500 font-semibold">총 등록 대기</span>
-            <span className="text-lg font-extrabold text-[#5F0080] leading-none">{totalItemsCount}건</span>
+        {/* 인라인 저장 버튼 (대기열 바로 아래 위치) */}
+        <div className="mt-4 p-4 bg-purple-50 rounded-xl border border-purple-100 flex items-center justify-between gap-4">
+          <div className="flex flex-col pl-1">
+            <span className="text-[11px] text-[#5F0080]/70 font-semibold">총 등록 대기</span>
+            <span className="text-xl font-extrabold text-[#5F0080] leading-none">{totalItemsCount}건</span>
           </div>
           <button 
             onClick={handleSave}
             disabled={loading}
-            className="flex-1 py-4 bg-[#5F0080] hover:bg-[#4a0066] disabled:bg-gray-300 text-white font-bold rounded-2xl transition-all shadow-[0_4px_14px_rgba(95,0,128,0.3)] disabled:shadow-none"
+            className="flex-1 py-3.5 bg-[#5F0080] hover:bg-[#4a0066] disabled:bg-gray-300 text-white font-bold rounded-xl transition-all shadow-sm disabled:shadow-none text-sm"
           >
             {loading ? '저장 중...' : '세일 푸시 등록 완료'}
           </button>
         </div>
+
       </div>
 
       {/* 발송 이력 섹션 */}
