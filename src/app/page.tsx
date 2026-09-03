@@ -258,8 +258,8 @@ export default function Nao3Page() {
     }
   };
 
-  const currentItems = items.filter(item => item.category === activeTab);
-  const totalItemsCount = items.filter(item => item.product_name && item.sale_price).length;
+  const currentItems = items;
+  const totalItemsCount = items.length;
 
   if (submitted) {
     return (
@@ -452,7 +452,7 @@ export default function Nao3Page() {
       {/* 등록된 품목 리스트 (컴팩트 뷰) */}
       <div className="max-w-2xl mx-auto p-3 pt-4 pb-6">
         <div className="flex justify-between items-end mb-2 px-1">
-          <h3 className="text-sm font-bold text-gray-700">추가된 {activeTab} 목록</h3>
+          <h3 className="text-sm font-bold text-gray-700">전체 등록 대기열</h3>
           <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">
             {currentItems.length}건
           </span>
@@ -471,6 +471,9 @@ export default function Nao3Page() {
                 
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2 flex-1 min-w-0 pr-2">
+                    <span className="text-[10px] font-bold text-[#5F0080] border border-[#5F0080]/20 bg-[#5F0080]/5 px-1.5 py-0.5 rounded flex-shrink-0">
+                      {item.category}
+                    </span>
                     <span className="text-[14px] font-bold text-gray-800 truncate">{item.product_name}</span>
                     <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
                   </div>
