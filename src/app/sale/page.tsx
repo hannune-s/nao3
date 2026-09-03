@@ -171,18 +171,16 @@ export default function CustomerSalePage() {
                       <div key={item.id} className={`flex items-center justify-between pb-4 border-b border-gray-100/70 last:border-b-0 last:pb-0 transition-all ${item.is_sold_out ? 'opacity-50' : ''}`}>
                         
                         {/* 좌측: 상품명 & 중량 */}
-                        <div className="flex flex-col flex-1 min-w-0 pr-4 gap-1.5">
-                          <div className="flex items-center gap-2">
-                            {item.is_sold_out && (
-                              <span className="text-[11px] font-black text-white bg-red-600 px-2 py-0.5 rounded shrink-0 leading-none shadow-sm tracking-wide">
-                                SOLD OUT
-                              </span>
-                            )}
-                            <h4 className={`text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-full ${item.is_sold_out ? 'line-through text-gray-500' : ''}`}>
-                              {item.product_name}
-                            </h4>
-                          </div>
-                          <span className={`text-[12px] font-bold w-fit px-2 py-0.5 rounded-md ${item.is_sold_out ? 'bg-gray-100 text-gray-500' : 'bg-gray-50 text-gray-600 border border-gray-100'}`}>
+                        <div className="flex items-center flex-1 min-w-0 pr-3 gap-2.5">
+                          {item.is_sold_out && (
+                            <span className="text-[11px] font-black text-white bg-red-600 px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
+                              SOLD OUT
+                            </span>
+                          )}
+                          <h4 className={`text-[16px] font-bold text-gray-900 truncate ${item.is_sold_out ? 'line-through text-gray-500' : ''}`}>
+                            {item.product_name}
+                          </h4>
+                          <span className={`text-[14px] font-extrabold px-2.5 py-1 rounded-md shrink-0 leading-none tracking-tight ${item.is_sold_out ? 'bg-gray-200 text-gray-500' : 'bg-purple-100 text-[#5F0080] border border-purple-200 shadow-sm'}`}>
                             {item.quantity}
                           </span>
                         </div>
