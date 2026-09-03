@@ -142,16 +142,24 @@ export default function CustomerSalePage() {
                   {/* 리스트 카드 (컴팩트 1단 레이아웃) */}
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-1.5 flex flex-col">
                     {catItems.map((item) => (
-                      <div key={item.id} className={`flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 gap-2 relative transition-all ${item.is_sold_out ? 'opacity-40 grayscale' : ''}`}>
+                      <div key={item.id} className={`flex items-center justify-between py-3 px-2 -mx-2 border-b border-gray-100 last:border-b-0 gap-2 relative transition-all overflow-hidden rounded-lg ${item.is_sold_out ? 'bg-gray-100/60 grayscale' : ''}`}>
                         
+                        {item.is_sold_out && (
+                          <>
+                            {/* 어두운 오버레이 */}
+                            <div className="absolute inset-0 bg-black/[0.03] z-10 pointer-events-none rounded-lg"></div>
+                            {/* 도장 효과 */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 -rotate-[12deg] pointer-events-none">
+                              <div className="border-[3px] border-red-600 text-red-600 text-[20px] leading-none font-black uppercase tracking-[0.1em] px-3 py-1.5 rounded-md bg-white/95 shadow-[0_0_8px_rgba(255,255,255,0.8)] whitespace-nowrap">
+                                SOLD OUT
+                              </div>
+                            </div>
+                          </>
+                        )}
+
                         {/* 좌측: 상품명 & 중량 (가로 나란히) */}
-                        <div className="flex items-center flex-1 min-w-0 gap-2 pr-2">
-                          {item.is_sold_out && (
-                            <span className="text-[14px] font-black text-red-600 shrink-0 tracking-widest">
-                              품절
-                            </span>
-                          )}
-                          <h4 className="text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-[50%]">
+                        <div className={`flex items-center flex-1 min-w-0 gap-2 pr-2 relative z-0 ${item.is_sold_out ? 'opacity-40' : ''}`}>
+                          <h4 className="text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-[55%]">
                             {item.product_name}
                           </h4>
                           <span className="text-[13px] font-extrabold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-md truncate shrink-0">
@@ -160,8 +168,8 @@ export default function CustomerSalePage() {
                         </div>
                         
                         {/* 우측: 시선 강탈 가격 */}
-                        <div className="text-right flex-shrink-0 flex flex-col items-end">
-                          <span className={`text-[19px] font-black tracking-tight ${item.is_sold_out ? 'text-gray-500 line-through decoration-red-500 decoration-2' : 'text-[#5F0080]'}`}>
+                        <div className={`text-right flex-shrink-0 flex flex-col items-end relative z-0 ${item.is_sold_out ? 'opacity-60' : ''}`}>
+                          <span className={`text-[19px] font-black tracking-tight ${item.is_sold_out ? 'text-gray-600 line-through decoration-red-600 decoration-[3px]' : 'text-[#5F0080]'}`}>
                             {item.sale_price}
                           </span>
                         </div>
