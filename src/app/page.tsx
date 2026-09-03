@@ -185,24 +185,26 @@ export default function Nao3Page() {
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
             {currentItems.map((item, index) => (
-              <div key={item.id} className="flex items-center justify-between py-2.5 px-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
+              <div key={item.id} className="flex items-center justify-between py-3 px-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors gap-2">
                 
-                {/* 좌측: 상품명 (위) + 중량 (아래) */}
-                <div className="flex flex-col flex-1 min-w-0 pr-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[9px] font-bold text-gray-400 w-3 text-center shrink-0">{index + 1}</span>
-                    <h4 className="text-[15px] font-bold text-gray-900 truncate">
-                      {item.product_name}
-                    </h4>
-                  </div>
-                  <span className="text-[13px] font-bold text-gray-600 pl-4 mt-0.5">
+                {/* 좌측: 번호 + 상품명 */}
+                <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                  <span className="text-[10px] font-bold text-gray-400 w-3 text-center shrink-0">{index + 1}</span>
+                  <h4 className="text-[15px] font-bold text-gray-900 truncate">
+                    {item.product_name}
+                  </h4>
+                </div>
+
+                {/* 중앙: 중량/수량 (가운데, 크고 진하게) */}
+                <div className="shrink-0 flex items-center justify-center px-1">
+                  <span className="text-[15px] font-extrabold text-gray-800 whitespace-nowrap">
                     {item.quantity}
                   </span>
                 </div>
 
-                {/* 우측: 가격 (콤마, 폰트 키움), 삭제버튼 */}
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className="text-[17px] font-extrabold text-[#5F0080] tracking-tight">
+                {/* 우측: 가격, 삭제버튼 */}
+                <div className="flex items-center justify-end gap-3 flex-shrink-0 pl-1">
+                  <span className="text-[17px] font-extrabold text-[#5F0080] tracking-tight whitespace-nowrap">
                     {item.sale_price}
                   </span>
                   <button 
