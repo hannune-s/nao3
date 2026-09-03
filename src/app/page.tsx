@@ -277,13 +277,16 @@ export default function Nao3Page() {
       const newEnd = new Date(saleEnd).toISOString();
 
       if (latestPush) {
-        const { error } = await supabase.from('nao3_push_history').update({
+        const { data: updatedData, error } = await supabase.from('nao3_push_history').update({
           sale_start: newStart,
           sale_end: newEnd,
           boss_message: bossMessage.trim() || null
-        }).eq('id', latestPush.id);
+        }).eq('id', latestPush.id).select();
         
         if (error) throw error;
+        if (!updatedData || updatedData.length === 0) {
+           throw new Error("보안 정책(RLS) 문제로 업데이트가 차단되었습니다. 제공해드린 SQL을 Supabase에서 실행해주세요!");
+        }
         alert('진행 중인 세일에 기간과 사장님 이야기가 즉시 반영되었습니다!');
       } else {
         alert('아직 등록된 세일 내역이 없습니다. 먼저 상품과 함께 하단 버튼으로 등록해주세요.');
@@ -328,12 +331,15 @@ export default function Nao3Page() {
       if (isSamePeriod) {
         // 기존 그룹에 추가 (업데이트)
         pushId = latestPush.id;
-        const { error: updateError } = await supabase.from('nao3_push_history').update({
+        const { data: updatedData, error: updateError } = await supabase.from('nao3_push_history').update({
           item_count: latestPush.item_count + validItems.length,
           boss_message: bossMessage.trim() || null
-        }).eq('id', pushId);
+        }).eq('id', pushId).select();
         
         if (updateError) throw updateError;
+        if (!updatedData || updatedData.length === 0) {
+           throw new Error("보안 정책(RLS) 문제로 업데이트가 차단되었습니다. 제공해드린 SQL을 Supabase에서 실행해주세요!");
+        }
       } else {
         // 완전히 새로운 기간이므로 새로운 세일 그룹 생성
         const { data: historyData, error: historyError } = await supabase
