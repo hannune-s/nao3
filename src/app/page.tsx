@@ -260,11 +260,8 @@ export default function Nao3Page() {
   // 최종 전송 버튼
   const handleSave = async () => {
     const validItems = items.filter(item => item.product_name && item.sale_price);
-    if (validItems.length === 0) {
-      alert('입력된 세일 상품이 없습니다. 최소 1개 이상 추가해주세요.');
-      return;
-    }
 
+    // 상품이 없더라도 보스 메시지나 기간만 업데이트하는 경우를 허용하기 위해 유효성 검사를 나중으로 미룸
     if (!saleStart || !saleEnd) {
       alert('세일 시작일과 종료일을 입력해주세요.');
       return;
@@ -315,17 +312,19 @@ export default function Nao3Page() {
       }
 
       // 발급받은 push_id로 아이템 일괄 Insert
-      const dbPayload = validItems.map(item => ({
-        category: item.category,
-        product_name: item.product_name,
-        quantity: item.quantity,
-        sale_price: item.sale_price,
-        is_sold_out: item.is_sold_out || false,
-        push_id: pushId
-      }));
+      if (validItems.length > 0) {
+        const dbPayload = validItems.map(item => ({
+          category: item.category,
+          product_name: item.product_name,
+          quantity: item.quantity,
+          sale_price: item.sale_price,
+          is_sold_out: item.is_sold_out || false,
+          push_id: pushId
+        }));
 
-      const { error: itemsError } = await supabase.from('nao3_sale_items').insert(dbPayload);
-      if (itemsError) throw itemsError;
+        const { error: itemsError } = await supabase.from('nao3_sale_items').insert(dbPayload);
+        if (itemsError) throw itemsError;
+      }
 
       // 3. 성공 후 데이터 갱신
       setItems([]); // 대기열 초기화
@@ -652,7 +651,7 @@ export default function Nao3Page() {
           </div>
           <button 
             onClick={handleSave}
-            disabled={loading || totalItemsCount === 0}
+            disabled={loading}
             className="flex-1 py-4 bg-[#5F0080] hover:bg-[#4a0066] disabled:bg-gray-300 text-white font-bold rounded-2xl transition-all shadow-[0_4px_14px_rgba(95,0,128,0.3)] disabled:shadow-none"
           >
             {loading ? '저장 중...' : '세일 푸시 등록 완료'}
