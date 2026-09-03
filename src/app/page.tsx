@@ -187,23 +187,19 @@ export default function Nao3Page() {
             {currentItems.map((item, index) => (
               <div key={item.id} className="flex items-center justify-between py-3 px-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors gap-2">
                 
-                {/* 좌측: 번호 + 상품명 */}
-                <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                {/* 좌측: 번호 + 상품명 + 중량 (가로 한 줄 배치) */}
+                <div className="flex items-center gap-2 flex-1 min-w-0 pr-2">
                   <span className="text-[10px] font-bold text-gray-400 w-3 text-center shrink-0">{index + 1}</span>
-                  <h4 className="text-[15px] font-bold text-gray-900 truncate">
+                  <h4 className="text-[15px] font-bold text-gray-900 truncate shrink-0 max-w-[50%]">
                     {item.product_name}
                   </h4>
-                </div>
-
-                {/* 중앙: 중량/수량 (가운데, 크고 진하게) */}
-                <div className="shrink-0 flex items-center justify-center px-1">
-                  <span className="text-[15px] font-extrabold text-gray-800 whitespace-nowrap">
+                  <span className="text-[13px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-md truncate">
                     {item.quantity}
                   </span>
                 </div>
 
                 {/* 우측: 가격, 삭제버튼 */}
-                <div className="flex items-center justify-end gap-3 flex-shrink-0 pl-1">
+                <div className="flex items-center justify-end gap-3 flex-shrink-0">
                   <span className="text-[17px] font-extrabold text-[#5F0080] tracking-tight whitespace-nowrap">
                     {item.sale_price}
                   </span>
