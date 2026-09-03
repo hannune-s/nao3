@@ -79,10 +79,10 @@ export default function CustomerSalePage() {
 
   // 출력할 카테고리 순서 정의
   const categoryOrder = [
-    { id: '정육', icon: '🥩' },
-    { id: '청과', icon: '🍎' },
-    { id: '야채', icon: '🥬' },
-    { id: '공산품', icon: '🛒' },
+    { id: '정육', title: '프리미엄 미트 존', subtitle: 'Premium Meat' },
+    { id: '청과', title: '엄선된 신선 과일', subtitle: 'Fresh Fruits' },
+    { id: '야채', title: '산지직송 신선 채소', subtitle: 'Fresh Vegetables' },
+    { id: '공산품', title: '데일리 생필품', subtitle: 'Daily & Groceries' },
   ];
 
   if (loading) {
@@ -126,13 +126,13 @@ export default function CustomerSalePage() {
 
       {/* 오늘의 사장님 이야기 */}
       {bossMessage && (
-        <div className="max-w-md mx-auto px-4 pt-6 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <div className="relative border-2 border-[#5F0080] rounded-xl p-5 bg-white shadow-sm mt-2">
-            <div className="absolute -top-3.5 left-4 bg-[#F9F9F9] px-2 flex items-center gap-1.5">
-              <span className="text-[#5F0080] text-lg">🌸</span>
-              <h3 className="text-[15px] font-bold text-[#5F0080]">오늘의 사장님 이야기</h3>
+        <div className="max-w-md mx-auto px-4 pt-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="relative border border-purple-100 rounded-2xl p-6 bg-white shadow-[0_8px_30px_rgba(95,0,128,0.04)]">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#5F0080]"></span>
+              <h3 className="text-[14px] font-bold text-[#5F0080] tracking-wide">오늘의 사장님 한마디</h3>
             </div>
-            <p className="text-[14.5px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
+            <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
               {bossMessage}
             </p>
           </div>
@@ -140,14 +140,14 @@ export default function CustomerSalePage() {
       )}
 
       {/* 세일 품목 리스트 */}
-      <div className="max-w-md mx-auto px-3 py-4">
+      <div className="max-w-md mx-auto px-4 py-8">
         {items.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
-            <span className="text-4xl block mb-3 opacity-50">😲</span>
-            <p>현재 진행 중인 세일 행사가 없습니다.</p>
+          <div className="text-center py-16 text-gray-400 bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <span className="text-4xl block mb-4 opacity-30">✨</span>
+            <p className="font-bold text-gray-500 text-[15px]">현재 진행 중인 세일 행사가 없습니다.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-10">
             {categoryOrder.map(cat => {
               const catItems = groupedItems[cat.id];
               if (!catItems || catItems.length === 0) return null;
@@ -155,39 +155,41 @@ export default function CustomerSalePage() {
               return (
                 <section key={cat.id} className="animate-fade-in-up">
                   
-                  {/* 세련된 카테고리 헤더 */}
-                  <div className="flex items-center gap-2 mb-2 px-1">
-                    <span className="text-xl bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 leading-none flex items-center justify-center">
-                      {cat.icon}
+                  {/* 세련된 카테고리 헤더 (포인트 컬러 바) */}
+                  <div className="flex flex-col mb-4 pl-3 border-l-4 border-[#5F0080]">
+                    <span className="text-[11px] font-black text-[#5F0080]/70 uppercase tracking-widest mb-0.5">
+                      {cat.subtitle}
                     </span>
-                    <h3 className="text-[17px] font-extrabold text-gray-900 tracking-tight">
-                      {cat.id} <span className="text-[#5F0080]">특가</span>
+                    <h3 className="text-[20px] font-extrabold text-gray-900 tracking-tight leading-none">
+                      {cat.title}
                     </h3>
                   </div>
                   
-                  {/* 리스트 카드 (초밀착 1단 레이아웃) */}
-                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-1 flex flex-col">
+                  {/* 리스트 카드 (고급스러운 패딩과 그림자) */}
+                  <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-gray-100 p-5 flex flex-col gap-4">
                     {catItems.map((item) => (
-                      <div key={item.id} className={`flex items-center justify-between py-2.5 border-b border-gray-100 last:border-b-0 gap-2 transition-all ${item.is_sold_out ? 'opacity-60 bg-gray-50 -mx-3 px-3' : ''}`}>
+                      <div key={item.id} className={`flex items-center justify-between pb-4 border-b border-gray-100/70 last:border-b-0 last:pb-0 transition-all ${item.is_sold_out ? 'opacity-50' : ''}`}>
                         
                         {/* 좌측: 상품명 & 중량 */}
-                        <div className="flex items-center flex-1 min-w-0 gap-2 pr-1">
-                          {item.is_sold_out && (
-                            <span className="text-[12px] font-black text-white bg-red-600 px-2 py-0.5 rounded-md shrink-0 leading-none shadow-sm tracking-widest">
-                              품절
-                            </span>
-                          )}
-                          <h4 className={`text-[15px] font-bold text-gray-900 truncate shrink-0 max-w-[55%] ${item.is_sold_out ? 'line-through text-gray-500' : ''}`}>
-                            {item.product_name}
-                          </h4>
-                          <span className={`text-[12px] font-extrabold px-1.5 py-0.5 rounded-md truncate shrink-0 ${item.is_sold_out ? 'bg-gray-200 text-gray-500' : 'bg-[#5F0080]/10 text-[#5F0080]'}`}>
+                        <div className="flex flex-col flex-1 min-w-0 pr-4 gap-1.5">
+                          <div className="flex items-center gap-2">
+                            {item.is_sold_out && (
+                              <span className="text-[11px] font-black text-white bg-red-600 px-2 py-0.5 rounded shrink-0 leading-none shadow-sm tracking-wide">
+                                SOLD OUT
+                              </span>
+                            )}
+                            <h4 className={`text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-full ${item.is_sold_out ? 'line-through text-gray-500' : ''}`}>
+                              {item.product_name}
+                            </h4>
+                          </div>
+                          <span className={`text-[12px] font-bold w-fit px-2 py-0.5 rounded-md ${item.is_sold_out ? 'bg-gray-100 text-gray-500' : 'bg-gray-50 text-gray-600 border border-gray-100'}`}>
                             {item.quantity}
                           </span>
                         </div>
                         
                         {/* 우측: 시선 강탈 가격 */}
-                        <div className="text-right flex-shrink-0 flex flex-col items-end">
-                          <span className={`text-[17px] font-black tracking-tight ${item.is_sold_out ? 'text-gray-400 line-through decoration-red-500 decoration-2' : 'text-[#5F0080]'}`}>
+                        <div className="text-right flex-shrink-0 flex flex-col items-end justify-center">
+                          <span className={`text-[18px] font-black tracking-tight ${item.is_sold_out ? 'text-gray-400 line-through decoration-red-500 decoration-2' : 'text-[#5F0080]'}`}>
                             {item.sale_price}
                           </span>
                         </div>
