@@ -40,6 +40,10 @@ export default function Nao3Page() {
   const [histories, setHistories] = useState<any[]>([]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
+  // 세일 진행 기간 상태
+  const [saleStart, setSaleStart] = useState('');
+  const [saleEnd, setSaleEnd] = useState('');
+
   // 탭 변경 시 폼 초기화
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -86,6 +90,20 @@ export default function Nao3Page() {
     }
     // 2. 지난 발송 이력 로드
     fetchHistories();
+
+    // 3. 기본 세일 기간 설정 (현재 시간 ~ 다음날 23:59)
+    const now = new Date();
+    const toLocalStr = (d: Date) => {
+      const offset = d.getTimezoneOffset() * 60000;
+      return new Date(d.getTime() - offset).toISOString().slice(0, 16);
+    };
+    if (!saleStart) setSaleStart(toLocalStr(now));
+    
+    const tmrw = new Date(now);
+    tmrw.setDate(tmrw.getDate() + 1);
+    tmrw.setHours(23, 59, 0, 0);
+    if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
+
   }, []);
 
   // items 상태가 변경될 때마다 로컬 스토리지 업데이트
@@ -128,12 +146,21 @@ export default function Nao3Page() {
       return;
     }
 
+    if (!saleStart || !saleEnd) {
+      alert('세일 시작일과 종료일을 입력해주세요.');
+      return;
+    }
+
     setLoading(true);
     try {
-      // 1. 발송 이력(History) 레코드 생성
+      // 1. 발송 이력(History) 레코드 생성 (기간 포함)
       const { data: historyData, error: historyError } = await supabase
         .from('nao3_push_history')
-        .insert([{ item_count: validItems.length }])
+        .insert([{ 
+          item_count: validItems.length,
+          sale_start: new Date(saleStart).toISOString(),
+          sale_end: new Date(saleEnd).toISOString()
+        }])
         .select()
         .single();
 
@@ -156,7 +183,7 @@ export default function Nao3Page() {
       
     } catch (err: any) {
       console.error(err);
-      alert('DB 저장 오류: ' + (err.message || '테이블 생성을 확인해주세요.'));
+      alert('DB 저장 오류: ' + (err.message || '테이블 및 컬럼 생성을 확인해주세요.'));
     } finally {
       setLoading(false);
     }
@@ -399,6 +426,35 @@ export default function Nao3Page() {
 
               </div>
             ))}
+          </div>
+        )}
+
+        {/* 세일 기간 설정 UI */}
+        {currentItems.length > 0 && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mt-4">
+            <h3 className="text-[14px] font-bold text-gray-800 mb-3 flex items-center gap-1.5">
+              🗓️ 이번 세일 진행 기간
+            </h3>
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-bold text-gray-600">시작일시</span>
+                <input 
+                  type="datetime-local" 
+                  value={saleStart} 
+                  onChange={e => setSaleStart(e.target.value)} 
+                  className="text-[13px] font-bold text-[#5F0080] border border-gray-200 px-2 py-1.5 rounded bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#5F0080]" 
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[13px] font-bold text-gray-600">종료일시</span>
+                <input 
+                  type="datetime-local" 
+                  value={saleEnd} 
+                  onChange={e => setSaleEnd(e.target.value)} 
+                  className="text-[13px] font-bold text-[#5F0080] border border-gray-200 px-2 py-1.5 rounded bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#5F0080]" 
+                />
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -14,6 +14,8 @@ interface SaleItem {
 export default function CustomerSalePage() {
   const [items, setItems] = useState<SaleItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEnded, setIsEnded] = useState(false);
+  const [periodText, setPeriodText] = useState('');
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -21,7 +23,7 @@ export default function CustomerSalePage() {
         // 1. 가장 최근의 발송 이력(push_id) 가져오기
         const { data: latestPush, error: pushError } = await supabase
           .from('nao3_push_history')
-          .select('id')
+          .select('id, sale_start, sale_end')
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
@@ -29,15 +31,28 @@ export default function CustomerSalePage() {
         if (pushError && pushError.code !== 'PGRST116') throw pushError;
 
         if (latestPush) {
-          // 2. 해당 push_id에 속한 아이템만 가져오기
-          const { data, error } = await supabase
-            .from('nao3_sale_items')
-            .select('*')
-            .eq('push_id', latestPush.id)
-            .order('created_at', { ascending: true });
+          // 세일 기간 체크 로직
+          if (latestPush.sale_start && latestPush.sale_end) {
+            const now = new Date();
+            const end = new Date(latestPush.sale_end);
+            const start = new Date(latestPush.sale_start);
+            setIsEnded(now > end);
+            
+            const format = (d: Date) => `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+            setPeriodText(`${format(start)} ~ ${format(end)}`);
+          }
 
-          if (error) throw error;
-          if (data) setItems(data);
+          if (!latestPush.sale_end || new Date() <= new Date(latestPush.sale_end)) {
+            // 2. 해당 push_id에 속한 아이템만 가져오기
+            const { data, error } = await supabase
+              .from('nao3_sale_items')
+              .select('*')
+              .eq('push_id', latestPush.id)
+              .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            if (data) setItems(data);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch sale items', error);
@@ -72,17 +87,22 @@ export default function CustomerSalePage() {
     );
   }
 
+  if (isEnded) {
+    return (
+      <main className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-4">
+        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 text-center max-w-sm w-full">
+          <span className="text-4xl block mb-4 opacity-50">⏳</span>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">세일이 종료되었습니다</h2>
+          <p className="text-sm text-gray-500">
+            고객님의 성원에 감사드립니다.<br/>다음 세일 행사를 기대해 주세요!
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#F9F9F9] pb-24 font-sans">
-      {/* 고객용 헤더 */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-20">
-        <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-center">
-          <h1 className="text-lg font-extrabold text-[#5F0080] tracking-tight">
-            나오3 마켓
-          </h1>
-        </div>
-      </header>
-
       {/* 메인 히어로 배너 */}
       <div className="bg-[#5F0080] text-white px-4 py-10 text-center relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
