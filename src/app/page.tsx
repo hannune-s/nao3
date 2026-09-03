@@ -69,9 +69,6 @@ export default function Nao3Page() {
     }
   }, [qtyIdx]);
 
-  // 현재 활성화된 세일 푸시 ID 상태 (새로 등록할지 덮어쓸지 결정)
-  const [activePushId, setActivePushId] = useState<string | null>(null);
-
   // 이력 데이터 불러오기 함수
   const fetchHistories = async () => {
     const { data, error } = await supabase
@@ -87,14 +84,6 @@ export default function Nao3Page() {
   // 앱 로드 시 데이터 초기화
   useEffect(() => {
     const loadInitData = async () => {
-      // 1. 가장 최근의 발송 이력(push_id) 가져오기
-      const { data: latestPush } = await supabase
-        .from('nao3_push_history')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
       const now = new Date();
       const toLocalStr = (d: string | Date) => {
         const dt = typeof d === 'string' ? new Date(d) : d;
@@ -102,39 +91,17 @@ export default function Nao3Page() {
         return new Date(dt.getTime() - offset).toISOString().slice(0, 16);
       };
 
-      let loadedFromActive = false;
-
-      // 현재 진행 중인 세일이 있다면 불러오기 (새로고침 시 데이터 증발 방지 및 실시간 수정)
-      if (latestPush && latestPush.sale_end && new Date(latestPush.sale_end) > now) {
-        setActivePushId(latestPush.id);
-        const { data: activeItems } = await supabase
-          .from('nao3_sale_items')
-          .select('*')
-          .eq('push_id', latestPush.id)
-          .order('created_at', { ascending: true });
-
-        if (activeItems && activeItems.length > 0) {
-          setItems(activeItems);
-          setSaleStart(toLocalStr(latestPush.sale_start));
-          setSaleEnd(toLocalStr(latestPush.sale_end));
-          loadedFromActive = true;
-        }
+      // 항상 임시 저장 데이터 로드 및 기본 기간 설정 (Top section is only for NEW drafts)
+      const saved = localStorage.getItem('nao3_staging_items');
+      if (saved) {
+        try { setItems(JSON.parse(saved)); } catch (e) { console.error(e); }
       }
-
-      // 진행 중인 세일이 없다면 임시 저장 데이터 로드 및 기본 기간 설정
-      if (!loadedFromActive) {
-        setActivePushId(null);
-        const saved = localStorage.getItem('nao3_staging_items');
-        if (saved) {
-          try { setItems(JSON.parse(saved)); } catch (e) { console.error(e); }
-        }
-        
-        if (!saleStart) setSaleStart(toLocalStr(now));
-        const tmrw = new Date(now);
-        tmrw.setDate(tmrw.getDate() + 1);
-        tmrw.setHours(23, 59, 0, 0);
-        if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
-      }
+      
+      if (!saleStart) setSaleStart(toLocalStr(now));
+      const tmrw = new Date(now);
+      tmrw.setDate(tmrw.getDate() + 1);
+      tmrw.setHours(23, 59, 0, 0);
+      if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
 
       fetchHistories();
     };
@@ -183,11 +150,59 @@ export default function Nao3Page() {
     setItems(items.filter(item => item.id !== id));
   };
 
-  // 품절 토글 기능
-  const handleToggleSoldOut = (id: string) => {
-    setItems(items.map(item => item.id === id ? { ...item, is_sold_out: !item.is_sold_out } : item));
+  // 이력 품절 처리/해제 (즉시 반영)
+  const handleHistoryToggleSoldOut = async (pushId: string, itemId: string, currentSoldOut: boolean) => {
+    try {
+      const { error } = await supabase.from('nao3_sale_items').update({ is_sold_out: !currentSoldOut }).eq('id', itemId);
+      if (error) throw error;
+      setHistories(prev => prev.map(h => h.id === pushId ? {
+        ...h,
+        nao3_sale_items: h.nao3_sale_items.map((i: any) => i.id === itemId ? { ...i, is_sold_out: !currentSoldOut } : i)
+      } : h));
+    } catch (err) {
+      alert('품절 상태 업데이트에 실패했습니다.');
+    }
   };
 
+  // 이력 아이템 삭제 (즉시 반영)
+  const handleHistoryDeleteItem = async (pushId: string, itemId: string) => {
+    if (!confirm('정말 삭제하시겠습니까? 즉시 반영됩니다.')) return;
+    try {
+      const { error } = await supabase.from('nao3_sale_items').delete().eq('id', itemId);
+      if (error) throw error;
+      setHistories(prev => prev.map(h => h.id === pushId ? {
+        ...h,
+        item_count: h.item_count - 1,
+        nao3_sale_items: h.nao3_sale_items.filter((i: any) => i.id !== itemId)
+      } : h));
+    } catch (err) {
+      alert('삭제에 실패했습니다.');
+    }
+  };
+
+  // 이력 아이템 수정 (즉시 반영)
+  const handleHistoryEditItem = async (pushId: string, item: any) => {
+    const newName = window.prompt('수정할 상품명을 입력하세요.', item.product_name);
+    if (newName === null) return;
+    const newPrice = window.prompt('수정할 가격을 입력하세요.', item.sale_price);
+    if (newPrice === null) return;
+    const newQty = window.prompt('수정할 중량을 입력하세요.', item.quantity);
+    if (newQty === null) return;
+
+    try {
+      const { error } = await supabase.from('nao3_sale_items')
+        .update({ product_name: newName, sale_price: newPrice, quantity: newQty })
+        .eq('id', item.id);
+      if (error) throw error;
+
+      setHistories(prev => prev.map(h => h.id === pushId ? {
+        ...h,
+        nao3_sale_items: h.nao3_sale_items.map((i: any) => i.id === item.id ? { ...i, product_name: newName, sale_price: newPrice, quantity: newQty } : i)
+      } : h));
+    } catch (err) {
+      alert('수정에 실패했습니다.');
+    }
+  };
   // 최종 전송 버튼
   const handleSave = async () => {
     const validItems = items.filter(item => item.product_name && item.sale_price);
@@ -203,34 +218,19 @@ export default function Nao3Page() {
 
     setLoading(true);
     try {
-      let pushId = activePushId;
-
-      if (pushId) {
-        // 기존 진행 중인 세일 덮어쓰기 (실시간 수정)
-        await supabase.from('nao3_push_history').update({
+      // 새로운 세일 발송
+      const { data: historyData, error: historyError } = await supabase
+        .from('nao3_push_history')
+        .insert([{ 
           item_count: validItems.length,
           sale_start: new Date(saleStart).toISOString(),
           sale_end: new Date(saleEnd).toISOString()
-        }).eq('id', pushId);
+        }])
+        .select()
+        .single();
 
-        // 기존 아이템 삭제
-        await supabase.from('nao3_sale_items').delete().eq('push_id', pushId);
-      } else {
-        // 새로운 세일 발송
-        const { data: historyData, error: historyError } = await supabase
-          .from('nao3_push_history')
-          .insert([{ 
-            item_count: validItems.length,
-            sale_start: new Date(saleStart).toISOString(),
-            sale_end: new Date(saleEnd).toISOString()
-          }])
-          .select()
-          .single();
-
-        if (historyError) throw historyError;
-        pushId = historyData.id;
-        setActivePushId(pushId); // 이제부터 진행 중인 세일로 셋팅
-      }
+      if (historyError) throw historyError;
+      const pushId = historyData.id;
 
       // 발급받은 push_id로 아이템 일괄 Insert
       const dbPayload = validItems.map(item => ({
@@ -452,7 +452,7 @@ export default function Nao3Page() {
       {/* 등록된 품목 리스트 (컴팩트 뷰) */}
       <div className="max-w-2xl mx-auto p-3 pt-4 pb-6">
         <div className="flex justify-between items-end mb-2 px-1">
-          <h3 className="text-sm font-bold text-gray-700">현재 진행 중인 세일 품목</h3>
+          <h3 className="text-sm font-bold text-gray-700">새로운 세일 푸시 등록 대기열</h3>
           <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">
             {currentItems.length}건
           </span>
@@ -466,8 +466,7 @@ export default function Nao3Page() {
         ) : (
           <div className="flex flex-col gap-2">
             {currentItems.map((item) => (
-              <div key={item.id} className={`flex flex-col bg-white rounded-lg border px-3 py-2.5 shadow-sm relative overflow-hidden transition-all ${item.is_sold_out ? 'border-red-200 bg-red-50/30' : 'border-gray-200'}`}>
-                {item.is_sold_out && <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>}
+              <div key={item.id} className={`flex flex-col bg-white rounded-lg border px-3 py-2.5 shadow-sm relative overflow-hidden transition-all border-gray-200`}>
                 
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2 flex-1 min-w-0 pr-2">
@@ -477,20 +476,12 @@ export default function Nao3Page() {
                     <span className="text-[14px] font-bold text-gray-800 truncate">{item.product_name}</span>
                     <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
                   </div>
-                  <span className={`text-[15px] font-black flex-shrink-0 ${item.is_sold_out ? 'text-red-500 line-through' : 'text-[#5F0080]'}`}>
+                  <span className={`text-[15px] font-black flex-shrink-0 text-[#5F0080]`}>
                     {item.sale_price}
                   </span>
                 </div>
 
-                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                  <button 
-                    type="button"
-                    onClick={() => handleToggleSoldOut(item.id)}
-                    className={`text-[11px] font-bold px-3 py-1 rounded-full border transition-colors ${item.is_sold_out ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
-                  >
-                    {item.is_sold_out ? '품절 해제' : '품절 처리'}
-                  </button>
-
+                <div className="flex justify-end items-center pt-2 border-t border-gray-100">
                   <div className="flex gap-1.5">
                     <button 
                       type="button"
@@ -589,13 +580,41 @@ export default function Nao3Page() {
                   <div className="border-t border-gray-100 bg-gray-50/50">
                     {history.nao3_sale_items?.length > 0 ? (
                       history.nao3_sale_items.map((item: any) => (
-                        <div key={item.id} className="flex items-center justify-between py-2 px-4 border-b border-gray-100/50 last:border-0">
-                          <div className="flex items-center gap-2 flex-1 min-w-0 pr-2">
-                            <h4 className="text-[13px] text-gray-700 truncate">{item.product_name}</h4>
-                            <span className="text-[11px] text-gray-500 bg-white border border-gray-200 px-1.5 py-0.5 rounded">{item.quantity}</span>
+                        <div key={item.id} className={`flex flex-col py-3 px-4 border-b border-gray-100/50 last:border-0 ${item.is_sold_out ? 'bg-gray-100/30' : ''}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2 flex-1 min-w-0 pr-2">
+                              <span className="text-[10px] text-[#5F0080] border border-[#5F0080]/20 bg-[#5F0080]/5 px-1 rounded flex-shrink-0">{item.category}</span>
+                              <h4 className={`text-[13px] font-bold truncate ${item.is_sold_out ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{item.product_name}</h4>
+                              <span className="text-[11px] text-gray-500 bg-white border border-gray-200 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <span className={`text-[14px] font-bold ${item.is_sold_out ? 'text-red-400 line-through' : 'text-gray-900'}`}>{item.sale_price}</span>
+                            </div>
                           </div>
-                          <div className="text-right flex-shrink-0">
-                            <span className="text-[14px] font-bold text-gray-900">{item.sale_price}</span>
+                          <div className="flex justify-between items-center">
+                            <button 
+                              type="button"
+                              onClick={() => handleHistoryToggleSoldOut(history.id, item.id, item.is_sold_out)}
+                              className={`text-[11px] font-bold px-3 py-1 rounded-full border transition-colors ${item.is_sold_out ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+                            >
+                              {item.is_sold_out ? '품절 해제' : '품절 처리'}
+                            </button>
+                            <div className="flex gap-1.5">
+                              <button 
+                                type="button"
+                                onClick={() => handleHistoryEditItem(history.id, item)}
+                                className="text-[11px] font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                              >
+                                수정
+                              </button>
+                              <button 
+                                type="button"
+                                onClick={() => handleHistoryDeleteItem(history.id, item.id)}
+                                className="text-[11px] font-bold px-3 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                              >
+                                삭제
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))
