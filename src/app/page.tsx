@@ -154,6 +154,9 @@ export default function Nao3Page() {
       return;
     }
 
+    const rawPrice = newItem.sale_price.replace(/[^0-9]/g, '');
+    const formattedPrice = rawPrice ? parseInt(rawPrice, 10).toLocaleString() + '원' : '';
+
     if (editingHistoryItemId) {
       // 즉시 수정 모드
       try {
@@ -161,7 +164,7 @@ export default function Nao3Page() {
           .update({ 
             product_name: newItem.product_name, 
             quantity: newItem.quantity, 
-            sale_price: newItem.sale_price,
+            sale_price: formattedPrice,
             category: activeTab
           })
           .eq('id', editingHistoryItemId.itemId);
@@ -176,7 +179,7 @@ export default function Nao3Page() {
             category: activeTab,
             product_name: newItem.product_name,
             quantity: newItem.quantity,
-            sale_price: newItem.sale_price
+            sale_price: formattedPrice
           } : i)
         } : h));
         
@@ -192,7 +195,7 @@ export default function Nao3Page() {
         category: activeTab, 
         product_name: newItem.product_name, 
         quantity: newItem.quantity, 
-        sale_price: newItem.sale_price,
+        sale_price: formattedPrice,
         is_sold_out: false
       };
       setItems([...items, insertData]);
@@ -205,7 +208,11 @@ export default function Nao3Page() {
 
   // 수정 기능 (위 폼으로 끌어오기)
   const handleEditItem = (item: any) => {
-    setNewItem({ product_name: item.product_name, quantity: item.quantity, sale_price: item.sale_price });
+    setNewItem({ 
+      product_name: item.product_name, 
+      quantity: item.quantity, 
+      sale_price: item.sale_price.replace(/[^0-9]/g, '') 
+    });
     setActiveTab(item.category);
     handleRemoveItem(item.id); // 폼으로 끌어올리면서 기존 리스트에서는 제거
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -253,7 +260,7 @@ export default function Nao3Page() {
     setNewItem({ 
       product_name: item.product_name, 
       quantity: item.quantity, 
-      sale_price: item.sale_price 
+      sale_price: item.sale_price.replace(/[^0-9]/g, '')
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -605,11 +612,7 @@ export default function Nao3Page() {
                 value={newItem.sale_price}
                 onChange={e => {
                   const raw = e.target.value.replace(/[^0-9]/g, '');
-                  if (!raw) {
-                    setNewItem({...newItem, sale_price: ''});
-                  } else {
-                    setNewItem({...newItem, sale_price: parseInt(raw, 10).toLocaleString() + '원'});
-                  }
+                  setNewItem({...newItem, sale_price: raw});
                 }}
                 className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] font-bold text-[#5F0080] placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
               />
