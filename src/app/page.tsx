@@ -380,10 +380,8 @@ export default function Nao3Page() {
       }
 
       // 3. 성공 후 데이터 갱신
-      setItems([]); // 대기열 초기화
-      setBossMessage(''); // 사장님 이야기 초기화
+      setItems([]); // 대기열 초기화 (상품만 비움, 기간과 멘트는 유지하여 추가 등록 시 삭제 방지)
       localStorage.removeItem('nao3_staging_items');
-      localStorage.removeItem('nao3_boss_message');
       await fetchHistories(); 
       setSubmitted(true);
       
