@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 const CATEGORIES = [
@@ -15,59 +15,73 @@ export default function Nao3Page() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
-  // 단일 입력 폼 상태
   const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '' });
 
-  // 목록에 추가 (유효성 검사 포함)
-  const handleAddItem = (e?: React.FormEvent) => {
+  // 앱 로드 시 DB에서 기존 데이터 불러오기
+  useEffect(() => {
+    const fetchItems = async () => {
+      const { data, error } = await supabase
+        .from('nao3_sale_items')
+        .select('*')
+        .order('created_at', { ascending: true });
+      if (!error && data) {
+        setItems(data);
+      }
+    };
+    fetchItems();
+  }, []);
+
+  // 목록에 추가 (즉시 DB 저장)
+  const handleAddItem = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!newItem.product_name.trim() || !newItem.sale_price.trim()) {
       alert('상품명과 세일 가격은 필수입니다.');
       return;
     }
-    setItems([
-      ...items, 
-      { id: Date.now().toString(), category: activeTab, ...newItem }
-    ]);
-    // 폼 초기화 (연속 입력을 위해)
-    setNewItem({ product_name: '', quantity: '', sale_price: '' });
-  };
 
-  const handleRemoveItem = (id: string) => {
-    setItems(items.filter(item => item.id !== id));
-  };
+    const insertData = { 
+      category: activeTab, 
+      product_name: newItem.product_name, 
+      quantity: newItem.quantity, 
+      sale_price: newItem.sale_price 
+    };
 
-  const handleSave = async () => {
-    const validItems = items.filter(item => item.product_name && item.sale_price);
-    
-    if (validItems.length === 0) {
-      alert('입력된 세일 상품이 없습니다. 최소 1개 이상 입력해주세요.');
+    const { data, error } = await supabase.from('nao3_sale_items').insert([insertData]).select();
+
+    if (error) {
+      if (error.code === '42P01') {
+        alert('Supabase에 테이블이 생성되지 않았습니다. SQL 코드를 먼저 실행해주세요.');
+      } else {
+        alert('DB 저장 오류: ' + error.message);
+      }
       return;
     }
 
-    if (!confirm(`총 ${validItems.length}개의 세일 상품을 등록하시겠습니까?`)) return;
-
-    setLoading(true);
-    try {
-      const { error } = await supabase.from('nao3_sale_items').insert(
-        validItems.map(({ id, ...rest }) => rest)
-      );
-
-      if (error) {
-        if (error.code === '42P01') { 
-          throw new Error('Supabase에 테이블이 생성되지 않았습니다. SQL 코드를 먼저 실행해주세요.');
-        }
-        throw error;
-      }
-      
-      setItems([]);
-      setSubmitted(true);
-    } catch (err: any) {
-      console.error(err);
-      alert(err.message || '저장 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
+    if (data && data.length > 0) {
+      setItems([...items, data[0]]);
     }
+    
+    setNewItem({ product_name: '', quantity: '', sale_price: '' });
+  };
+
+  // 삭제 기능 (즉시 DB 삭제)
+  const handleRemoveItem = async (id: string) => {
+    const { error } = await supabase.from('nao3_sale_items').delete().eq('id', id);
+    if (error) {
+      alert('삭제 중 오류가 발생했습니다.');
+      return;
+    }
+    setItems(items.filter(item => item.id !== id));
+  };
+
+  // 최종 전송 버튼 (이미 DB에 다 있으므로 성공 화면만 전환)
+  const handleSave = async () => {
+    const validItems = items.filter(item => item.product_name && item.sale_price);
+    if (validItems.length === 0) {
+      alert('입력된 세일 상품이 없습니다. 최소 1개 이상 추가해주세요.');
+      return;
+    }
+    setSubmitted(true);
   };
 
   const currentItems = items.filter(item => item.category === activeTab);
