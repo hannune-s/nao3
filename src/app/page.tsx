@@ -285,9 +285,9 @@ export default function Nao3Page() {
   }
 
   return (
-    <main className="bg-[#F9F9F9] min-h-screen pb-10">
-      {/* 상단 고정 영역: 헤더 + 탭 + 입력폼 (단일 sticky) */}
-      <div className="sticky top-0 z-30 bg-white shadow-sm flex flex-col border-b border-gray-200">
+    <main className="bg-[#F9F9F9] min-h-screen pb-32">
+      {/* 상단 영역: 헤더 + 탭 + 입력폼 (스크롤 시 자연스럽게 올라가도록 sticky 제거) */}
+      <div className="bg-white shadow-sm flex flex-col border-b border-gray-200">
         
         {/* 헤더 */}
         <div className="max-w-2xl mx-auto w-full px-4 h-11 flex items-center justify-between border-b border-gray-100">
