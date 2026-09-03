@@ -14,17 +14,23 @@ export default function Nao3Page() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  
+  // 단일 입력 폼 상태
+  const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '' });
 
-  // 현재 탭에 새 상품 추가
-  const handleAddItem = () => {
+  // 목록에 추가 (유효성 검사 포함)
+  const handleAddItem = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newItem.product_name.trim() || !newItem.sale_price.trim()) {
+      alert('상품명과 세일 가격은 필수입니다.');
+      return;
+    }
     setItems([
       ...items, 
-      { id: Date.now().toString(), category: activeTab, product_name: '', quantity: '', sale_price: '' }
+      { id: Date.now().toString(), category: activeTab, ...newItem }
     ]);
-  };
-
-  const handleUpdateItem = (id: string, field: string, value: string) => {
-    setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+    // 폼 초기화 (연속 입력을 위해)
+    setNewItem({ product_name: '', quantity: '', sale_price: '' });
   };
 
   const handleRemoveItem = (id: string) => {
@@ -117,87 +123,92 @@ export default function Nao3Page() {
         </div>
       </header>
 
-      {/* 메인 폼 영역 */}
-      <div className="max-w-2xl mx-auto p-4 pt-6 animate-fade-in-up">
-        
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-800 flex items-center gap-1.5">
-            {CATEGORIES.find(c => c.id === activeTab)?.icon} {activeTab} 품목 입력
-          </h2>
-          <span className="text-xs text-[#5F0080] font-bold bg-[#5F0080]/10 px-3 py-1 rounded-full">
-            현재 탭 {currentItems.length}건
+      {/* 단일 고정 입력 폼 */}
+      <div className="bg-white border-b border-gray-200 sticky top-[96px] z-10 shadow-sm p-4">
+        <div className="max-w-2xl mx-auto flex flex-col gap-3">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-lg">{CATEGORIES.find(c => c.id === activeTab)?.icon}</span>
+            <h2 className="text-[15px] font-bold text-gray-800">{activeTab} 품목 입력</h2>
+          </div>
+          
+          <form onSubmit={handleAddItem} className="flex flex-col gap-2.5">
+            <input 
+              type="text" 
+              placeholder="상품명 (예: 한우 등심 1+ 구이용)"
+              value={newItem.product_name}
+              onChange={e => setNewItem({...newItem, product_name: e.target.value})}
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080]"
+            />
+            <div className="flex gap-2.5">
+              <input 
+                type="text" 
+                placeholder="중량/수량 (예: 300g)"
+                value={newItem.quantity}
+                onChange={e => setNewItem({...newItem, quantity: e.target.value})}
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080]"
+              />
+              <input 
+                type="text" 
+                placeholder="세일 가격 (예: 9,900원)"
+                value={newItem.sale_price}
+                onChange={e => setNewItem({...newItem, sale_price: e.target.value})}
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] font-bold text-[#5F0080] placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080]"
+              />
+            </div>
+            <button 
+              type="submit"
+              className="w-full py-2.5 mt-1 bg-white border border-[#5F0080] text-[#5F0080] font-bold rounded-lg hover:bg-[#5F0080]/5 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <span className="text-lg leading-none">+</span> 추가하기
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* 등록된 품목 리스트 (컴팩트 뷰) */}
+      <div className="max-w-2xl mx-auto p-4 pt-6 pb-6">
+        <div className="flex justify-between items-end mb-3 px-1">
+          <h3 className="text-sm font-bold text-gray-700">추가된 {activeTab} 목록</h3>
+          <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">
+            {currentItems.length}건
           </span>
         </div>
 
-        {/* 품목 카드 리스트 */}
-        <div className="flex flex-col gap-4 mb-6">
-          {currentItems.length === 0 ? (
-            <div className="bg-white p-8 rounded-2xl border border-dashed border-gray-300 text-center text-gray-400 flex flex-col items-center justify-center gap-2">
-              <span className="text-3xl opacity-50">🛒</span>
-              <p className="text-sm">입력된 품목이 없습니다.<br/>아래 버튼을 눌러 추가해주세요.</p>
-            </div>
-          ) : (
-            currentItems.map((item, index) => (
-              <div key={item.id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-1 h-full bg-[#5F0080] opacity-50"></div>
-                
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-[11px] font-bold text-gray-400 bg-gray-50 px-2 py-1 rounded-md">ITEM {index + 1}</span>
-                  <button 
-                    onClick={() => handleRemoveItem(item.id)}
-                    className="text-gray-300 hover:text-red-500 transition-colors p-1"
-                    title="삭제"
-                  >
-                    ✕
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-gray-700">상품명 <span className="text-red-500">*</span></label>
-                    <input 
-                      type="text" 
-                      placeholder="예: 무항생제 한우 등심 구이용"
-                      value={item.product_name}
-                      onChange={e => handleUpdateItem(item.id, 'product_name', e.target.value)}
-                      className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080] transition-colors"
-                    />
+        {currentItems.length === 0 ? (
+          <div className="bg-white py-10 rounded-xl border border-dashed border-gray-300 text-center text-gray-400">
+            <span className="text-2xl opacity-50 block mb-2">📝</span>
+            <p className="text-[13px]">위 폼에서 상품을 입력해 주세요.</p>
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
+            {currentItems.map((item, index) => (
+              <div key={item.id} className="flex items-center justify-between py-3 px-4 border-b border-gray-100 last:border-b-0 group hover:bg-gray-50 transition-colors">
+                <div className="flex flex-col flex-1 min-w-0 pr-3">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                      {index + 1}
+                    </span>
+                    <h4 className="text-[14px] font-bold text-gray-900 truncate">
+                      {item.product_name}
+                    </h4>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-bold text-gray-700">중량/수량 <span className="text-red-500">*</span></label>
-                      <input 
-                        type="text" 
-                        placeholder="예: 300g, 1팩"
-                        value={item.quantity}
-                        onChange={e => handleUpdateItem(item.id, 'quantity', e.target.value)}
-                        className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080] transition-colors"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-bold text-gray-700">세일 가격 <span className="text-red-500">*</span></label>
-                      <input 
-                        type="text" 
-                        placeholder="예: 9,900원"
-                        value={item.sale_price}
-                        onChange={e => handleUpdateItem(item.id, 'sale_price', e.target.value)}
-                        className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-[#5F0080] font-bold focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080] transition-colors placeholder:font-normal placeholder:text-gray-400"
-                      />
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[12px] text-gray-500">{item.quantity}</span>
+                    <span className="text-[11px] text-gray-300">|</span>
+                    <span className="text-[13px] font-extrabold text-[#5F0080]">{item.sale_price}</span>
                   </div>
                 </div>
+                <button 
+                  onClick={() => handleRemoveItem(item.id)}
+                  className="text-gray-300 hover:text-red-500 flex-shrink-0 p-2"
+                  title="삭제"
+                >
+                  ✕
+                </button>
               </div>
-            ))
-          )}
-        </div>
-
-        <button 
-          onClick={handleAddItem}
-          className="w-full py-4 bg-white border border-dashed border-[#5F0080] text-[#5F0080] font-bold rounded-2xl hover:bg-[#5F0080]/5 transition-colors flex items-center justify-center gap-2 shadow-sm"
-        >
-          <span className="text-lg">+</span> {activeTab} 품목 추가하기
-        </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 하단 플로팅 저장 버튼 */}
