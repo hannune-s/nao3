@@ -128,9 +128,9 @@ export default function CustomerSalePage() {
       {bossMessage && (
         <div className="max-w-md mx-auto px-4 pt-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           <div className="relative border border-purple-100 rounded-2xl p-6 bg-white shadow-[0_8px_30px_rgba(95,0,128,0.04)]">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#5F0080]"></span>
-              <h3 className="text-[14px] font-bold text-[#5F0080] tracking-wide">오늘의 사장님 한마디</h3>
+            <div className="flex items-center gap-1.5 mb-3">
+              <span className="text-[#5F0080] text-[16px] leading-none">🌸</span>
+              <h3 className="text-[14px] font-bold text-[#5F0080] tracking-wide">오늘의 사장님 이야기</h3>
             </div>
             <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
               {bossMessage}
