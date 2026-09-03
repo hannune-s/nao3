@@ -1,12 +1,17 @@
 "use client";
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { matchSearch } from '@/lib/hangul';
 
-const CATEGORIES = [
-  { id: '정육', icon: '🥩' },
-  { id: '청과', icon: '🍎' },
-  { id: '야채', icon: '🥬' },
-  { id: '공산품', icon: '🛒' },
+const ITEM_DICT: Record<string, string[]> = {
+  '정육': ['한우 등심', '한우 안심', '한우 국거리', '한우 불고기', '국내산 삼겹살', '국내산 목살', '찌개용 앞다리살', '수육용 삼겹살', '양념 돼지갈비', '닭볶음탕용 생닭', '닭가슴살', '호주산 척아이롤'],
+  '청과': ['사과', '바나나', '제주 감귤', '샤인머스캣', '고당도 수박', '딸기', '성주 참외', '딱딱이 복숭아', '신고배', '방울토마토', '블루베리', '오렌지'],
+  '야채': ['깐마늘', '양파', '대파', '청양고추', '햇감자', '애호박', '상추', '깻잎', '백오이', '당근', '새송이버섯', '팽이버섯', '알배기 배추', '제주 무'],
+  '공산품': ['농심 신라면', '오뚜기 진라면', 'CJ 햇반', '코카콜라', '칠성사이다', '동원참치', '스팸 클래식', '서울우유', '카누 아메리카노', '맥심 모카골드']
+};
+
+const QTY_DICT = [
+  '100g', '200g', '300g', '400g', '500g', '600g(1근)', '800g', '1kg',
+  '1개', '2개', '3개', '5개', '10개', '1팩', '2팩', '1단', '1망', '1봉', '1박스'
 ];
 
 export default function Nao3Page() {
@@ -16,6 +21,20 @@ export default function Nao3Page() {
   const [submitted, setSubmitted] = useState(false);
   
   const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '' });
+
+  // 자동완성 드롭다운 상태
+  const [showNameDropdown, setShowNameDropdown] = useState(false);
+  const [showQtyDropdown, setShowQtyDropdown] = useState(false);
+
+  // 탭 변경 시 폼 초기화
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setNewItem({ product_name: '', quantity: '', sale_price: '' });
+  };
+
+  // 자동완성 필터링 리스트
+  const matchedNames = ITEM_DICT[activeTab]?.filter(name => matchSearch(newItem.product_name, name)) || [];
+  const matchedQtys = QTY_DICT.filter(qty => matchSearch(newItem.quantity, qty));
 
   // 앱 로드 시 로컬 스토리지에서 임시 저장된 데이터 불러오기 (새로고침 방어)
   useEffect(() => {
@@ -69,10 +88,6 @@ export default function Nao3Page() {
 
     setLoading(true);
     try {
-      // 1. 기존 이전 세일 데이터 삭제 (옵션: 항상 최신 세일만 노출하고 싶을 경우)
-      // await supabase.from('nao3_sale_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-
-      // 2. 새 세일 데이터 일괄 Insert (id 필드는 DB가 자동 생성하므로 제외)
       const dbPayload = validItems.map(({ id, ...rest }) => rest);
       const { error } = await supabase.from('nao3_sale_items').insert(dbPayload);
 
@@ -81,7 +96,6 @@ export default function Nao3Page() {
         throw error;
       }
 
-      // 3. 전송 성공 시 화면 초기화 및 피드백
       setItems([]);
       localStorage.removeItem('nao3_staging_items');
       setSubmitted(true);
@@ -137,7 +151,7 @@ export default function Nao3Page() {
           {CATEGORIES.map(cat => (
             <button
               key={cat.id}
-              onClick={() => setActiveTab(cat.id)}
+              onClick={() => handleTabChange(cat.id)}
               className={`flex-1 py-2 text-[12px] font-bold flex flex-col items-center gap-1 relative transition-colors ${
                 activeTab === cat.id ? 'text-[#5F0080]' : 'text-gray-400 hover:text-gray-600'
               }`}
@@ -152,24 +166,63 @@ export default function Nao3Page() {
         {/* 단일 고정 입력 폼 (슬림화) */}
         <div className="max-w-2xl mx-auto w-full p-3 bg-white">
           <form onSubmit={handleAddItem} className="flex flex-col gap-2">
-            <input 
-              type="text" 
-              placeholder="상품명 (예: 한우 등심 1+ 구이용)"
-              value={newItem.product_name}
-              onChange={e => setNewItem({...newItem, product_name: e.target.value})}
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
-            />
-            <div className="flex gap-2">
+            
+            <div className="relative">
               <input 
                 type="text" 
-                placeholder="중량/수량 (예: 300g)"
-                value={newItem.quantity}
-                onChange={e => setNewItem({...newItem, quantity: e.target.value})}
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
+                placeholder="상품명 (초성 검색 지원, 예: ㅎㅇ)"
+                value={newItem.product_name}
+                onFocus={() => setShowNameDropdown(true)}
+                onBlur={() => setTimeout(() => setShowNameDropdown(false), 200)}
+                onChange={e => setNewItem({...newItem, product_name: e.target.value})}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
               />
+              {/* 상품명 자동완성 드롭다운 */}
+              {showNameDropdown && matchedNames.length > 0 && (
+                <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  {matchedNames.map(name => (
+                    <li 
+                      key={name}
+                      onClick={() => setNewItem({...newItem, product_name: name})}
+                      className="px-3 py-2 text-sm text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080] cursor-pointer border-b border-gray-100 last:border-0"
+                    >
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input 
+                  type="text" 
+                  placeholder="중량 (초성 검색)"
+                  value={newItem.quantity}
+                  onFocus={() => setShowQtyDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowQtyDropdown(false), 200)}
+                  onChange={e => setNewItem({...newItem, quantity: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
+                />
+                {/* 중량 자동완성 드롭다운 */}
+                {showQtyDropdown && matchedQtys.length > 0 && (
+                  <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    {matchedQtys.map(qty => (
+                      <li 
+                        key={qty}
+                        onClick={() => setNewItem({...newItem, quantity: qty})}
+                        className="px-3 py-2 text-sm text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080] cursor-pointer border-b border-gray-100 last:border-0"
+                      >
+                        {qty}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              
               <input 
                 type="text" 
-                placeholder="세일 가격 (예: 9,900)"
+                placeholder="세일 가격"
                 value={newItem.sale_price}
                 onChange={e => {
                   const raw = e.target.value.replace(/[^0-9]/g, '');
