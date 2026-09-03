@@ -33,6 +33,8 @@ export default function Nao3Page() {
   // 자동완성 드롭다운 상태
   const [showNameDropdown, setShowNameDropdown] = useState(false);
   const [showQtyDropdown, setShowQtyDropdown] = useState(false);
+  const [nameIdx, setNameIdx] = useState(-1);
+  const [qtyIdx, setQtyIdx] = useState(-1);
 
   // 이력 관리 상태
   const [histories, setHistories] = useState<any[]>([]);
@@ -42,11 +44,26 @@ export default function Nao3Page() {
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     setNewItem({ product_name: '', quantity: '', sale_price: '' });
+    setNameIdx(-1);
+    setQtyIdx(-1);
   };
 
   // 자동완성 필터링 리스트
   const matchedNames = ITEM_DICT[activeTab]?.filter(name => matchSearch(newItem.product_name, name)) || [];
   const matchedQtys = QTY_DICT.filter(qty => matchSearch(newItem.quantity, qty));
+
+  // 방향키 스크롤 포커스 처리
+  useEffect(() => {
+    if (nameIdx >= 0) {
+      document.getElementById('name-item-' + nameIdx)?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [nameIdx]);
+  
+  useEffect(() => {
+    if (qtyIdx >= 0) {
+      document.getElementById('qty-item-' + qtyIdx)?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [qtyIdx]);
 
   // 이력 데이터 불러오기 함수
   const fetchHistories = async () => {
@@ -94,6 +111,8 @@ export default function Nao3Page() {
 
     setItems([...items, insertData]);
     setNewItem({ product_name: '', quantity: '', sale_price: '' });
+    setNameIdx(-1);
+    setQtyIdx(-1);
   };
 
   // 삭제 기능
@@ -208,18 +227,45 @@ export default function Nao3Page() {
                 placeholder="상품명 (초성 검색 지원, 예: ㅎㅇ)"
                 value={newItem.product_name}
                 onFocus={() => setShowNameDropdown(true)}
-                onBlur={() => setTimeout(() => setShowNameDropdown(false), 200)}
-                onChange={e => setNewItem({...newItem, product_name: e.target.value})}
+                onBlur={() => setTimeout(() => { setShowNameDropdown(false); setNameIdx(-1); }, 200)}
+                onChange={e => {
+                  setNewItem({...newItem, product_name: e.target.value});
+                  setNameIdx(-1);
+                  setShowNameDropdown(true);
+                }}
+                onKeyDown={(e) => {
+                  if (!showNameDropdown || matchedNames.length === 0) return;
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setNameIdx(prev => (prev < matchedNames.length - 1 ? prev + 1 : prev));
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setNameIdx(prev => (prev > 0 ? prev - 1 : 0));
+                  } else if (e.key === 'Enter' && nameIdx >= 0) {
+                    e.preventDefault();
+                    setNewItem({...newItem, product_name: matchedNames[nameIdx]});
+                    setShowNameDropdown(false);
+                    setNameIdx(-1);
+                  } else if (e.key === 'Escape') {
+                    setShowNameDropdown(false);
+                  }
+                }}
                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
               />
               {/* 상품명 자동완성 드롭다운 */}
               {showNameDropdown && matchedNames.length > 0 && (
                 <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  {matchedNames.map(name => (
+                  {matchedNames.map((name, index) => (
                     <li 
                       key={name}
-                      onClick={() => setNewItem({...newItem, product_name: name})}
-                      className="px-3 py-2 text-sm text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080] cursor-pointer border-b border-gray-100 last:border-0"
+                      id={`name-item-${index}`}
+                      onClick={() => {
+                        setNewItem({...newItem, product_name: name});
+                        setShowNameDropdown(false);
+                      }}
+                      className={`px-3 py-2 text-sm cursor-pointer border-b border-gray-100 last:border-0 ${
+                        index === nameIdx ? 'bg-[#5F0080]/10 text-[#5F0080] font-bold' : 'text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080]'
+                      }`}
                     >
                       {name}
                     </li>
@@ -235,18 +281,45 @@ export default function Nao3Page() {
                   placeholder="중량 (초성 검색)"
                   value={newItem.quantity}
                   onFocus={() => setShowQtyDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowQtyDropdown(false), 200)}
-                  onChange={e => setNewItem({...newItem, quantity: e.target.value})}
+                  onBlur={() => setTimeout(() => { setShowQtyDropdown(false); setQtyIdx(-1); }, 200)}
+                  onChange={e => {
+                    setNewItem({...newItem, quantity: e.target.value});
+                    setQtyIdx(-1);
+                    setShowQtyDropdown(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (!showQtyDropdown || matchedQtys.length === 0) return;
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      setQtyIdx(prev => (prev < matchedQtys.length - 1 ? prev + 1 : prev));
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      setQtyIdx(prev => (prev > 0 ? prev - 1 : 0));
+                    } else if (e.key === 'Enter' && qtyIdx >= 0) {
+                      e.preventDefault();
+                      setNewItem({...newItem, quantity: matchedQtys[qtyIdx]});
+                      setShowQtyDropdown(false);
+                      setQtyIdx(-1);
+                    } else if (e.key === 'Escape') {
+                      setShowQtyDropdown(false);
+                    }
+                  }}
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
                 />
                 {/* 중량 자동완성 드롭다운 */}
                 {showQtyDropdown && matchedQtys.length > 0 && (
                   <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    {matchedQtys.map(qty => (
+                    {matchedQtys.map((qty, index) => (
                       <li 
                         key={qty}
-                        onClick={() => setNewItem({...newItem, quantity: qty})}
-                        className="px-3 py-2 text-sm text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080] cursor-pointer border-b border-gray-100 last:border-0"
+                        id={`qty-item-${index}`}
+                        onClick={() => {
+                          setNewItem({...newItem, quantity: qty});
+                          setShowQtyDropdown(false);
+                        }}
+                        className={`px-3 py-2 text-sm cursor-pointer border-b border-gray-100 last:border-0 ${
+                          index === qtyIdx ? 'bg-[#5F0080]/10 text-[#5F0080] font-bold' : 'text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080]'
+                        }`}
                       >
                         {qty}
                       </li>
