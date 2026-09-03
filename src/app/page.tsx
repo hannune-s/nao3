@@ -290,10 +290,12 @@ export default function Nao3Page() {
       if (isSamePeriod) {
         // 기존 그룹에 추가 (업데이트)
         pushId = latestPush.id;
-        await supabase.from('nao3_push_history').update({
+        const { error: updateError } = await supabase.from('nao3_push_history').update({
           item_count: latestPush.item_count + validItems.length,
           boss_message: bossMessage.trim() || null
         }).eq('id', pushId);
+        
+        if (updateError) throw updateError;
       } else {
         // 완전히 새로운 기간이므로 새로운 세일 그룹 생성
         const { data: historyData, error: historyError } = await supabase
