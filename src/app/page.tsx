@@ -98,66 +98,69 @@ export default function Nao3Page() {
 
   return (
     <main>
-      {/* 헤더 및 탭 영역 (상단 고정) */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <h1 className="text-xl font-extrabold text-[#5F0080] tracking-tight flex items-center gap-2">
-            Nao3 <span className="text-gray-400 font-normal text-[11px] bg-gray-100 px-2 py-0.5 rounded-full">Sale Push Admin</span>
+      {/* 상단 고정 영역: 헤더 + 탭 + 입력폼 (단일 sticky) */}
+      <div className="sticky top-0 z-30 bg-white shadow-sm flex flex-col border-b border-gray-200">
+        
+        {/* 헤더 */}
+        <div className="max-w-2xl mx-auto w-full px-4 h-11 flex items-center justify-between border-b border-gray-100">
+          <h1 className="text-lg font-extrabold text-[#5F0080] tracking-tight flex items-center gap-2">
+            Nao3 <span className="text-gray-400 font-normal text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Sale Push Admin</span>
           </h1>
         </div>
         
-        <div className="max-w-2xl mx-auto flex">
+        {/* 카테고리 탭 */}
+        <div className="max-w-2xl mx-auto w-full flex border-b border-gray-100">
           {CATEGORIES.map(cat => (
             <button
               key={cat.id}
               onClick={() => setActiveTab(cat.id)}
-              className={`flex-1 pt-3 pb-2 text-[13px] font-bold flex flex-col items-center gap-1.5 relative transition-colors ${
+              className={`flex-1 py-2 text-[12px] font-bold flex flex-col items-center gap-1 relative transition-colors ${
                 activeTab === cat.id ? 'text-[#5F0080]' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              <span className="text-xl leading-none">{cat.icon}</span>
+              <span className="text-lg leading-none">{cat.icon}</span>
               <span>{cat.id}</span>
-              {activeTab === cat.id && <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#5F0080]" />}
+              {activeTab === cat.id && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#5F0080]" />}
             </button>
           ))}
         </div>
-      </header>
 
-      {/* 단일 고정 입력 폼 */}
-      <div className="bg-white border-b border-gray-200 sticky top-[96px] z-10 shadow-sm p-4">
-        <div className="max-w-2xl mx-auto flex flex-col gap-3">
-          <div className="flex items-center gap-1.5 mb-1">
-            <span className="text-lg">{CATEGORIES.find(c => c.id === activeTab)?.icon}</span>
-            <h2 className="text-[15px] font-bold text-gray-800">{activeTab} 품목 입력</h2>
-          </div>
-          
-          <form onSubmit={handleAddItem} className="flex flex-col gap-2.5">
+        {/* 단일 고정 입력 폼 (슬림화) */}
+        <div className="max-w-2xl mx-auto w-full p-3 bg-white">
+          <form onSubmit={handleAddItem} className="flex flex-col gap-2">
             <input 
               type="text" 
               placeholder="상품명 (예: 한우 등심 1+ 구이용)"
               value={newItem.product_name}
               onChange={e => setNewItem({...newItem, product_name: e.target.value})}
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080]"
+              className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
             />
-            <div className="flex gap-2.5">
+            <div className="flex gap-2">
               <input 
                 type="text" 
                 placeholder="중량/수량 (예: 300g)"
                 value={newItem.quantity}
                 onChange={e => setNewItem({...newItem, quantity: e.target.value})}
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080]"
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
               />
               <input 
                 type="text" 
-                placeholder="세일 가격 (예: 9,900원)"
+                placeholder="세일 가격 (예: 9,900)"
                 value={newItem.sale_price}
-                onChange={e => setNewItem({...newItem, sale_price: e.target.value})}
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 text-[14px] font-bold text-[#5F0080] placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-1 focus:ring-[#5F0080] focus:border-[#5F0080]"
+                onChange={e => {
+                  const raw = e.target.value.replace(/[^0-9]/g, '');
+                  if (!raw) {
+                    setNewItem({...newItem, sale_price: ''});
+                  } else {
+                    setNewItem({...newItem, sale_price: parseInt(raw, 10).toLocaleString() + '원'});
+                  }
+                }}
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] font-bold text-[#5F0080] placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
               />
             </div>
             <button 
               type="submit"
-              className="w-full py-2.5 mt-1 bg-white border border-[#5F0080] text-[#5F0080] font-bold rounded-lg hover:bg-[#5F0080]/5 transition-colors flex items-center justify-center gap-1.5"
+              className="w-full py-2 bg-white border border-[#5F0080] text-[#5F0080] font-bold rounded-lg hover:bg-[#5F0080]/5 transition-colors flex items-center justify-center gap-1.5"
             >
               <span className="text-lg leading-none">+</span> 추가하기
             </button>
@@ -166,8 +169,8 @@ export default function Nao3Page() {
       </div>
 
       {/* 등록된 품목 리스트 (컴팩트 뷰) */}
-      <div className="max-w-2xl mx-auto p-4 pt-6 pb-6">
-        <div className="flex justify-between items-end mb-3 px-1">
+      <div className="max-w-2xl mx-auto p-3 pt-4 pb-6">
+        <div className="flex justify-between items-end mb-2 px-1">
           <h3 className="text-sm font-bold text-gray-700">추가된 {activeTab} 목록</h3>
           <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">
             {currentItems.length}건
@@ -175,31 +178,31 @@ export default function Nao3Page() {
         </div>
 
         {currentItems.length === 0 ? (
-          <div className="bg-white py-10 rounded-xl border border-dashed border-gray-300 text-center text-gray-400">
+          <div className="bg-white py-8 rounded-xl border border-dashed border-gray-300 text-center text-gray-400">
             <span className="text-2xl opacity-50 block mb-2">📝</span>
-            <p className="text-[13px]">위 폼에서 상품을 입력해 주세요.</p>
+            <p className="text-[12px]">위 폼에서 상품을 입력해 주세요.</p>
           </div>
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
             {currentItems.map((item, index) => (
               <div key={item.id} className="flex items-center justify-between py-2.5 px-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
                 
-                {/* 좌측: 번호, 상품명, 중량 (가로 한 줄 배치) */}
-                <div className="flex items-center flex-1 min-w-0 pr-2 gap-2">
-                  <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">
-                    {index + 1}
-                  </span>
-                  <h4 className="text-[15px] font-bold text-gray-900 truncate">
-                    {item.product_name}
-                  </h4>
-                  <span className="text-[11px] text-gray-500 whitespace-nowrap flex-shrink-0">
+                {/* 좌측: 상품명 (위) + 중량 (아래) */}
+                <div className="flex flex-col flex-1 min-w-0 pr-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[9px] font-bold text-gray-400 w-3 text-center shrink-0">{index + 1}</span>
+                    <h4 className="text-[15px] font-bold text-gray-900 truncate">
+                      {item.product_name}
+                    </h4>
+                  </div>
+                  <span className="text-[13px] font-bold text-gray-600 pl-4 mt-0.5">
                     {item.quantity}
                   </span>
                 </div>
 
-                {/* 우측: 가격, 삭제버튼 */}
+                {/* 우측: 가격 (콤마, 폰트 키움), 삭제버튼 */}
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className="text-[15px] font-extrabold text-[#5F0080] tracking-tight">
+                  <span className="text-[17px] font-extrabold text-[#5F0080] tracking-tight">
                     {item.sale_price}
                   </span>
                   <button 
