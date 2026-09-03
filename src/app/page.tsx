@@ -452,7 +452,7 @@ export default function Nao3Page() {
       {/* 등록된 품목 리스트 (컴팩트 뷰) */}
       <div className="max-w-2xl mx-auto p-3 pt-4 pb-6">
         <div className="flex justify-between items-end mb-2 px-1">
-          <h3 className="text-sm font-bold text-gray-700">전체 등록 대기열</h3>
+          <h3 className="text-sm font-bold text-gray-700">[현재 진행 중인 세일 품목]</h3>
           <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">
             {currentItems.length}건
           </span>
