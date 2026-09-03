@@ -257,6 +257,44 @@ export default function Nao3Page() {
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // 기간 및 사장님 이야기 즉시 반영 버튼
+  const handleQuickSaveSettings = async () => {
+    if (!saleStart || !saleEnd) {
+      alert('세일 시작일과 종료일을 입력해주세요.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data: latestPush } = await supabase
+        .from('nao3_push_history')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      const newStart = new Date(saleStart).toISOString();
+      const newEnd = new Date(saleEnd).toISOString();
+
+      if (latestPush) {
+        const { error } = await supabase.from('nao3_push_history').update({
+          sale_start: newStart,
+          sale_end: newEnd,
+          boss_message: bossMessage.trim() || null
+        }).eq('id', latestPush.id);
+        
+        if (error) throw error;
+        alert('진행 중인 세일에 기간과 사장님 이야기가 즉시 반영되었습니다!');
+      } else {
+        alert('아직 등록된 세일 내역이 없습니다. 먼저 상품과 함께 하단 버튼으로 등록해주세요.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert('DB 저장 오류: ' + (err.message || '테이블 및 컬럼 생성을 확인해주세요.'));
+    } finally {
+      setLoading(false);
+    }
+  };
   // 최종 전송 버튼
   const handleSave = async () => {
     const validItems = items.filter(item => item.product_name && item.sale_price);
@@ -407,8 +445,8 @@ export default function Nao3Page() {
           </div>
           
           {/* 2단: 사장님 이야기 */}
-          <div>
-            <h3 className="text-[13px] font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+          <div className="flex flex-col gap-2">
+            <h3 className="text-[13px] font-bold text-gray-800 flex items-center gap-1.5">
               🌸 오늘의 사장님 이야기
             </h3>
             <textarea
@@ -417,6 +455,13 @@ export default function Nao3Page() {
               placeholder="예: 어머님들~ 오늘 들어온 한우 너무 좋습니다! 언능 나오세요~"
               className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-[13px] text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#5F0080] min-h-[60px] resize-y placeholder:text-gray-400"
             />
+            <button
+              onClick={handleQuickSaveSettings}
+              disabled={loading}
+              className="w-full py-2 bg-purple-50 text-[#5F0080] border border-purple-100 hover:bg-purple-100 font-bold rounded-lg transition-colors text-[13px]"
+            >
+              기간 및 멘트만 즉시 반영하기
+            </button>
           </div>
         </div>
         
