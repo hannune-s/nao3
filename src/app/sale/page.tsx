@@ -147,7 +147,7 @@ export default function CustomerSalePage() {
                         {/* 좌측: 상품명 & 중량 */}
                         <div className="flex items-center flex-1 min-w-0 gap-2 pr-2">
                           {item.is_sold_out && (
-                            <span className="text-[11px] font-black text-red-600 border border-red-600 px-1.5 py-0.5 rounded shrink-0 leading-none">
+                            <span className="text-[13px] font-black text-white bg-red-600 px-2.5 py-1 rounded-md shrink-0 leading-none shadow-sm tracking-widest">
                               품절
                             </span>
                           )}
