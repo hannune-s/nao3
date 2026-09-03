@@ -17,22 +17,25 @@ export default function Nao3Page() {
   
   const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '' });
 
-  // 앱 로드 시 DB에서 기존 데이터 불러오기
+  // 앱 로드 시 로컬 스토리지에서 임시 저장된 데이터 불러오기 (새로고침 방어)
   useEffect(() => {
-    const fetchItems = async () => {
-      const { data, error } = await supabase
-        .from('nao3_sale_items')
-        .select('*')
-        .order('created_at', { ascending: true });
-      if (!error && data) {
-        setItems(data);
+    const saved = localStorage.getItem('nao3_staging_items');
+    if (saved) {
+      try {
+        setItems(JSON.parse(saved));
+      } catch (e) {
+        console.error('Failed to parse local items', e);
       }
-    };
-    fetchItems();
+    }
   }, []);
 
-  // 목록에 추가 (즉시 DB 저장)
-  const handleAddItem = async (e?: React.FormEvent) => {
+  // items 상태가 변경될 때마다 로컬 스토리지 업데이트
+  useEffect(() => {
+    localStorage.setItem('nao3_staging_items', JSON.stringify(items));
+  }, [items]);
+
+  // 목록에 추가 (메모리 & 로컬스토리지 임시 저장)
+  const handleAddItem = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!newItem.product_name.trim() || !newItem.sale_price.trim()) {
       alert('상품명과 세일 가격은 필수입니다.');
@@ -40,48 +43,55 @@ export default function Nao3Page() {
     }
 
     const insertData = { 
+      id: Date.now().toString(),
       category: activeTab, 
       product_name: newItem.product_name, 
       quantity: newItem.quantity, 
       sale_price: newItem.sale_price 
     };
 
-    const { data, error } = await supabase.from('nao3_sale_items').insert([insertData]).select();
-
-    if (error) {
-      if (error.code === '42P01') {
-        alert('Supabase에 테이블이 생성되지 않았습니다. SQL 코드를 먼저 실행해주세요.');
-      } else {
-        alert('DB 저장 오류: ' + error.message);
-      }
-      return;
-    }
-
-    if (data && data.length > 0) {
-      setItems([...items, data[0]]);
-    }
-    
+    setItems([...items, insertData]);
     setNewItem({ product_name: '', quantity: '', sale_price: '' });
   };
 
-  // 삭제 기능 (즉시 DB 삭제)
-  const handleRemoveItem = async (id: string) => {
-    const { error } = await supabase.from('nao3_sale_items').delete().eq('id', id);
-    if (error) {
-      alert('삭제 중 오류가 발생했습니다.');
-      return;
-    }
+  // 삭제 기능
+  const handleRemoveItem = (id: string) => {
     setItems(items.filter(item => item.id !== id));
   };
 
-  // 최종 전송 버튼 (이미 DB에 다 있으므로 성공 화면만 전환)
+  // 최종 전송 버튼 (DB에 일괄 전송 후 초기화)
   const handleSave = async () => {
     const validItems = items.filter(item => item.product_name && item.sale_price);
     if (validItems.length === 0) {
       alert('입력된 세일 상품이 없습니다. 최소 1개 이상 추가해주세요.');
       return;
     }
-    setSubmitted(true);
+
+    setLoading(true);
+    try {
+      // 1. 기존 이전 세일 데이터 삭제 (옵션: 항상 최신 세일만 노출하고 싶을 경우)
+      // await supabase.from('nao3_sale_items').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+      // 2. 새 세일 데이터 일괄 Insert (id 필드는 DB가 자동 생성하므로 제외)
+      const dbPayload = validItems.map(({ id, ...rest }) => rest);
+      const { error } = await supabase.from('nao3_sale_items').insert(dbPayload);
+
+      if (error) {
+        if (error.code === '42P01') throw new Error('Supabase에 테이블이 생성되지 않았습니다.');
+        throw error;
+      }
+
+      // 3. 전송 성공 시 화면 초기화 및 피드백
+      setItems([]);
+      localStorage.removeItem('nao3_staging_items');
+      setSubmitted(true);
+      
+    } catch (err: any) {
+      console.error(err);
+      alert('DB 저장 오류: ' + (err.message || '알 수 없는 오류가 발생했습니다.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const currentItems = items.filter(item => item.category === activeTab);
