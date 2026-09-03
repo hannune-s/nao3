@@ -114,14 +114,14 @@ export default function CustomerSalePage() {
       </div>
 
       {/* 세일 품목 리스트 */}
-      <div className="max-w-md mx-auto px-4 py-6">
+      <div className="max-w-md mx-auto px-3 py-4">
         {items.length === 0 ? (
           <div className="text-center py-12 text-gray-400">
             <span className="text-4xl block mb-3 opacity-50">😲</span>
             <p>현재 진행 중인 세일 행사가 없습니다.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
             {categoryOrder.map(cat => {
               const catItems = groupedItems[cat.id];
               if (!catItems || catItems.length === 0) return null;
@@ -130,38 +130,38 @@ export default function CustomerSalePage() {
                 <section key={cat.id} className="animate-fade-in-up">
                   
                   {/* 세련된 카테고리 헤더 */}
-                  <div className="flex items-center gap-2.5 mb-3 px-1">
-                    <span className="text-2xl bg-white p-2 rounded-2xl shadow-sm border border-gray-100 leading-none flex items-center justify-center">
+                  <div className="flex items-center gap-2 mb-2 px-1">
+                    <span className="text-xl bg-white p-1.5 rounded-xl shadow-sm border border-gray-100 leading-none flex items-center justify-center">
                       {cat.icon}
                     </span>
-                    <h3 className="text-[19px] font-extrabold text-gray-900 tracking-tight">
+                    <h3 className="text-[17px] font-extrabold text-gray-900 tracking-tight">
                       {cat.id} <span className="text-[#5F0080]">특가</span>
                     </h3>
                   </div>
                   
-                  {/* 리스트 카드 (컴팩트 1단 레이아웃) */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-1.5 flex flex-col">
+                  {/* 리스트 카드 (초밀착 1단 레이아웃) */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 px-3 py-1 flex flex-col">
                     {catItems.map((item) => (
-                      <div key={item.id} className={`flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 gap-2 transition-all ${item.is_sold_out ? 'opacity-60 bg-gray-50 -mx-4 px-4' : ''}`}>
+                      <div key={item.id} className={`flex items-center justify-between py-2.5 border-b border-gray-100 last:border-b-0 gap-2 transition-all ${item.is_sold_out ? 'opacity-60 bg-gray-50 -mx-3 px-3' : ''}`}>
                         
                         {/* 좌측: 상품명 & 중량 */}
-                        <div className="flex items-center flex-1 min-w-0 gap-2 pr-2">
+                        <div className="flex items-center flex-1 min-w-0 gap-2 pr-1">
                           {item.is_sold_out && (
-                            <span className="text-[13px] font-black text-white bg-red-600 px-2.5 py-1 rounded-md shrink-0 leading-none shadow-sm tracking-widest">
+                            <span className="text-[12px] font-black text-white bg-red-600 px-2 py-0.5 rounded-md shrink-0 leading-none shadow-sm tracking-widest">
                               품절
                             </span>
                           )}
-                          <h4 className={`text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-[55%] ${item.is_sold_out ? 'line-through text-gray-500' : ''}`}>
+                          <h4 className={`text-[15px] font-bold text-gray-900 truncate shrink-0 max-w-[55%] ${item.is_sold_out ? 'line-through text-gray-500' : ''}`}>
                             {item.product_name}
                           </h4>
-                          <span className={`text-[13px] font-extrabold px-2 py-0.5 rounded-md truncate shrink-0 ${item.is_sold_out ? 'bg-gray-200 text-gray-500' : 'bg-[#5F0080]/10 text-[#5F0080]'}`}>
+                          <span className={`text-[12px] font-extrabold px-1.5 py-0.5 rounded-md truncate shrink-0 ${item.is_sold_out ? 'bg-gray-200 text-gray-500' : 'bg-[#5F0080]/10 text-[#5F0080]'}`}>
                             {item.quantity}
                           </span>
                         </div>
                         
                         {/* 우측: 시선 강탈 가격 */}
                         <div className="text-right flex-shrink-0 flex flex-col items-end">
-                          <span className={`text-[19px] font-black tracking-tight ${item.is_sold_out ? 'text-gray-400 line-through decoration-red-500 decoration-2' : 'text-[#5F0080]'}`}>
+                          <span className={`text-[17px] font-black tracking-tight ${item.is_sold_out ? 'text-gray-400 line-through decoration-red-500 decoration-2' : 'text-[#5F0080]'}`}>
                             {item.sale_price}
                           </span>
                         </div>
