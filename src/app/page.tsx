@@ -1,6 +1,14 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { matchSearch } from '@/lib/hangul';
+import { supabase } from '@/lib/supabase';
+
+const CATEGORIES = [
+  { id: '정육', icon: '🥩' },
+  { id: '청과', icon: '🍎' },
+  { id: '야채', icon: '🥬' },
+  { id: '공산품', icon: '🛒' },
+];
 
 const ITEM_DICT: Record<string, string[]> = {
   '정육': ['한우 등심', '한우 안심', '한우 국거리', '한우 불고기', '국내산 삼겹살', '국내산 목살', '찌개용 앞다리살', '수육용 삼겹살', '양념 돼지갈비', '닭볶음탕용 생닭', '닭가슴살', '호주산 척아이롤'],
