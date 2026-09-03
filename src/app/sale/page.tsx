@@ -142,17 +142,16 @@ export default function CustomerSalePage() {
                   {/* 리스트 카드 (컴팩트 1단 레이아웃) */}
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-1.5 flex flex-col">
                     {catItems.map((item) => (
-                      <div key={item.id} className={`flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 gap-2 relative ${item.is_sold_out ? 'opacity-40 grayscale' : ''}`}>
+                      <div key={item.id} className={`flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 gap-2 relative transition-all ${item.is_sold_out ? 'opacity-40 grayscale' : ''}`}>
                         
-                        {item.is_sold_out && (
-                          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 -rotate-12 bg-red-600 text-white font-black text-xl px-4 py-1 border-2 border-white rounded shadow-lg tracking-widest whitespace-nowrap">
-                            SOLD OUT
-                          </div>
-                        )}
-
                         {/* 좌측: 상품명 & 중량 (가로 나란히) */}
                         <div className="flex items-center flex-1 min-w-0 gap-2 pr-2">
-                          <h4 className="text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-[60%]">
+                          {item.is_sold_out && (
+                            <span className="text-[14px] font-black text-red-600 shrink-0 tracking-widest">
+                              품절
+                            </span>
+                          )}
+                          <h4 className="text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-[50%]">
                             {item.product_name}
                           </h4>
                           <span className="text-[13px] font-extrabold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-md truncate shrink-0">
