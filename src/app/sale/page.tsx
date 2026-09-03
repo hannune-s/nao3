@@ -18,14 +18,27 @@ export default function CustomerSalePage() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        // 최신 등록순으로 데이터 가져오기
-        const { data, error } = await supabase
-          .from('nao3_sale_items')
-          .select('*')
-          .order('created_at', { ascending: false });
+        // 1. 가장 최근의 발송 이력(push_id) 가져오기
+        const { data: latestPush, error: pushError } = await supabase
+          .from('nao3_push_history')
+          .select('id')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
 
-        if (error) throw error;
-        if (data) setItems(data);
+        if (pushError && pushError.code !== 'PGRST116') throw pushError;
+
+        if (latestPush) {
+          // 2. 해당 push_id에 속한 아이템만 가져오기
+          const { data, error } = await supabase
+            .from('nao3_sale_items')
+            .select('*')
+            .eq('push_id', latestPush.id)
+            .order('created_at', { ascending: true });
+
+          if (error) throw error;
+          if (data) setItems(data);
+        }
       } catch (error) {
         console.error('Failed to fetch sale items', error);
       } finally {

@@ -34,6 +34,10 @@ export default function Nao3Page() {
   const [showNameDropdown, setShowNameDropdown] = useState(false);
   const [showQtyDropdown, setShowQtyDropdown] = useState(false);
 
+  // 이력 관리 상태
+  const [histories, setHistories] = useState<any[]>([]);
+  const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
+
   // 탭 변경 시 폼 초기화
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
@@ -44,16 +48,27 @@ export default function Nao3Page() {
   const matchedNames = ITEM_DICT[activeTab]?.filter(name => matchSearch(newItem.product_name, name)) || [];
   const matchedQtys = QTY_DICT.filter(qty => matchSearch(newItem.quantity, qty));
 
-  // 앱 로드 시 로컬 스토리지에서 임시 저장된 데이터 불러오기 (새로고침 방어)
+  // 이력 데이터 불러오기 함수
+  const fetchHistories = async () => {
+    const { data, error } = await supabase
+      .from('nao3_push_history')
+      .select('*, nao3_sale_items(*)')
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      setHistories(data);
+    }
+  };
+
+  // 앱 로드 시 데이터 초기화
   useEffect(() => {
+    // 1. 임시 저장된 현재 작업 내역 로드
     const saved = localStorage.getItem('nao3_staging_items');
     if (saved) {
-      try {
-        setItems(JSON.parse(saved));
-      } catch (e) {
-        console.error('Failed to parse local items', e);
-      }
+      try { setItems(JSON.parse(saved)); } catch (e) { console.error(e); }
     }
+    // 2. 지난 발송 이력 로드
+    fetchHistories();
   }, []);
 
   // items 상태가 변경될 때마다 로컬 스토리지 업데이트
@@ -86,7 +101,7 @@ export default function Nao3Page() {
     setItems(items.filter(item => item.id !== id));
   };
 
-  // 최종 전송 버튼 (DB에 일괄 전송 후 초기화)
+  // 최종 전송 버튼 (History 기록 -> Items 기록 -> 초기화)
   const handleSave = async () => {
     const validItems = items.filter(item => item.product_name && item.sale_price);
     if (validItems.length === 0) {
@@ -96,21 +111,33 @@ export default function Nao3Page() {
 
     setLoading(true);
     try {
-      const dbPayload = validItems.map(({ id, ...rest }) => rest);
-      const { error } = await supabase.from('nao3_sale_items').insert(dbPayload);
+      // 1. 발송 이력(History) 레코드 생성
+      const { data: historyData, error: historyError } = await supabase
+        .from('nao3_push_history')
+        .insert([{ item_count: validItems.length }])
+        .select()
+        .single();
 
-      if (error) {
-        if (error.code === '42P01') throw new Error('Supabase에 테이블이 생성되지 않았습니다.');
-        throw error;
-      }
+      if (historyError) throw historyError;
 
+      // 2. 발급받은 history_id(push_id)를 포함하여 아이템 일괄 Insert
+      const dbPayload = validItems.map(({ id, ...rest }) => ({
+        ...rest,
+        push_id: historyData.id
+      }));
+
+      const { error: itemsError } = await supabase.from('nao3_sale_items').insert(dbPayload);
+      if (itemsError) throw itemsError;
+
+      // 3. 성공 후 초기화 및 데이터 갱신
       setItems([]);
       localStorage.removeItem('nao3_staging_items');
+      await fetchHistories(); // 업데이트된 이력 다시 불러오기
       setSubmitted(true);
       
     } catch (err: any) {
       console.error(err);
-      alert('DB 저장 오류: ' + (err.message || '알 수 없는 오류가 발생했습니다.'));
+      alert('DB 저장 오류: ' + (err.message || '테이블 생성을 확인해주세요.'));
     } finally {
       setLoading(false);
     }
@@ -128,8 +155,8 @@ export default function Nao3Page() {
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2">등록이 완료되었습니다</h2>
           <p className="text-gray-500 mb-8 text-sm leading-relaxed">
-            세일 품목이 성공적으로 데이터베이스에 저장되었습니다.<br/>
-            추후 세일 템플릿 배너와 연동될 예정입니다.
+            세일 품목이 성공적으로 발송 이력에 저장되었습니다.<br/>
+            고객 페이지에 최신 전단지가 즉시 반영됩니다.
           </p>
           <button 
             onClick={() => setSubmitted(false)}
@@ -143,7 +170,7 @@ export default function Nao3Page() {
   }
 
   return (
-    <main>
+    <main className="bg-[#F9F9F9] min-h-screen pb-10">
       {/* 상단 고정 영역: 헤더 + 탭 + 입력폼 (단일 sticky) */}
       <div className="sticky top-0 z-30 bg-white shadow-sm flex flex-col border-b border-gray-200">
         
@@ -317,6 +344,62 @@ export default function Nao3Page() {
           >
             {loading ? '저장 중...' : '세일 푸시 등록 완료'}
           </button>
+        </div>
+      </div>
+
+      {/* 발송 이력 섹션 */}
+      <div className="max-w-2xl mx-auto p-3 pt-6">
+        <h3 className="text-sm font-bold text-gray-700 mb-3 px-1 flex items-center gap-1.5">
+          🕒 지난 세일 발송 내역
+        </h3>
+        
+        <div className="flex flex-col gap-3">
+          {histories.map(history => {
+            const dateObj = new Date(history.created_at);
+            const dateStr = `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')} ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+            const isExpanded = expandedHistory === history.id;
+            
+            return (
+              <div key={history.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <button 
+                  onClick={() => setExpandedHistory(isExpanded ? null : history.id)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-[14px] font-bold text-gray-800">{dateStr} 발송</span>
+                    <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">{history.item_count}건</span>
+                  </div>
+                  <span className={`text-gray-400 text-sm transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+                
+                {isExpanded && (
+                  <div className="border-t border-gray-100 bg-gray-50/50">
+                    {history.nao3_sale_items?.length > 0 ? (
+                      history.nao3_sale_items.map((item: any) => (
+                        <div key={item.id} className="flex items-center justify-between py-2 px-4 border-b border-gray-100/50 last:border-0">
+                          <div className="flex items-center gap-2 flex-1 min-w-0 pr-2">
+                            <h4 className="text-[13px] text-gray-700 truncate">{item.product_name}</h4>
+                            <span className="text-[11px] text-gray-500 bg-white border border-gray-200 px-1.5 py-0.5 rounded">{item.quantity}</span>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <span className="text-[14px] font-bold text-gray-900">{item.sale_price}</span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-sm text-gray-400">상세 품목 데이터가 없습니다.</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          
+          {histories.length === 0 && (
+            <div className="text-center py-8 text-gray-400 text-sm border border-dashed border-gray-300 rounded-xl bg-white">
+              아직 발송된 내역이 없습니다.
+            </div>
+          )}
         </div>
       </div>
     </main>
