@@ -17,6 +17,7 @@ export default function CustomerSalePage() {
   const [loading, setLoading] = useState(true);
   const [isEnded, setIsEnded] = useState(false);
   const [periodText, setPeriodText] = useState('');
+  const [bossMessage, setBossMessage] = useState('');
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -24,7 +25,7 @@ export default function CustomerSalePage() {
         // 1. 가장 최근의 발송 이력(push_id) 가져오기
         const { data: latestPush, error: pushError } = await supabase
           .from('nao3_push_history')
-          .select('id, sale_start, sale_end')
+          .select('id, sale_start, sale_end, boss_message')
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
@@ -39,8 +40,12 @@ export default function CustomerSalePage() {
             const start = new Date(latestPush.sale_start);
             setIsEnded(now > end);
             
-            const format = (d: Date) => `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-            setPeriodText(`${format(start)} ~ ${format(end)}`);
+            const format = (d: Date) => `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}.`;
+            setPeriodText(`행사 기간 ${format(start)} ~ ${format(end)}`);
+          }
+
+          if (latestPush.boss_message) {
+            setBossMessage(latestPush.boss_message);
           }
 
           if (!latestPush.sale_end || new Date() <= new Date(latestPush.sale_end)) {
@@ -105,13 +110,37 @@ export default function CustomerSalePage() {
   return (
     <main className="min-h-screen bg-[#F9F9F9] pb-24 font-sans">
       {/* 메인 히어로 배너 */}
-      <div className="bg-[#5F0080] text-white px-4 py-10 text-center relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#FF4B6A] to-[#FF6B6B] text-white px-4 py-8 text-center relative overflow-hidden rounded-b-[2rem] shadow-sm">
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <h2 className="text-2xl font-extrabold mb-2 relative z-10 animate-fade-in-up">오늘의 특가 찬스!</h2>
-        <p className="text-sm text-purple-200 relative z-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          푸시 알림을 받고 오신 고객님을 위한 한정 세일
+        <div className="inline-block bg-black/10 text-white text-[11px] font-bold px-3 py-1 rounded-full mb-3 relative z-10 animate-fade-in-up">
+          🚨 긴급 할인 특가!
+        </div>
+        <h2 className="text-2xl font-extrabold mb-1 relative z-10 animate-fade-in-up text-shadow-sm">사장님이 방금 띄운 특가 🧾</h2>
+        <p className="text-[13px] text-white/90 relative z-10 animate-fade-in-up font-medium mb-4" style={{ animationDelay: '0.1s' }}>
+          선착순 한정 수량! 원하시는 상품을 담아주세요.
         </p>
+        
+        {periodText && (
+          <div className="inline-block bg-white text-[#FF4B6A] font-extrabold text-[13px] px-5 py-2 rounded-full shadow-sm relative z-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            {periodText}
+          </div>
+        )}
       </div>
+
+      {/* 오늘의 사장님 이야기 */}
+      {bossMessage && (
+        <div className="max-w-md mx-auto px-4 pt-6 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          <div className="relative border-2 border-[#5F0080] rounded-xl p-5 bg-white shadow-sm mt-2">
+            <div className="absolute -top-3.5 left-4 bg-[#F9F9F9] px-2 flex items-center gap-1.5">
+              <span className="text-[#FF4B6A] text-lg">🌸</span>
+              <h3 className="text-[15px] font-bold text-gray-800">오늘의 사장님 이야기</h3>
+            </div>
+            <p className="text-[14.5px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
+              {bossMessage}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* 세일 품목 리스트 */}
       <div className="max-w-md mx-auto px-3 py-4">

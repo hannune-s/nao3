@@ -40,9 +40,10 @@ export default function Nao3Page() {
   const [histories, setHistories] = useState<any[]>([]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
-  // 세일 진행 기간 상태
+  // 세일 진행 기간 및 사장님 이야기 상태
   const [saleStart, setSaleStart] = useState('');
   const [saleEnd, setSaleEnd] = useState('');
+  const [bossMessage, setBossMessage] = useState('');
 
   // 탭 변경 시 폼 초기화
   const handleTabChange = (tabId: string) => {
@@ -99,6 +100,11 @@ export default function Nao3Page() {
       if (saved) {
         try { setItems(JSON.parse(saved)); } catch (e) { console.error(e); }
       }
+
+      const savedBossMsg = localStorage.getItem('nao3_boss_message');
+      if (savedBossMsg) {
+        setBossMessage(savedBossMsg);
+      }
       
       if (!saleStart) setSaleStart(toLocalStr(now));
       const tmrw = new Date(now);
@@ -112,10 +118,14 @@ export default function Nao3Page() {
     loadInitData();
   }, []);
 
-  // items 상태가 변경될 때마다 로컬 스토리지 업데이트
+  // items, bossMessage 상태가 변경될 때마다 로컬 스토리지 업데이트
   useEffect(() => {
     localStorage.setItem('nao3_staging_items', JSON.stringify(items));
   }, [items]);
+
+  useEffect(() => {
+    localStorage.setItem('nao3_boss_message', bossMessage);
+  }, [bossMessage]);
 
   // 목록에 추가 또는 즉시 수정
   const handleAddItem = async (e?: React.FormEvent) => {
@@ -249,7 +259,8 @@ export default function Nao3Page() {
         .insert([{ 
           item_count: validItems.length,
           sale_start: new Date(saleStart).toISOString(),
-          sale_end: new Date(saleEnd).toISOString()
+          sale_end: new Date(saleEnd).toISOString(),
+          boss_message: bossMessage.trim() || null
         }])
         .select()
         .single();
@@ -272,7 +283,9 @@ export default function Nao3Page() {
 
       // 3. 성공 후 데이터 갱신
       setItems([]); // 대기열 초기화
+      setBossMessage(''); // 사장님 이야기 초기화
       localStorage.removeItem('nao3_staging_items');
+      localStorage.removeItem('nao3_boss_message');
       await fetchHistories(); 
       setSubmitted(true);
       
@@ -546,29 +559,43 @@ export default function Nao3Page() {
 
         {/* 세일 기간 설정 UI */}
         {currentItems.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mt-4">
-            <h3 className="text-[14px] font-bold text-gray-800 mb-3 flex items-center gap-1.5">
-              🗓️ 이번 세일 진행 기간
-            </h3>
-            <div className="flex flex-col gap-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-bold text-gray-600">시작일시</span>
-                <input 
-                  type="datetime-local" 
-                  value={saleStart} 
-                  onChange={e => setSaleStart(e.target.value)} 
-                  className="text-[13px] font-bold text-[#5F0080] border border-gray-200 px-2 py-1.5 rounded bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#5F0080]" 
-                />
+          <div className="flex flex-col gap-4 mt-4">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+              <h3 className="text-[14px] font-bold text-gray-800 mb-3 flex items-center gap-1.5">
+                🗓️ 이번 세일 진행 기간
+              </h3>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-bold text-gray-600">시작일시</span>
+                  <input 
+                    type="datetime-local" 
+                    value={saleStart} 
+                    onChange={e => setSaleStart(e.target.value)} 
+                    className="text-[13px] font-bold text-[#5F0080] border border-gray-200 px-2 py-1.5 rounded bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#5F0080]" 
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-bold text-gray-600">종료일시</span>
+                  <input 
+                    type="datetime-local" 
+                    value={saleEnd} 
+                    onChange={e => setSaleEnd(e.target.value)} 
+                    className="text-[13px] font-bold text-[#5F0080] border border-gray-200 px-2 py-1.5 rounded bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#5F0080]" 
+                  />
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[13px] font-bold text-gray-600">종료일시</span>
-                <input 
-                  type="datetime-local" 
-                  value={saleEnd} 
-                  onChange={e => setSaleEnd(e.target.value)} 
-                  className="text-[13px] font-bold text-[#5F0080] border border-gray-200 px-2 py-1.5 rounded bg-gray-50 focus:outline-none focus:ring-1 focus:ring-[#5F0080]" 
-                />
-              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+              <h3 className="text-[14px] font-bold text-gray-800 mb-3 flex items-center gap-1.5">
+                🌸 오늘의 사장님 이야기
+              </h3>
+              <textarea
+                value={bossMessage}
+                onChange={e => setBossMessage(e.target.value)}
+                placeholder="예: 어머님들~ 오늘 들어온 한우 너무 좋습니다! 언능 나오세요~"
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-[14px] text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#5F0080] min-h-[100px] resize-y placeholder:text-gray-400"
+              />
             </div>
           </div>
         )}
