@@ -466,7 +466,7 @@ export default function Nao3Page() {
               value={bossMessage}
               onChange={e => setBossMessage(e.target.value)}
               placeholder="예: 어머님들~ 오늘 들어온 한우 너무 좋습니다! 언능 나오세요~"
-              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-[13px] text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#5F0080] min-h-[60px] resize-y placeholder:text-gray-400"
+              className="w-full bg-[#5F0080]/5 border border-[#5F0080]/15 rounded-lg px-3 py-2 text-[13px] text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#5F0080] min-h-[60px] resize-y placeholder:text-gray-400"
             />
             <button
               onClick={handleQuickSaveSettings}
