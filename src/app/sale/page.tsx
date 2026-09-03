@@ -87,35 +87,32 @@ export default function CustomerSalePage() {
             <p>현재 진행 중인 세일 행사가 없습니다.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-5">
             {categoryOrder.map(cat => {
               const catItems = groupedItems[cat.id];
               if (!catItems || catItems.length === 0) return null;
 
               return (
                 <section key={cat.id} className="animate-fade-in-up">
-                  <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2 border-b-2 border-gray-900 pb-2 inline-flex">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-1.5 border-b-2 border-gray-900 pb-1.5 inline-flex">
                     <span>{cat.icon}</span> {cat.id} 코너
                   </h3>
                   
-                  <div className="flex flex-col gap-3">
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 px-4 py-1 flex flex-col">
                     {catItems.map((item) => (
-                      <div key={item.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-[0_4px_12px_rgba(0,0,0,0.02)] flex flex-col gap-2">
-                        <div className="flex justify-between items-start gap-4">
-                          <h4 className="text-base font-bold text-gray-800 leading-tight break-keep flex-1">
+                      <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                        <div className="flex items-center flex-1 min-w-0 pr-3 gap-2">
+                          <h4 className="text-[14px] font-bold text-gray-900 truncate">
                             {item.product_name}
                           </h4>
-                        </div>
-                        <div className="flex justify-between items-end mt-1">
-                          <span className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded-md font-medium">
+                          <span className="text-[11px] text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap flex-shrink-0">
                             {item.quantity}
                           </span>
-                          <div className="text-right">
-                            <span className="text-[11px] text-[#5F0080] font-bold block mb-0.5">할인가</span>
-                            <span className="text-xl font-extrabold text-[#5F0080] tracking-tight">
-                              {item.sale_price}
-                            </span>
-                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <span className="text-[15px] font-extrabold text-[#5F0080] tracking-tight">
+                            {item.sale_price}
+                          </span>
                         </div>
                       </div>
                     ))}
