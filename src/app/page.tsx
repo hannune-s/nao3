@@ -182,29 +182,35 @@ export default function Nao3Page() {
         ) : (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col overflow-hidden">
             {currentItems.map((item, index) => (
-              <div key={item.id} className="flex items-center justify-between py-3 px-4 border-b border-gray-100 last:border-b-0 group hover:bg-gray-50 transition-colors">
-                <div className="flex flex-col flex-1 min-w-0 pr-3">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
-                      {index + 1}
-                    </span>
-                    <h4 className="text-[14px] font-bold text-gray-900 truncate">
-                      {item.product_name}
-                    </h4>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[12px] text-gray-500">{item.quantity}</span>
-                    <span className="text-[11px] text-gray-300">|</span>
-                    <span className="text-[13px] font-extrabold text-[#5F0080]">{item.sale_price}</span>
-                  </div>
+              <div key={item.id} className="flex items-center justify-between py-2.5 px-3 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
+                
+                {/* 좌측: 번호, 상품명, 중량 (가로 한 줄 배치) */}
+                <div className="flex items-center flex-1 min-w-0 pr-2 gap-2">
+                  <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">
+                    {index + 1}
+                  </span>
+                  <h4 className="text-[15px] font-bold text-gray-900 truncate">
+                    {item.product_name}
+                  </h4>
+                  <span className="text-[11px] text-gray-500 whitespace-nowrap flex-shrink-0">
+                    {item.quantity}
+                  </span>
                 </div>
-                <button 
-                  onClick={() => handleRemoveItem(item.id)}
-                  className="text-gray-300 hover:text-red-500 flex-shrink-0 p-2"
-                  title="삭제"
-                >
-                  ✕
-                </button>
+
+                {/* 우측: 가격, 삭제버튼 */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <span className="text-[15px] font-extrabold text-[#5F0080] tracking-tight">
+                    {item.sale_price}
+                  </span>
+                  <button 
+                    onClick={() => handleRemoveItem(item.id)}
+                    className="text-gray-300 hover:text-red-500 p-1 transition-colors flex-shrink-0"
+                    title="삭제"
+                  >
+                    ✕
+                  </button>
+                </div>
+
               </div>
             ))}
           </div>
