@@ -105,24 +105,24 @@ export default function CustomerSalePage() {
                     </h3>
                   </div>
                   
-                  {/* 리스트 카드 */}
-                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-5 py-2 flex flex-col">
+                  {/* 리스트 카드 (컴팩트 1단 레이아웃) */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-1.5 flex flex-col">
                     {catItems.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between py-4 border-b border-gray-100 last:border-b-0 gap-4">
+                      <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0 gap-2">
                         
-                        {/* 좌측: 상품명 & 중량 */}
-                        <div className="flex flex-col flex-1 min-w-0 gap-1.5">
-                          <h4 className="text-[16px] font-bold text-gray-900 truncate leading-tight">
+                        {/* 좌측: 상품명 & 중량 (가로 나란히) */}
+                        <div className="flex items-center flex-1 min-w-0 gap-2 pr-2">
+                          <h4 className="text-[16px] font-bold text-gray-900 truncate shrink-0 max-w-[60%]">
                             {item.product_name}
                           </h4>
-                          <span className="text-[14px] font-extrabold text-[#5F0080] bg-[#5F0080]/10 px-2.5 py-1 rounded-md self-start tracking-tight">
+                          <span className="text-[13px] font-extrabold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-md truncate shrink-0">
                             {item.quantity}
                           </span>
                         </div>
                         
                         {/* 우측: 시선 강탈 가격 */}
                         <div className="text-right flex-shrink-0">
-                          <span className="text-[22px] font-black text-[#5F0080] tracking-tighter">
+                          <span className="text-[19px] font-black text-[#5F0080] tracking-tight">
                             {item.sale_price}
                           </span>
                         </div>
