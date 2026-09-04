@@ -368,8 +368,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         // 완전히 새로운 기간이므로 새로운 세일 그룹 생성
         const { data: historyData, error: historyError } = await supabase
           .from('nao3_push_history')
-          .insert([{ 
-            item_count: validItems.length,
+          .insert([{ store_id: storeId, item_count: validItems.length,
             sale_start: newStart,
             sale_end: newEnd,
             boss_message: bossMessage.trim() || null
