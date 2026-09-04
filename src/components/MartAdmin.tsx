@@ -462,11 +462,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             </div>
           </div>
         <button 
-          onClick={async () => { await supabase.auth.signOut(); window.location.reload(); }}
-          className="text-xs text-gray-500 hover:text-gray-800 underline"
-        >
-          로그아웃
-        </button>
+            onClick={() => window.open(`/store/${storeSlug}/sale`, '_blank')}
+            className="text-[11px] font-bold text-white bg-[#5F0080] px-3 py-1.5 rounded-lg shadow-sm hover:bg-[#4a0066] transition-colors flex items-center gap-1"
+          >
+            고객 화면 보기
+          </button>
       </div>
 
         {/* 상단 1단/2단 고정 영역: 상호명, 세일 기간 & 사장님 이야기 */}
