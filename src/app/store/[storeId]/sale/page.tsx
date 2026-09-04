@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useParams } from 'next/navigation';
 
 interface SaleItem {
   id: string;
@@ -12,7 +13,9 @@ interface SaleItem {
   is_sold_out?: boolean;
 }
 
-export default function CustomerSalePage({ params }: { params: { storeId: string } }) {
+export default function CustomerSalePage() {
+  const params = useParams();
+  const storeId = params.storeId as string;
   const [items, setItems] = useState<SaleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEnded, setIsEnded] = useState(false);
@@ -21,13 +24,15 @@ export default function CustomerSalePage({ params }: { params: { storeId: string
   const [storeName, setStoreName] = useState('우리동네 마트'); // 가게 이름 상태 추가
 
   useEffect(() => {
+    if (!storeId) return;
+
     const fetchItems = async () => {
       try {
         // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기
         const { data: store } = await supabase
           .from('nao3_stores')
           .select('store_name')
-          .eq('id', params.storeId)
+          .eq('id', storeId)
           .single();
           
         if (store) {
@@ -38,7 +43,7 @@ export default function CustomerSalePage({ params }: { params: { storeId: string
         const { data: latestPush, error: pushError } = await supabase
           .from('nao3_push_history')
           .select('id, sale_start, sale_end, boss_message')
-          .eq('store_id', params.storeId)
+          .eq('store_id', storeId)
           .order('created_at', { ascending: false })
           .limit(1)
           .single();

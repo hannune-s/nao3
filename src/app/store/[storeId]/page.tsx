@@ -2,18 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import MartAdmin from '@/components/MartAdmin';
 import ButcherAdmin from '@/components/ButcherAdmin';
 
-export default function StoreAdminPage({ params }: { params: { storeId: string } }) {
+export default function StoreAdminPage() {
   const router = useRouter();
+  const params = useParams();
+  const storeId = params.storeId as string;
   const [loading, setLoading] = useState(true);
   const [storeData, setStoreData] = useState<any>(null);
 
   useEffect(() => {
-    checkUserAndStore();
-  }, []);
+    if (storeId) {
+      checkUserAndStore();
+    }
+  }, [storeId]);
 
   const checkUserAndStore = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -24,7 +28,7 @@ export default function StoreAdminPage({ params }: { params: { storeId: string }
     }
 
     // 본인의 storeId가 맞는지 확인
-    if (session.user.id !== params.storeId) {
+    if (session.user.id !== storeId) {
       alert('접근 권한이 없습니다.');
       router.push('/');
       return;
@@ -33,7 +37,7 @@ export default function StoreAdminPage({ params }: { params: { storeId: string }
     const { data: store, error } = await supabase
       .from('nao3_stores')
       .select('*')
-      .eq('id', params.storeId)
+      .eq('id', storeId)
       .single();
       
     if (store) {
