@@ -26,7 +26,7 @@ export default function AdminRouterPage() {
     if (session?.user) {
       // 1. 해당 유저의 매장 정보 가져오기 (business_type)
       const { data: store, error } = await supabase
-        .from('stores')
+        .from('nao3_stores')
         .select('*')
         .eq('id', session.user.id)
         .single();

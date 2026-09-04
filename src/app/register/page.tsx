@@ -54,8 +54,8 @@ export default function RegisterPage() {
 
       if (authError) throw new Error(`회원가입 실패: ${authError.message}`);
 
-      // 3. stores 테이블에 가입 정보 저장 (회원가입된 User ID 매핑)
-      const { error: dbError } = await supabase.from('stores').insert({
+      // 3. nao3_stores 테이블에 가입 정보 저장 (회원가입된 User ID 매핑)
+      const { error: dbError } = await supabase.from('nao3_stores').insert({
         id: authData.user?.id, // 1사장님 = 1스토어 격리 (Tenant ID)
         email,
         store_name: storeName,
