@@ -18,10 +18,23 @@ export default function CustomerSalePage() {
   const [isEnded, setIsEnded] = useState(false);
   const [periodText, setPeriodText] = useState('');
   const [bossMessage, setBossMessage] = useState('');
+  const [storeName, setStoreName] = useState('우리동네 마트'); // 가게 이름 상태 추가
 
   useEffect(() => {
     const fetchItems = async () => {
       try {
+        // 0. 임시로 가장 최근에 가입한 사장님(또는 가게) 상호명 가져오기 (추후 URL store_id 기반으로 변경 예정)
+        const { data: store } = await supabase
+          .from('nao3_stores')
+          .select('store_name')
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single();
+          
+        if (store) {
+          setStoreName(store.store_name);
+        }
+
         // 1. 가장 최근의 발송 이력(push_id) 가져오기
         const { data: latestPush, error: pushError } = await supabase
           .from('nao3_push_history')
@@ -109,16 +122,28 @@ export default function CustomerSalePage() {
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pb-24 font-sans">
-      {/* 메인 히어로 배너 */}
-      <div className="bg-[#5F0080] text-white px-4 py-10 text-center relative overflow-hidden">
+      {/* 메인 히어로 배너 & 헤더 */}
+      <div className="bg-[#5F0080] text-white pt-6 pb-10 text-center relative overflow-hidden shadow-md">
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <h2 className="text-2xl font-extrabold mb-2 relative z-10 animate-fade-in-up">오늘의 특가 찬스!</h2>
-        <p className="text-sm text-purple-200 relative z-10 animate-fade-in-up mb-4" style={{ animationDelay: '0.1s' }}>
+        
+        {/* Nao3 앱 브랜드 로고 */}
+        <div className="relative z-10 flex flex-col items-center justify-center mb-6 animate-fade-in-up">
+          <h1 className="text-xl font-black tracking-widest text-purple-200 uppercase bg-purple-900/30 px-4 py-1 rounded-full border border-purple-800/50">
+            Nao3
+          </h1>
+          {/* 사장님 상호명 (Nao3 아래 한줄) */}
+          <h2 className="text-[26px] font-extrabold mt-2 text-white drop-shadow-md">
+            {storeName}
+          </h2>
+        </div>
+
+        <h3 className="text-lg font-bold mb-2 relative z-10 animate-fade-in-up text-purple-50" style={{ animationDelay: '0.1s' }}>오늘의 특가 찬스!</h3>
+        <p className="text-xs text-purple-200 relative z-10 animate-fade-in-up mb-5 font-medium" style={{ animationDelay: '0.15s' }}>
           푸시 알림을 받고 오신 고객님을 위한 한정 세일
         </p>
         
         {periodText && (
-          <div className="inline-block bg-white text-[#5F0080] font-extrabold text-[13px] px-5 py-2 rounded-full shadow-sm relative z-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          <div className="inline-block bg-white text-[#5F0080] font-extrabold text-[12px] px-5 py-2 rounded-full shadow-lg relative z-10 animate-fade-in-up border border-purple-100" style={{ animationDelay: '0.2s' }}>
             {periodText}
           </div>
         )}
