@@ -22,7 +22,12 @@ const QTY_DICT = [
   '1개', '2개', '3개', '5개', '10개', '1팩', '2팩', '1단', '1망', '1봉', '1박스'
 ];
 
-export default function MartAdmin() {
+interface MartAdminProps {
+  storeId: string;
+  initialStoreName: string;
+}
+
+export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps) {
   const [activeTab, setActiveTab] = useState('정육');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,7 +45,8 @@ export default function MartAdmin() {
   const [histories, setHistories] = useState<any[]>([]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
-  // 세일 진행 기간 및 사장님 이야기 상태
+  // 상호명, 세일 진행 기간 및 사장님 이야기 상태
+  const [storeName, setStoreName] = useState(initialStoreName || '');
   const [saleStart, setSaleStart] = useState('');
   const [saleEnd, setSaleEnd] = useState('');
   const [bossMessage, setBossMessage] = useState('');
@@ -273,6 +279,17 @@ export default function MartAdmin() {
     }
     setLoading(true);
     try {
+      // 1. 가게 상호명 업데이트
+      const { error: storeError } = await supabase
+        .from('nao3_stores')
+        .update({ store_name: storeName })
+        .eq('id', storeId);
+      
+      if (storeError) {
+        console.error('상호명 업데이트 실패:', storeError);
+      }
+
+      // 2. 가장 최근 발송 이력의 기간 및 사장님 멘트 업데이트
       const { data: latestPush } = await supabase
         .from('nao3_push_history')
         .select('*')
@@ -438,8 +455,23 @@ export default function MartAdmin() {
         </button>
       </div>
 
-        {/* 상단 1단/2단 고정 영역: 세일 기간 & 사장님 이야기 */}
+        {/* 상단 1단/2단 고정 영역: 상호명, 세일 기간 & 사장님 이야기 */}
         <div className="max-w-2xl mx-auto w-full p-4 bg-[#F9F9F9] border-b border-gray-200 flex flex-col gap-4">
+          
+          {/* 상호명 설정 */}
+          <div>
+            <h3 className="text-[13px] font-bold text-gray-800 mb-2 flex items-center gap-1.5">
+              🏪 우리 매장 상호명
+            </h3>
+            <input 
+              type="text" 
+              value={storeName} 
+              onChange={e => setStoreName(e.target.value)} 
+              placeholder="예: 우리동네 할인마트"
+              className="w-full text-[13px] font-bold text-[#5F0080] border border-gray-200 px-3 py-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]" 
+            />
+          </div>
+
           {/* 1단: 세일 진행 기간 */}
           <div>
             <h3 className="text-[13px] font-bold text-gray-800 mb-2 flex items-center gap-1.5">
@@ -478,7 +510,7 @@ export default function MartAdmin() {
               disabled={loading}
               className="w-full py-2 bg-purple-50 text-[#5F0080] border border-purple-100 hover:bg-purple-100 font-bold rounded-lg transition-colors text-[13px]"
             >
-              기간 및 멘트만 즉시 반영하기
+              상호명 · 기간 · 멘트 즉시 반영하기
             </button>
           </div>
         </div>

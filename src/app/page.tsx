@@ -112,7 +112,7 @@ export default function AdminRouterPage() {
 
   // 3. 업종(business_type)에 따른 폼 동적 분기 렌더링
   if (storeData.business_type === 'mart') {
-    return <MartAdmin />;
+    return <MartAdmin storeId={storeData.id} initialStoreName={storeData.store_name} />;
   } else if (storeData.business_type === 'butcher') {
     return <ButcherAdmin storeId={storeData.id} storeName={storeData.store_name} />;
   } else {
