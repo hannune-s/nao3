@@ -12,7 +12,7 @@ interface SaleItem {
   is_sold_out?: boolean;
 }
 
-export default function CustomerSalePage() {
+export default function CustomerSalePage({ params }: { params: { storeId: string } }) {
   const [items, setItems] = useState<SaleItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEnded, setIsEnded] = useState(false);
@@ -23,22 +23,22 @@ export default function CustomerSalePage() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        // 0. 임시로 가장 최근에 가입한 사장님(또는 가게) 상호명 가져오기 (추후 URL store_id 기반으로 변경 예정)
+        // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기
         const { data: store } = await supabase
           .from('nao3_stores')
           .select('store_name')
-          .order('created_at', { ascending: false })
-          .limit(1)
+          .eq('id', params.storeId)
           .single();
           
         if (store) {
           setStoreName(store.store_name);
         }
 
-        // 1. 가장 최근의 발송 이력(push_id) 가져오기
+        // 1. 해당 가게의 가장 최근 발송 이력(push_id) 가져오기
         const { data: latestPush, error: pushError } = await supabase
           .from('nao3_push_history')
           .select('id, sale_start, sale_end, boss_message')
+          .eq('store_id', params.storeId)
           .order('created_at', { ascending: false })
           .limit(1)
           .single();
