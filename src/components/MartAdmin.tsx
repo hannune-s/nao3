@@ -495,20 +495,25 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             <h3 className="text-[15px] font-extrabold text-gray-900 tracking-tight">
               이번 세일 진행 기간
             </h3>
-            <div className="flex items-center justify-between gap-3">
-              <input 
-                type="datetime-local" 
-                value={saleStart} 
-                onChange={e => setSaleStart(e.target.value)} 
-                className="flex-1 text-[13px] sm:text-[14px] font-bold text-[#5F0080] border border-gray-200 px-3 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
-              />
-              <span className="text-gray-400 font-bold">~</span>
-              <input 
-                type="datetime-local" 
-                value={saleEnd} 
-                onChange={e => setSaleEnd(e.target.value)} 
-                className="flex-1 text-[13px] sm:text-[14px] font-bold text-[#5F0080] border border-gray-200 px-3 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
-              />
+            <div className="flex flex-col gap-2.5">
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-black text-gray-400 pointer-events-none">시작</span>
+                <input 
+                  type="datetime-local" 
+                  value={saleStart} 
+                  onChange={e => setSaleStart(e.target.value)} 
+                  className="w-full text-[14px] font-bold text-[#5F0080] border border-gray-200 pl-12 pr-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
+                />
+              </div>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-black text-gray-400 pointer-events-none">종료</span>
+                <input 
+                  type="datetime-local" 
+                  value={saleEnd} 
+                  onChange={e => setSaleEnd(e.target.value)} 
+                  className="w-full text-[14px] font-bold text-[#5F0080] border border-gray-200 pl-12 pr-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
+                />
+              </div>
             </div>
           </div>
           
