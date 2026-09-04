@@ -388,7 +388,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           quantity: item.quantity,
           sale_price: item.sale_price,
           is_sold_out: item.is_sold_out || false,
-          push_id: pushId
+          push_id: pushId,
+          store_id: storeId
         }));
 
         const { error: itemsError } = await supabase.from('nao3_sale_items').insert(dbPayload);
