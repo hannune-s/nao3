@@ -122,31 +122,39 @@ export default function CustomerSalePage() {
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pb-24 font-sans">
-      {/* 메인 히어로 배너 & 헤더 */}
-      <div className="bg-[#5F0080] text-white pt-6 pb-10 text-center relative overflow-hidden shadow-md">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+      {/* 헤더 영역 (투톤 분리) */}
+      <div className="flex flex-col">
         
-        {/* Nao3 앱 브랜드 로고 */}
-        <div className="relative z-10 flex flex-col items-center justify-center mb-6 animate-fade-in-up">
-          <h1 className="text-xl font-black tracking-widest text-purple-200 uppercase bg-purple-900/30 px-4 py-1 rounded-full border border-purple-800/50">
-            Nao3
-          </h1>
-          {/* 사장님 상호명 (Nao3 아래 한줄) */}
-          <h2 className="text-[26px] font-extrabold mt-2 text-white drop-shadow-md">
-            {storeName}
-          </h2>
+        {/* 1. 브랜드 & 상호명 영역 (진한 보라색 딥톤) */}
+        <div className="bg-[#5F0080] pt-8 pb-10 text-center relative overflow-hidden shadow-sm">
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          
+          <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in-up">
+            <h1 className="text-sm font-black tracking-widest text-purple-200 uppercase bg-purple-900/40 px-4 py-1 rounded-full border border-purple-700/50 mb-3">
+              Nao3
+            </h1>
+            <h2 className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg tracking-tight break-keep px-4">
+              {storeName}
+            </h2>
+          </div>
         </div>
 
-        <h3 className="text-lg font-bold mb-2 relative z-10 animate-fade-in-up text-purple-50" style={{ animationDelay: '0.1s' }}>오늘의 특가 찬스!</h3>
-        <p className="text-xs text-purple-200 relative z-10 animate-fade-in-up mb-5 font-medium" style={{ animationDelay: '0.15s' }}>
-          푸시 알림을 받고 오신 고객님을 위한 한정 세일
-        </p>
-        
-        {periodText && (
-          <div className="inline-block bg-white text-[#5F0080] font-extrabold text-[12px] px-5 py-2 rounded-full shadow-lg relative z-10 animate-fade-in-up border border-purple-100" style={{ animationDelay: '0.2s' }}>
-            {periodText}
-          </div>
-        )}
+        {/* 2. 특가 배너 영역 (화사한 연보라색 포인트 톤) */}
+        <div className="bg-[#F4E8F9] py-6 px-4 text-center border-b border-purple-100 shadow-sm relative z-20 -mt-2 rounded-t-[20px] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <h3 className="text-xl font-extrabold text-[#5F0080] mb-1.5 tracking-tight">
+            🎉 오늘의 특가 찬스!
+          </h3>
+          <p className="text-[13px] font-bold text-purple-900/60 mb-4">
+            단골 고객님을 위해 준비한 깜짝 한정 세일
+          </p>
+          
+          {periodText && (
+            <div className="inline-block bg-white text-[#5F0080] font-black text-[12px] px-5 py-2 rounded-full shadow-sm border border-purple-100">
+              {periodText}
+            </div>
+          )}
+        </div>
+
       </div>
 
       {/* 오늘의 사장님 이야기 */}
