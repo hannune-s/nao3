@@ -326,6 +326,18 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     }
   };
   // 최종 전송 버튼
+  const handlePreview = () => {
+    localStorage.setItem('nao3_staging_settings', JSON.stringify({
+      storeName,
+      saleStart,
+      saleEnd,
+      bossMessage
+    }));
+    localStorage.setItem('nao3_staging_items', JSON.stringify(items));
+    window.open(`/store/${storeSlug}/sale?preview=true`, '_blank');
+  };
+
+  // 최종 전송 버튼
   const handleSave = async () => {
     const validItems = items.filter(item => item.product_name && item.sale_price);
 

@@ -27,6 +27,25 @@ export default function CustomerSalePage() {
     if (!storeSlug) return;
 
     const fetchItems = async () => {
+      const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
+      if (isPreview) {
+        const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+        setStoreName(stagedSettings.storeName || '상호명 미리보기');
+        
+        if (stagedSettings.saleStart && stagedSettings.saleEnd) {
+          const start = new Date(stagedSettings.saleStart);
+          const end = new Date(stagedSettings.saleEnd);
+          const formattedStart = start.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+          const formattedEnd = end.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+          setPeriodText(formattedStart + ' ~ ' + formattedEnd);
+        }
+        setBossMessage(stagedSettings.bossMessage || '');
+
+        const stagedItems = JSON.parse(localStorage.getItem('nao3_staging_items') || '[]');
+        setItems(stagedItems);
+        setLoading(false);
+        return;
+      }
       try {
         // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기
         const { data: store } = await supabase
