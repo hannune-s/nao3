@@ -122,29 +122,29 @@ export default function CustomerSalePage() {
 
   return (
     <main className="min-h-screen bg-[#F9F9F9] pb-24 font-sans">
-      {/* 헤더 영역 (투톤 분리) */}
+      {/* 헤더 영역 (투톤 분리 - 직선형) */}
       <div className="flex flex-col">
         
         {/* 1. 브랜드 & 상호명 영역 (진한 보라색 딥톤) */}
-        <div className="bg-[#5F0080] pt-8 pb-10 text-center relative overflow-hidden shadow-sm">
+        <div className="bg-[#5F0080] pt-8 pb-8 text-center relative overflow-hidden border-b border-purple-900">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           
           <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in-up">
             <h1 className="text-sm font-black tracking-widest text-purple-200 uppercase bg-purple-900/40 px-4 py-1 rounded-full border border-purple-700/50 mb-3">
               Nao3
             </h1>
-            <h2 className="text-3xl sm:text-4xl font-black text-white drop-shadow-lg tracking-tight break-keep px-4">
+            <h2 className="text-3xl sm:text-4xl font-black text-white drop-shadow-md tracking-tight break-keep px-4">
               {storeName}
             </h2>
           </div>
         </div>
 
-        {/* 2. 특가 배너 영역 (화사한 연보라색 포인트 톤) */}
-        <div className="bg-[#F4E8F9] py-6 px-4 text-center border-b border-purple-100 shadow-sm relative z-20 -mt-2 rounded-t-[20px] animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        {/* 2. 특가 배너 영역 (화사한 연보라색 포인트 톤 - 수평 직선형) */}
+        <div className="bg-[#F4E8F9] py-5 px-4 text-center border-b border-purple-200 shadow-sm animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <h3 className="text-xl font-extrabold text-[#5F0080] mb-1.5 tracking-tight">
             🎉 오늘의 특가 찬스!
           </h3>
-          <p className="text-[13px] font-bold text-purple-900/60 mb-4">
+          <p className="text-[13px] font-bold text-purple-900/60 mb-3">
             단골 고객님을 위해 준비한 깜짝 한정 세일
           </p>
           
