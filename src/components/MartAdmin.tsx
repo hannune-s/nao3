@@ -4,22 +4,22 @@ import { matchSearch } from '@/lib/hangul';
 import { supabase } from '@/lib/supabase';
 
 const CATEGORIES = [
-  { id: '?㻂㜜', icon: '?�? },
-  { id: '�???, icon: '?�? },
-  { id: '?潰�', icon: '??' },
-  { id: '窸蛙�??, icon: '?�? },
+  { id: '정육', icon: '🥩' },
+  { id: '청과', icon: '🍎' },
+  { id: '야채', icon: '🥬' },
+  { id: '공산품', icon: '🛒' },
 ];
 
 const ITEM_DICT: Record<string, string[]> = {
-  '?㻂㜜': ['?𨰰�??桿�?, '?𨰰�??��?, '?𨰰�?�??�謔?, '?𨰰�?賱���??, '�?�???澎硃??, '�?�??諈拖�?, '麆㴒�????�𠹻謔科�', '???��???澎硃??, '??�� ?�?穈��?, '???�?龲�????��?, '????渥�', '?賄�??�?���?渠﹞'],
-  '�???: ['?禹頃', '諻竾�??, '?𨰰? 穈�?�?, '??�𥘵諟賄擪??, '窸𧙖鰟????��', '?資萼', '?桿�?麆賄??, '?梵眏??貐蛙�??, '?𥻗�諻?, '諻拖??𧙖�??, '賳竾?�貒𧙖??, '??��鴔�'],
-  '?潰�': ['篧韒�??, '?𣖙�?, '?�??, '�?�窸𥔱�?, '?��??, '?𡥄?�諻?, '?��', '篧髦�?, '諻桿?��??, '?�?��', '?��?渠�??, '?趣�?����', '?𣕑?��??諻域�?, '?𨰰? �?],
-  '窸蛙�??: ['?𣽁𡠺 ?𧙖𦉘�?, '??���?鴔�𦉘�?, 'CJ ?��', '?�䇹?�儠嶅�?, '??����?科�??, '?軤�麆賄�?, '?欠袐 ?渠�??, '?𨰰???��', '??���??��謔科???, '諤伊𡠺 諈到?�窸?��']
+  '정육': ['한우 등심', '한우 안심', '한우 국거리', '한우 불고기', '국내산 삼겹살', '국내산 목살', '찌개용 앞다리살', '수육용 삼겹살', '양념 돼지갈비', '닭볶음탕용 생닭', '닭가슴살', '호주산 척아이롤'],
+  '청과': ['사과', '바나나', '제주 감귤', '샤인머스캣', '고당도 수박', '딸기', '성주 참외', '딱딱이 복숭아', '신고배', '방울토마토', '블루베리', '오렌지'],
+  '야채': ['깐마늘', '양파', '대파', '청양고추', '햇감자', '애호박', '상추', '깻잎', '백오이', '당근', '새송이버섯', '팽이버섯', '알배기 배추', '제주 무'],
+  '공산품': ['농심 신라면', '오뚜기 진라면', 'CJ 햇반', '코카콜라', '칠성사이다', '동원참치', '스팸 클래식', '서울우유', '카누 아메리카노', '맥심 모카골드']
 };
 
 const QTY_DICT = [
-  '100g', '200g', '300g', '400g', '500g', '600g(1�?', '800g', '1kg',
-  '1�?, '2�?, '3�?, '5�?, '10�?, '1??, '2??, '1??, '1�?, '1�?, '1諻㻂??
+  '100g', '200g', '300g', '400g', '500g', '600g(1근)', '800g', '1kg',
+  '1개', '2개', '3개', '5개', '10개', '1팩', '2팩', '1단', '1망', '1봉', '1박스'
 ];
 
 interface MartAdminProps {
@@ -28,40 +28,42 @@ interface MartAdminProps {
 }
 
 export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps) {
-  const [activeTab, setActiveTab] = useState('?㻂㜜');
+  const [activeTab, setActiveTab] = useState('정육');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
   const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '' });
 
-  // ??��?�� ?嶅＃??��??��
+  // 자동완성 드롭다운 상태
   const [showNameDropdown, setShowNameDropdown] = useState(false);
   const [showQtyDropdown, setShowQtyDropdown] = useState(false);
   const [nameIdx, setNameIdx] = useState(-1);
   const [qtyIdx, setQtyIdx] = useState(-1);
 
-  // ?渠� 窵��??��
+  // 이력 관리 상태
   const [histories, setHistories] = useState<any[]>([]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
-  // ?�猹�? ?賄�?鴔��?篣國�?�??科�???渥焩�??��
+  // 상호명, 세일 진행 기간 및 사장님 이야기 상태
   const [storeName, setStoreName] = useState(initialStoreName || '');
   const [saleStart, setSaleStart] = useState('');
   const [saleEnd, setSaleEnd] = useState('');
   const [bossMessage, setBossMessage] = useState('');
 
-  // ??貐��?????黕�???  const handleTabChange = (tabId: string) => {
+  // 탭 변경 시 폼 초기화
+  const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     setNewItem({ product_name: '', quantity: '', sale_price: '' });
     setNameIdx(-1);
     setQtyIdx(-1);
   };
 
-  // ??��?�� ?���?謔科???  const matchedNames = ITEM_DICT[activeTab]?.filter(name => matchSearch(newItem.product_name, name)) || [];
+  // 자동완성 필터링 리스트
+  const matchedNames = ITEM_DICT[activeTab]?.filter(name => matchSearch(newItem.product_name, name)) || [];
   const matchedQtys = QTY_DICT.filter(qty => matchSearch(newItem.quantity, qty));
 
-  // 諻拗�???欠��??科誘??�?��??
+  // 방향키 스크롤 포커스 처리
   useEffect(() => {
     if (nameIdx >= 0) {
       document.getElementById('name-item-' + nameIdx)?.scrollIntoView({ block: 'nearest' });
@@ -74,10 +76,10 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
     }
   }, [qtyIdx]);
 
-  // ?渠� ???�� 諈刺�??��
+  // 이력 수정 모드 상태
   const [editingHistoryItemId, setEditingHistoryItemId] = useState<{pushId: string, itemId: string} | null>(null);
 
-  // ?渠� ??��??賱�???�萼 ??��
+  // 이력 데이터 불러오기 함수
   const fetchHistories = async () => {
     const { data, error } = await supabase
       .from('nao3_push_history')
@@ -90,7 +92,8 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
     }
   };
 
-  // ??諢嶅�?????��??黕�???  useEffect(() => {
+  // 앱 로드 시 데이터 초기화
+  useEffect(() => {
     const loadInitData = async () => {
       const now = new Date();
       const toLocalStr = (d: string | Date) => {
@@ -99,10 +102,11 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         return new Date(dt.getTime() - offset).toISOString().slice(0, 16);
       };
 
-      // 1. 鴔��?鴗𡢾�??賄�???��鴔� ?㻂�?渥� 篣國�?諰属??篣圉?�穈𨩆尐諢?篧䇹�鴥澎萼
+      // 1. 진행 중인 세일이 있는지 확인해서 기간/멘트 기본값으로 깔아주기
       const { data: latestPush } = await supabase
         .from('nao3_push_history')
         .select('*')
+        .eq('store_id', storeId)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
@@ -110,7 +114,8 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
       let isAppendingToActive = false;
       
       if (latestPush && latestPush.sale_end && new Date(latestPush.sale_end) > now) {
-        // ?�� 鮈��??? ?𥇣? ?賄�???�𠹻諰?�??𨁈�??篣圉?�穈𨩆尐諢?        if (!saleStart) setSaleStart(toLocalStr(latestPush.sale_start));
+        // 아직 종료되지 않은 세일이 있다면 그 시간을 기본값으로
+        if (!saleStart) setSaleStart(toLocalStr(latestPush.sale_start));
         if (!saleEnd) setSaleEnd(toLocalStr(latestPush.sale_end));
         isAppendingToActive = true;
       } else {
@@ -121,7 +126,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
       }
 
-      // ??�??�� ?�????��??諢嶅�?
+      // 항상 임시 저장 데이터 로드
       const saved = localStorage.getItem('nao3_staging_items');
       if (saved) {
         try { setItems(JSON.parse(saved)); } catch (e) { console.error(e); }
@@ -140,7 +145,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
     loadInitData();
   }, []);
 
-  // items, bossMessage ?��穈� 貐�窶趟�??𣕑�??�??�賑 ?欠�謔科? ?�㫲?渣䂻
+  // items, bossMessage 상태가 변경될 때마다 로컬 스토리지 업데이트
   useEffect(() => {
     localStorage.setItem('nao3_staging_items', JSON.stringify(items));
   }, [items]);
@@ -149,19 +154,19 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
     localStorage.setItem('nao3_boss_message', bossMessage);
   }, [bossMessage]);
 
-  // 諈拘�??黺�?? ??�� 鴞吣�????��
+  // 목록에 추가 또는 즉시 수정
   const handleAddItem = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!newItem.product_name.trim() || !newItem.sale_price.trim()) {
-      alert('?��諈�???賄�?穈�窶拖? ?��?��??');
+      alert('상품명과 세일 가격은 필수입니다.');
       return;
     }
 
     const rawPrice = newItem.sale_price.replace(/[^0-9]/g, '');
-    const formattedPrice = rawPrice ? parseInt(rawPrice, 10).toLocaleString() + '?? : '';
+    const formattedPrice = rawPrice ? parseInt(rawPrice, 10).toLocaleString() + '원' : '';
 
     if (editingHistoryItemId) {
-      // 鴞吣�????�� 諈刺�?
+      // 즉시 수정 모드
       try {
         const { error } = await supabase.from('nao3_sale_items')
           .update({ 
@@ -174,7 +179,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
           
         if (error) throw error;
         
-        // �??�賑 ?�� 鴞吣�?穈桿�?
+        // 로컬 상태 즉시 갱신
         setHistories(prev => prev.map(h => h.id === editingHistoryItemId.pushId ? {
           ...h,
           nao3_sale_items: h.nao3_sale_items.map((i: any) => i.id === editingHistoryItemId.itemId ? {
@@ -188,11 +193,11 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         
         setEditingHistoryItemId(null);
       } catch (err) {
-        alert('?渠� ???��???欠�?��?��?');
+        alert('이력 수정에 실패했습니다.');
         return;
       }
     } else {
-      // ?潺� ?��??��?黺�?? 諈刺�?
+      // 일반 대기열 추가 모드
       const insertData = { 
         id: Date.now().toString(),
         category: activeTab, 
@@ -209,7 +214,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
     setQtyIdx(-1);
   };
 
-  // ???�� 篣圉𥁒 (???潰尐�??嵸�??�萼)
+  // 수정 기능 (위 폼으로 끌어오기)
   const handleEditItem = (item: any) => {
     setNewItem({ 
       product_name: item.product_name, 
@@ -217,16 +222,16 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
       sale_price: item.sale_price.replace(/[^0-9]/g, '') 
     });
     setActiveTab(item.category);
-    handleRemoveItem(item.id); // ?潰尐�??嵸�?禺收諰渥�?篣域??謔科??賄�?嶅� ?𨁈??
+    handleRemoveItem(item.id); // 폼으로 끌어올리면서 기존 리스트에서는 제거
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ??�?篣圉𥁒
+  // 삭제 기능
   const handleRemoveItem = (id: string) => {
     setItems(items.filter(item => item.id !== id));
   };
 
-  // ?渠� ?�� �?��???渥� (鴞吣�?諻䁯�?
+  // 이력 품절 처리/해제 (즉시 반영)
   const handleHistoryToggleSoldOut = async (pushId: string, itemId: string, currentSoldOut: boolean) => {
     try {
       const { error } = await supabase.from('nao3_sale_items').update({ is_sold_out: !currentSoldOut }).eq('id', itemId);
@@ -236,13 +241,13 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         nao3_sale_items: h.nao3_sale_items.map((i: any) => i.id === itemId ? { ...i, is_sold_out: !currentSoldOut } : i)
       } : h));
     } catch (err) {
-      alert('?�� ?�� ?�㫲?渣䂻???欠�?��?��?');
+      alert('품절 상태 업데이트에 실패했습니다.');
     }
   };
 
-  // ?渠� ?��????�?(鴞吣�?諻䁯�?
+  // 이력 아이템 삭제 (즉시 반영)
   const handleHistoryDeleteItem = async (pushId: string, itemId: string) => {
-    if (!confirm('??�� ??�???��窶𥔱�?��? 鴞吣�?諻䁯�??��??')) return;
+    if (!confirm('정말 삭제하시겠습니까? 즉시 반영됩니다.')) return;
     try {
       const { error } = await supabase.from('nao3_sale_items').delete().eq('id', itemId);
       if (error) throw error;
@@ -252,14 +257,14 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         nao3_sale_items: h.nao3_sale_items.filter((i: any) => i.id !== itemId)
       } : h));
     } catch (err) {
-      alert('??�???欠�?��?��?');
+      alert('삭제에 실패했습니다.');
     }
   };
 
-  // ?渠� ?��?????�� (?潰尐�??嵸�?禺汝)
+  // 이력 아이템 수정 (폼으로 끌어올림)
   const handleHistoryEditItem = (pushId: string, item: any) => {
     setEditingHistoryItemId({ pushId, itemId: item.id });
-    setActiveTab(item.category || '?㻂㜜');
+    setActiveTab(item.category || '정육');
     setNewItem({ 
       product_name: item.product_name, 
       quantity: item.quantity, 
@@ -268,15 +273,15 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // 篣國�?�??科�???渥焩�?鴞吣�?諻䁯�?貒�𢩦
+  // 기간 및 사장님 이야기 즉시 반영 버튼
   const handleQuickSaveSettings = async () => {
     if (!saleStart || !saleEnd) {
-      alert('?賄�??𨰰�?澎頃 鮈��?潰� ?��?渥�?賄�.');
+      alert('세일 시작일과 종료일을 입력해주세요.');
       return;
     }
     setLoading(true);
     try {
-      // 1. 穈��??�猹�??�㫲?渣䂻
+      // 1. 가게 상호명 업데이트
       const { data: updatedStore, error: storeError } = await supabase
         .from('nao3_stores')
         .update({ store_name: storeName })
@@ -284,16 +289,13 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         .select();
       
       if (storeError || !updatedStore || updatedStore.length === 0) {
-        console.error('?�猹�??�㫲?渣䂻 ?欠�?', storeError);
-        alert('?�猹�????�� 窷龲�???��?��? (RLS ??�剳)');
+        console.error('상호명 업데이트 실패:', storeError);
+        alert('상호명 수정 권한이 없습니다. (RLS 에러)');
         return;
       }
 
-      // 2. 穈�??黖𨁈滂 諻�?�� ?渠�??篣國�?�??科�??諰属???�㫲?渣䂻
-      const { data: latestPush } = await supabase
-        .from('nao3_push_history')
-        .select('*')
-        .order('created_at', { ascending: false })
+      // 2. 가장 최근 발송 이력의 기간 및 사장님 멘트 업데이트
+      const { data: latestPush } = await supabase.from('nao3_push_history').select('*').eq('store_id', storeId).order('created_at', { ascending: false })
         .limit(1)
         .single();
       
@@ -309,36 +311,33 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         
         if (error) throw error;
         if (!updatedData || updatedData.length === 0) {
-           throw new Error("貐渥�??㻂�(RLS) 諡賄�諢??�㫲?渣䂻穈� 麆刺�????��??��?? ?𨁈??渠��?SQL??Supabase??�� ?欠�?渥�?賄�!");
+           throw new Error("보안 정책(RLS) 문제로 업데이트가 차단되었습니다. 제공해드린 SQL을 Supabase에서 실행해주세요!");
         }
-        alert('鴔��?鴗𡢾�??賄�??篣國�窸??科�???渥焩篣國? 鴞吣�?諻䁯�???��??��??');
+        alert('진행 중인 세일에 기간과 사장님 이야기가 즉시 반영되었습니다!');
       } else {
-        alert('?�� ?梵�???賄�??渥�???��?��? 諟潰? ?���???�� ??�𡆀 貒�𢩦?潺� ?梵�?渥�?賄�.');
+        alert('아직 등록된 세일 내역이 없습니다. 먼저 상품과 함께 하단 버튼으로 등록해주세요.');
       }
     } catch (err: any) {
       console.error(err);
-      alert('DB ?�????��: ' + (err.message || '?嵸�?��?�??�禺????��???㻂�?渥�?賄�.'));
+      alert('DB 저장 오류: ' + (err.message || '테이블 및 컬럼 생성을 확인해주세요.'));
     } finally {
       setLoading(false);
     }
   };
-  // 黖�?�� ?�� 貒�𢩦
+  // 최종 전송 버튼
   const handleSave = async () => {
     const validItems = items.filter(item => item.product_name && item.sale_price);
 
-    // ?��???��?潺� 貐渥??諰䇹�鴔�??篣國�諤??�㫲?渣䂻??�� 窶趣黱諝??�鹻??�萼 ?�㟲 ?𡥄�??窶�?�? ???��?潺� �?��??
+    // 상품이 없더라도 보스 메시지나 기간만 업데이트하는 경우를 허용하기 위해 유효성 검사를 나중으로 미룸
     if (!saleStart || !saleEnd) {
-      alert('?賄�??𨰰�?澎頃 鮈��?潰� ?��?渥�?賄�.');
+      alert('세일 시작일과 종료일을 입력해주세요.');
       return;
     }
 
     setLoading(true);
     try {
-      // 1. 穈�??黖𨁈滂 ?渠�??穈�?�???篣國�?赬��?
-      const { data: latestPush } = await supabase
-        .from('nao3_push_history')
-        .select('*')
-        .order('created_at', { ascending: false })
+      // 1. 가장 최근 이력을 가져와서 기간 비교
+      const { data: latestPush } = await supabase.from('nao3_push_history').select('*').eq('store_id', storeId).order('created_at', { ascending: false })
         .limit(1)
         .single();
 
@@ -347,13 +346,13 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
 
       let pushId = '';
 
-      // 諤嵸??諻抱�??��???賄�?篣國�??黖𨁈滂 ?梵�???渠�??篣國�窸??𤣿�???潰�?嶅𠹻諰? (?軤�??賄�?篞賈??潺� 穈�?)
+      // 만약 방금 입력한 세일 기간이 최근 등록된 이력의 기간과 정확히 일치한다면? (동일 세일 그룹으로 간주)
       const isSamePeriod = latestPush && 
         new Date(latestPush.sale_start).getTime() === new Date(newStart).getTime() && 
         new Date(latestPush.sale_end).getTime() === new Date(newEnd).getTime();
 
       if (isSamePeriod) {
-        // 篣域??篞賈???黺�?? (?�㫲?渣䂻)
+        // 기존 그룹에 추가 (업데이트)
         pushId = latestPush.id;
         const { data: updatedData, error: updateError } = await supabase.from('nao3_push_history').update({
           item_count: latestPush.item_count + validItems.length,
@@ -362,13 +361,13 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         
         if (updateError) throw updateError;
         if (!updatedData || updatedData.length === 0) {
-           throw new Error("貐渥�??㻂�(RLS) 諡賄�諢??�㫲?渣䂻穈� 麆刺�????��??��?? ?𨁈??渠��?SQL??Supabase??�� ?欠�?渥�?賄�!");
+           throw new Error("보안 정책(RLS) 문제로 업데이트가 차단되었습니다. 제공해드린 SQL을 Supabase에서 실행해주세요!");
         }
       } else {
-        // ?��???��??篣國�?�?�??��???賄�?篞賈????��
+        // 완전히 새로운 기간이므로 새로운 세일 그룹 생성
         const { data: historyData, error: historyError } = await supabase
           .from('nao3_push_history')
-          .insert([{ store_id: storeId, 
+          .insert([{ 
             item_count: validItems.length,
             sale_start: newStart,
             sale_end: newEnd,
@@ -381,7 +380,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         pushId = historyData.id;
       }
 
-      // 諻𨁈諻?? push_id�??𦚯???�?Insert
+      // 발급받은 push_id로 아이템 일괄 Insert
       if (validItems.length > 0) {
         const dbPayload = validItems.map(item => ({
           category: item.category,
@@ -396,15 +395,15 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         if (itemsError) throw itemsError;
       }
 
-      // 3. ?梓陬 ????��??穈桿
-      setItems([]); // ?篣域𡢿 黕萼??(?�?�?, 篣國�?諰属????𥔱????��?黺�?? ?�????? 諻拖?)
+      // 3. 성공 후 데이터 갱신
+      setItems([]); // 대기열 초기화 (상품만 비움, 기간과 멘트는 유지하여 추가 등록 시 삭제 방지)
       localStorage.removeItem('nao3_staging_items');
       await fetchHistories(); 
       setSubmitted(true);
       
     } catch (err: any) {
       console.error(err);
-      alert('DB ?????? ' + (err.message || '?嵸�?��?�??�禺???????㻂�?渥�?�?'));
+      alert('DB 저장 오류: ' + (err.message || '테이블 및 컬럼 생성을 확인해주세요.'));
     } finally {
       setLoading(false);
     }
@@ -418,18 +417,18 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
       <main className="min-h-screen bg-[#F9F9F9] flex flex-col items-center justify-center p-4">
         <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 text-center max-w-md w-full animate-fade-in-up">
           <div className="w-16 h-16 bg-[#5F0080]/10 text-[#5F0080] rounded-full flex items-center justify-center mx-auto mb-5">
-            <span className="text-3xl">?�?/span>
+            <span className="text-3xl">🎉</span>
           </div>
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">?梵�???��???��??��??/h2>
+          <h2 className="text-2xl font-extrabold text-gray-900 mb-2">등록이 완료되었습니다</h2>
           <p className="text-gray-500 mb-8 text-sm leading-relaxed">
-            ?賄�??�版???梓陬?�尐�?諻�?�� ?渠�???�?伙�?��?��?<br/>
-            窸�?�� ???��?���??黖�?�� ?�𡆀鴔�穈� 鴞吣�?諻䁯�??��??
+            세일 품목이 성공적으로 발송 이력에 저장되었습니다.<br/>
+            고객 페이지에 최신 전단지가 즉시 반영됩니다.
           </p>
           <button 
             onClick={() => setSubmitted(false)}
             className="w-full py-4 bg-[#5F0080] hover:bg-[#4a0066] text-white font-bold rounded-2xl transition-all shadow-md"
           >
-            ?��???�版 黺�????�萼
+            새로운 품목 추가하기
           </button>
         </div>
       </main>
@@ -438,43 +437,50 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
 
   return (
     <main className="bg-[#F9F9F9] min-h-screen pb-32">
-      {/* ?�𡆀 ?��? ??�� + ??+ ?��??(?欠��?????�㜊??�籰�??禺𦉘穈�?�� sticky ?𨁈?? */}
+      {/* 상단 영역: 헤더 + 탭 + 입력폼 (스크롤 시 자연스럽게 올라가도록 sticky 제거) */}
       <div className="bg-white shadow-sm flex flex-col border-b border-gray-200">
         
-        {/* ??�� */}
+        {/* 헤더 */}
         <div className="bg-white p-4 border-b border-gray-100 flex items-center justify-between shadow-sm sticky top-0 z-50">
-        <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-2">
           <h1 className="text-xl font-extrabold text-[#5F0080] tracking-tight">Nao3</h1>
-          <span className="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-md">?��?諤��??渠��?/span>
-        </div>
+          <span className="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-md">슈퍼마켓 어드민</span>
+            </div>
+            {/* 고유 URL 복사 안내 */}
+            <div className="text-[11px] text-gray-500 flex items-center gap-1 mt-1">
+              🔗 <span className="font-medium text-[#5F0080]">nao3.vercel.app/store/{storeId}/sale</span>
+            </div>
+          </div>
         <button 
           onClick={async () => { await supabase.auth.signOut(); window.location.reload(); }}
           className="text-xs text-gray-500 hover:text-gray-800 underline"
         >
-          �?���溢?��
+          로그아웃
         </button>
       </div>
 
-        {/* ?�𡆀 1??2??窸𥔱� ?��? ?�猹�? ?賄�?篣國�?& ?科�???渥焩�?*/}
+        {/* 상단 1단/2단 고정 영역: 상호명, 세일 기간 & 사장님 이야기 */}
         <div className="max-w-2xl mx-auto w-full p-4 bg-[#F9F9F9] border-b border-gray-200 flex flex-col gap-4">
           
-          {/* ?�猹�???�� */}
+          {/* 상호명 설정 */}
           <div>
             <h3 className="text-[13px] font-bold text-gray-800 mb-2 flex items-center gap-1.5">
-              ?????�收 諤木𤟠 ?�猹�?            </h3>
+              🏪 우리 매장 상호명
+            </h3>
             <input 
               type="text" 
               value={storeName} 
               onChange={e => setStoreName(e.target.value)} 
-              placeholder="?? ??�收?�?�� ?𥔱𥘵諤�??
+              placeholder="예: 우리동네 할인마트"
               className="w-full text-[13px] font-bold text-[#5F0080] border border-gray-200 px-3 py-2 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]" 
             />
           </div>
 
-          {/* 1?? ?賄�?鴔��?篣國�?*/}
+          {/* 1단: 세일 진행 기간 */}
           <div>
             <h3 className="text-[13px] font-bold text-gray-800 mb-2 flex items-center gap-1.5">
-              ?�儭??渠� ?賄�?鴔��?篣國�?
+              🗓️ 이번 세일 진행 기간
             </h3>
             <div className="flex items-center justify-between gap-2">
               <input 
@@ -493,14 +499,15 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
             </div>
           </div>
           
-          {/* 2?? ?科�???渥焩�?*/}
+          {/* 2단: 사장님 이야기 */}
           <div className="flex flex-col gap-2">
             <h3 className="text-[13px] font-bold text-gray-800 flex items-center gap-1.5">
-              ?�???��???科�???渥焩�?            </h3>
+              🌸 오늘의 사장님 이야기
+            </h3>
             <textarea
               value={bossMessage}
               onChange={e => setBossMessage(e.target.value)}
-              placeholder="?? ?渠邪??�㨩~ ??�� ??��???𨰰�??�炭 鮈门?��?��? ?賈�????��?賄�~"
+              placeholder="예: 어머님들~ 오늘 들어온 한우 너무 좋습니다! 언능 나오세요~"
               className="w-full bg-[#5F0080]/5 border border-[#5F0080]/15 rounded-lg px-3 py-2 text-[13px] text-gray-800 focus:outline-none focus:ring-1 focus:ring-[#5F0080] min-h-[60px] resize-y placeholder:text-gray-400"
             />
             <button
@@ -508,12 +515,12 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
               disabled={loading}
               className="w-full py-2 bg-purple-50 text-[#5F0080] border border-purple-100 hover:bg-purple-100 font-bold rounded-lg transition-colors text-[13px]"
             >
-              ?�猹�?�?篣國�?�?諰属??鴞吣�?諻䁯�??�萼
+              상호명 · 기간 · 멘트 즉시 반영하기
             </button>
           </div>
         </div>
         
-        {/* ??���窸𧙖????*/}
+        {/* 카테고리 탭 */}
         <div className="max-w-2xl mx-auto w-full flex border-b border-gray-100">
           {CATEGORIES.map(cat => (
             <button
@@ -530,14 +537,14 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
           ))}
         </div>
 
-        {/* ??��?窸𥔱� ?�� ??(?禺汝?? */}
+        {/* 단일 고정 입력 폼 (슬림화) */}
         <div className="max-w-2xl mx-auto w-full p-3 bg-white">
           <form onSubmit={handleAddItem} className="flex flex-col gap-2">
             
             <div className="relative">
               <input 
                 type="text" 
-                placeholder="?���?(黕��?窶�??鴔�?? ?? ?汿�)"
+                placeholder="상품명 (초성 검색 지원, 예: ㅎㅇ)"
                 value={newItem.product_name}
                 onFocus={() => setShowNameDropdown(true)}
                 onBlur={() => setTimeout(() => { setShowNameDropdown(false); setNameIdx(-1); }, 200)}
@@ -565,7 +572,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
                 }}
                 className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
               />
-              {/* ?���???��?�� ?嶅＃??��?*/}
+              {/* 상품명 자동완성 드롭다운 */}
               {showNameDropdown && matchedNames.length > 0 && (
                 <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                   {matchedNames.map((name, index) => (
@@ -591,7 +598,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
               <div className="relative flex-1">
                 <input 
                   type="text" 
-                  placeholder="鴗炣�?(黕��?窶�??"
+                  placeholder="중량 (초성 검색)"
                   value={newItem.quantity}
                   onFocus={() => setShowQtyDropdown(true)}
                   onBlur={() => setTimeout(() => { setShowQtyDropdown(false); setQtyIdx(-1); }, 200)}
@@ -619,7 +626,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
                   }}
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
                 />
-                {/* 鴗炣�???��?�� ?嶅＃??��?*/}
+                {/* 중량 자동완성 드롭다운 */}
                 {showQtyDropdown && matchedQtys.length > 0 && (
                   <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                     {matchedQtys.map((qty, index) => (
@@ -643,7 +650,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
               
               <input 
                 type="text" 
-                placeholder="?賄�?穈��?
+                placeholder="세일 가격"
                 value={newItem.sale_price}
                 onChange={e => {
                   const raw = e.target.value.replace(/[^0-9]/g, '');
@@ -657,7 +664,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
                 type="submit"
                 className={`flex-1 py-2 font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${editingHistoryItemId ? 'bg-[#5F0080] text-white' : 'bg-white border border-[#5F0080] text-[#5F0080] hover:bg-[#5F0080]/5'}`}
               >
-                {editingHistoryItemId ? '?????�� ?�� (鴞吣�?諻䁯�?' : <><span className="text-lg leading-none">+</span> 黺�????�萼</>}
+                {editingHistoryItemId ? '✓ 수정 완료 (즉시 반영)' : <><span className="text-lg leading-none">+</span> 추가하기</>}
               </button>
               {editingHistoryItemId && (
                 <button 
@@ -668,7 +675,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
                   }}
                   className="px-4 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition-colors"
                 >
-                  鼒到�?
+                  취소
                 </button>
               )}
             </div>
@@ -676,18 +683,19 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
         </div>
       </div>
 
-      {/* ?梵�???�版 謔科???(?�渣???�? */}
+      {/* 등록된 품목 리스트 (컴팩트 뷰) */}
       <div className="max-w-2xl mx-auto p-3 pt-4 pb-6">
         <div className="flex justify-between items-end mb-2 px-1">
-          <h3 className="text-sm font-bold text-gray-700">?��???賄�??賄� ?梵� ?��??��?/h3>
+          <h3 className="text-sm font-bold text-gray-700">새로운 세일 푸시 등록 대기열</h3>
           <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">
-            {currentItems.length}�?          </span>
+            {currentItems.length}건
+          </span>
         </div>
 
         {currentItems.length === 0 ? (
           <div className="bg-white py-8 rounded-xl border border-dashed border-gray-300 text-center text-gray-400">
-            <span className="text-2xl opacity-50 block mb-2">?�?/span>
-            <p className="text-[12px]">???潰�???��???��??鴥潰�??</p>
+            <span className="text-2xl opacity-50 block mb-2">📝</span>
+            <p className="text-[12px]">위 폼에서 상품을 입력해 주세요.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-2">
@@ -714,14 +722,14 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
                       onClick={() => handleEditItem(item)}
                       className="text-[11px] font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                     >
-                      ???��
+                      수정
                     </button>
                     <button 
                       type="button"
                       onClick={() => handleRemoveItem(item.id)}
                       className="text-[11px] font-bold px-3 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
                     >
-                      ??�?
+                      삭제
                     </button>
                   </div>
                 </div>
@@ -730,27 +738,27 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
           </div>
         )}
 
-        {/* ?賈�???�??貒�𢩦 (?��??��?諻竾�??�� ?��) */}
+        {/* 인라인 저장 버튼 (대기열 바로 아래 위치) */}
         <div className="mt-4 p-4 bg-purple-50 rounded-xl border border-purple-100 flex items-center justify-between gap-4">
           <div className="flex flex-col pl-1">
-            <span className="text-[11px] text-[#5F0080]/70 font-semibold">�??梵� ?��??/span>
-            <span className="text-xl font-extrabold text-[#5F0080] leading-none">{totalItemsCount}�?/span>
+            <span className="text-[11px] text-[#5F0080]/70 font-semibold">총 등록 대기</span>
+            <span className="text-xl font-extrabold text-[#5F0080] leading-none">{totalItemsCount}건</span>
           </div>
           <button 
             onClick={handleSave}
             disabled={loading}
             className="flex-1 py-3.5 bg-[#5F0080] hover:bg-[#4a0066] disabled:bg-gray-300 text-white font-bold rounded-xl transition-all shadow-sm disabled:shadow-none text-sm"
           >
-            {loading ? '?�??�?..' : '?賄�??賄� ?梵� ?��'}
+            {loading ? '저장 중...' : '세일 푸시 등록 완료'}
           </button>
         </div>
 
       </div>
 
-      {/* 諻�?�� ?渠� ?�?�� */}
+      {/* 발송 이력 섹션 */}
       <div className="max-w-2xl mx-auto p-3 pt-6">
         <h3 className="text-sm font-bold text-gray-700 mb-3 px-1 flex items-center gap-1.5">
-          ?�?鴔�???賄�?諻�?�� ?渥�?
+          🕒 지난 세일 발송 내역
         </h3>
         
         <div className="flex flex-col gap-3">
@@ -766,10 +774,10 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
                   className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="text-[14px] font-bold text-gray-800">{dateStr} 諻�?��</span>
-                    <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">{history.item_count}�?/span>
+                    <span className="text-[14px] font-bold text-gray-800">{dateStr} 발송</span>
+                    <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">{history.item_count}건</span>
                   </div>
-                  <span className={`text-gray-400 text-sm transition-transform ${isExpanded ? 'rotate-180' : ''}`}>??/span>
+                  <span className={`text-gray-400 text-sm transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
                 </button>
                 
                 {isExpanded && (
@@ -793,7 +801,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
                               onClick={() => handleHistoryToggleSoldOut(history.id, item.id, item.is_sold_out)}
                               className={`text-[11px] font-bold px-3 py-1 rounded-full border transition-colors ${item.is_sold_out ? 'bg-red-500 text-white border-red-500' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'}`}
                             >
-                              {item.is_sold_out ? '?�� ?渥�' : '?�� �?��??}
+                              {item.is_sold_out ? '품절 해제' : '품절 처리'}
                             </button>
                             <div className="flex gap-1.5">
                               <button 
@@ -801,21 +809,21 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
                                 onClick={() => handleHistoryEditItem(history.id, item)}
                                 className="text-[11px] font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                               >
-                                ???��
+                                수정
                               </button>
                               <button 
                                 type="button"
                                 onClick={() => handleHistoryDeleteItem(history.id, item.id)}
                                 className="text-[11px] font-bold px-3 py-1 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
                               >
-                                ??�?
+                                삭제
                               </button>
                             </div>
                           </div>
                         </div>
                       ))
                     ) : (
-                      <div className="p-4 text-center text-sm text-gray-400">?�� ?�版 ??��??? ?��?��?</div>
+                      <div className="p-4 text-center text-sm text-gray-400">상세 품목 데이터가 없습니다.</div>
                     )}
                   </div>
                 )}
@@ -825,7 +833,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
           
           {histories.length === 0 && (
             <div className="text-center py-8 text-gray-400 text-sm border border-dashed border-gray-300 rounded-xl bg-white">
-              ?�� 諻�?��???渥�???��?��?
+              아직 발송된 내역이 없습니다.
             </div>
           )}
         </div>
