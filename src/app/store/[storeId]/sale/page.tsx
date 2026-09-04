@@ -145,7 +145,7 @@ export default function CustomerSalePage() {
   }
 
   return (
-    <main className="min-h-screen bg-white pb-24 font-sans">
+    <main className="min-h-screen bg-[#F1F2F4] pb-24 font-sans">
       {/* 헤더 영역 (투톤 분리 - 직선형) */}
       <div className="flex flex-col">
         
@@ -201,7 +201,7 @@ export default function CustomerSalePage() {
       </div>
 
       {/* 세일 품목 리스트 */}
-      <div className="max-w-md mx-auto px-4 pt-0 pb-8">
+      <div className="max-w-md mx-auto w-full flex flex-col gap-3 pt-3 pb-8">
         {items.length === 0 ? (
           <div className="text-center py-16 text-gray-400 bg-white rounded-2xl border border-gray-100 shadow-sm">
             <span className="text-4xl block mb-4 opacity-30">✨</span>
@@ -214,21 +214,23 @@ export default function CustomerSalePage() {
               if (!catItems || catItems.length === 0) return null;
 
               return (
-                <section key={cat.id} className="animate-fade-in-up">
+                <section key={cat.id} className="animate-fade-in-up bg-white px-5 py-7 shadow-sm border-y border-gray-200">
                   
-                  {/* 고급스러운 에디토리얼 스타일 카테고리 헤더 */}
-                  <div className="flex flex-col items-center justify-center mb-6 mt-8">
-                    <span className="text-[11px] font-extrabold text-[#5F0080]/80 uppercase tracking-[0.3em] mb-1.5">
-                      {cat.subtitle}
-                    </span>
-                    <h3 className="text-[22px] font-black text-gray-900 tracking-tight">
-                      {cat.title}
-                    </h3>
-                    <div className="w-8 h-[3px] bg-[#5F0080] mt-3 rounded-full opacity-90"></div>
+                  {/* 고급스러운 좌측 정렬 카테고리 헤더 */}
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-1.5 h-6 bg-[#5F0080] rounded-full"></div>
+                    <div className="flex flex-col">
+                      <h3 className="text-[20px] font-extrabold text-gray-900 tracking-tight leading-none">
+                        {cat.title}
+                      </h3>
+                      <span className="text-[11px] font-black text-[#5F0080]/60 uppercase tracking-[0.2em] mt-1 block">
+                        {cat.subtitle}
+                      </span>
+                    </div>
                   </div>
                   
-                  {/* 리스트: 박스 없이 바탕 화면에 직접 텍스트+선 정렬 */}
-                  <div className="flex flex-col px-1 pt-1 pb-6">
+                  {/* 리스트: 깔끔한 라인 정렬 */}
+                  <div className="flex flex-col">
                     {catItems.map((item) => (
                       <div key={item.id} className={`flex items-center justify-between py-3.5 border-b border-gray-200 last:border-b-0 transition-all ${item.is_sold_out ? 'opacity-50' : ''}`}>
                         
