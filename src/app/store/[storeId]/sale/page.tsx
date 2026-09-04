@@ -216,16 +216,15 @@ export default function CustomerSalePage() {
               return (
                 <section key={cat.id} className="animate-fade-in-up">
                   
-                  {/* 독립된 알약 형태 카테고리 뱃지 */}
-                  <div className="flex justify-center mb-4 mt-4">
-                    <div className="inline-flex items-center gap-2 bg-purple-50 border border-purple-200 shadow-sm rounded-full px-5 py-2.5">
-                      <span className="text-[16px] font-extrabold text-[#5F0080] tracking-tight">
-                        {cat.title}
-                      </span>
-                      <span className="text-[11px] font-black text-[#5F0080]/60 uppercase tracking-widest border-l border-purple-300/50 pl-2">
-                        {cat.subtitle}
-                      </span>
-                    </div>
+                  {/* 고급스러운 에디토리얼 스타일 카테고리 헤더 */}
+                  <div className="flex flex-col items-center justify-center mb-6 mt-8">
+                    <span className="text-[11px] font-extrabold text-[#5F0080]/80 uppercase tracking-[0.3em] mb-1.5">
+                      {cat.subtitle}
+                    </span>
+                    <h3 className="text-[22px] font-black text-gray-900 tracking-tight">
+                      {cat.title}
+                    </h3>
+                    <div className="w-8 h-[3px] bg-[#5F0080] mt-3 rounded-full opacity-90"></div>
                   </div>
                   
                   {/* 리스트: 박스 없이 바탕 화면에 직접 텍스트+선 정렬 */}
