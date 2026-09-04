@@ -19,8 +19,7 @@ export default function AdminRouterPage() {
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session?.user) {
-      const { data: st } = await supabase.from('nao3_stores').select('slug').eq('id', session.user.id).single();
-      if(st) router.push(`/store/${st.slug}`);
+      router.push(`/store/${session.user.id}`);
     } else {
       setLoading(false);
     }
@@ -38,8 +37,7 @@ export default function AdminRouterPage() {
       alert('로그인 실패: ' + error.message);
       setLoading(false);
     } else if (data.session?.user) {
-      const { data: st } = await supabase.from('nao3_stores').select('slug').eq('id', data.session.user.id).single();
-      if(st) router.push(`/store/${st.slug}`);
+      router.push(`/store/${data.session.user.id}`);
     }
   };
 

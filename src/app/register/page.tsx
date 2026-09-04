@@ -11,7 +11,6 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [storeName, setStoreName] = useState('');
-  const [slug, setSlug] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [address, setAddress] = useState('');
   const [businessNumber, setBusinessNumber] = useState(''); // 사업자등록번호 추가
@@ -60,7 +59,6 @@ export default function RegisterPage() {
         id: authData.user?.id, // 1사장님 = 1스토어 격리 (Tenant ID)
         email,
         store_name: storeName,
-        slug,
         owner_name: ownerName,
         address,
         business_number: businessNumber, // 사업자등록번호 저장
@@ -120,14 +118,6 @@ export default function RegisterPage() {
                 <input 
                   type="text" required placeholder="상호명" 
                   value={storeName} onChange={e => setStoreName(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
-                />
-              </div>
-              <div>
-                <label className="block text-[13px] font-bold text-gray-700 mb-1.5">매장 전용 영문 아이디 (예: naosuper)</label>
-                <input 
-                  type="text" required placeholder="영문 소문자/숫자만 입력" 
-                  value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
                 />
                 <input 

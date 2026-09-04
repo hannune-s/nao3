@@ -9,20 +9,27 @@ import ButcherAdmin from '@/components/ButcherAdmin';
 export default function StoreAdminPage() {
   const router = useRouter();
   const params = useParams();
-  const storeSlug = params.storeId as string;
+  const storeId = params.storeId as string;
   const [loading, setLoading] = useState(true);
   const [storeData, setStoreData] = useState<any>(null);
 
   useEffect(() => {
-    if (storeSlug) {
+    if (storeId) {
       checkUserAndStore();
     }
-  }, [storeSlug]);
+  }, [storeId]);
 
   const checkUserAndStore = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session?.user) {
+      router.push('/'); // 로그인 안 되어 있으면 메인으로 리다이렉트
+      return;
+    }
+
+    // 본인의 storeId가 맞는지 확인
+    if (session.user.id !== storeId) {
+      alert('접근 권한이 없습니다.');
       router.push('/');
       return;
     }
@@ -30,15 +37,10 @@ export default function StoreAdminPage() {
     const { data: store, error } = await supabase
       .from('nao3_stores')
       .select('*')
-      .eq('slug', storeSlug)
+      .eq('id', storeId)
       .single();
       
     if (store) {
-      if (session.user.id !== store.id) {
-        alert('접근 권한이 없습니다.');
-        router.push('/');
-        return;
-      }
       setStoreData(store);
     } else {
       console.error('Store 데이터를 찾을 수 없습니다.', error);
@@ -66,7 +68,7 @@ export default function StoreAdminPage() {
   }
 
   if (storeData.business_type === 'mart') {
-    return <MartAdmin storeId={storeData.id} initialStoreName={storeData.store_name} storeSlug={storeData.slug} />;
+    return <MartAdmin storeId={storeData.id} initialStoreName={storeData.store_name} />;
   } else if (storeData.business_type === 'butcher') {
     return <ButcherAdmin storeId={storeData.id} storeName={storeData.store_name} />;
   } else {
