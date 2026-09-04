@@ -163,41 +163,45 @@ export default function CustomerSalePage() {
           </div>
         </div>
 
-        {/* 2. 특가 배너 영역 (화사한 연보라색 포인트 톤 - 수평 직선형) */}
-        <div className="bg-[#F4E8F9] py-5 px-4 text-center border-b border-purple-200 shadow-sm animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <h3 className="text-xl font-extrabold text-[#5F0080] mb-1.5 tracking-tight">
-            🎉 오늘의 특가 찬스!
-          </h3>
-          <p className="text-[13px] font-bold text-purple-900/60 mb-3">
-            단골 고객님을 위해 준비한 깜짝 한정 세일
-          </p>
+        {/* 연보라색 래퍼 (특가 배너 + 사장님 이야기 묶음) */}
+        <div className="bg-[#F4E8F9] w-full pb-6 shadow-sm border-b border-purple-200">
           
-          {periodText && (
-            <div className="inline-block bg-white text-[#5F0080] font-black text-[12px] px-5 py-2 rounded-full shadow-sm border border-purple-100">
-              {periodText}
+          {/* 2. 특가 배너 영역 */}
+          <div className="py-6 px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <h3 className="text-xl font-extrabold text-[#5F0080] mb-1.5 tracking-tight">
+              🎉 오늘의 특가 찬스!
+            </h3>
+            <p className="text-[13px] font-bold text-purple-900/60 mb-3">
+              단골 고객님을 위해 준비한 깜짝 한정 세일
+            </p>
+            
+            {periodText && (
+              <div className="inline-block bg-white text-[#5F0080] font-black text-[12px] px-5 py-2 rounded-full shadow-sm border border-purple-100">
+                {periodText}
+              </div>
+            )}
+          </div>
+
+          {/* 오늘의 사장님 이야기 */}
+          {bossMessage && (
+            <div className="max-w-md mx-auto px-4 pt-1 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="relative border border-purple-100 rounded-2xl p-6 bg-white shadow-sm">
+                <div className="flex items-center gap-1.5 mb-3">
+                  <span className="text-[#5F0080] text-[16px] leading-none">🌸</span>
+                  <h3 className="text-[14px] font-bold text-[#5F0080] tracking-wide">오늘의 사장님 이야기</h3>
+                </div>
+                <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
+                  {bossMessage}
+                </p>
+              </div>
             </div>
           )}
         </div>
 
       </div>
 
-      {/* 오늘의 사장님 이야기 */}
-      {bossMessage && (
-        <div className="max-w-md mx-auto px-4 pt-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          <div className="relative border border-purple-100 rounded-2xl p-6 bg-white shadow-[0_8px_30px_rgba(95,0,128,0.04)]">
-            <div className="flex items-center gap-1.5 mb-3">
-              <span className="text-[#5F0080] text-[16px] leading-none">🌸</span>
-              <h3 className="text-[14px] font-bold text-[#5F0080] tracking-wide">오늘의 사장님 이야기</h3>
-            </div>
-            <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
-              {bossMessage}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* 세일 품목 리스트 */}
-      <div className="max-w-md mx-auto px-4 py-8">
+      <div className="max-w-md mx-auto px-4 pt-0 pb-8">
         {items.length === 0 ? (
           <div className="text-center py-16 text-gray-400 bg-white rounded-2xl border border-gray-100 shadow-sm">
             <span className="text-4xl block mb-4 opacity-30">✨</span>
