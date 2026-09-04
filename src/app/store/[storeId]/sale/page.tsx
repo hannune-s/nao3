@@ -145,7 +145,7 @@ export default function CustomerSalePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F9F9F9] pb-24 font-sans">
+    <main className="min-h-screen bg-white pb-24 font-sans">
       {/* 헤더 영역 (투톤 분리 - 직선형) */}
       <div className="flex flex-col">
         
@@ -212,32 +212,34 @@ export default function CustomerSalePage() {
               return (
                 <section key={cat.id} className="animate-fade-in-up">
                   
-                  {/* 세련된 카테고리 헤더 (포인트 컬러 바) */}
-                  <div className="flex flex-col mb-4 pl-3 border-l-4 border-[#5F0080]">
-                    <span className="text-[11px] font-black text-[#5F0080]/70 uppercase tracking-widest mb-0.5">
-                      {cat.subtitle}
-                    </span>
-                    <h3 className="text-[20px] font-extrabold text-gray-900 tracking-tight leading-none">
-                      {cat.title}
-                    </h3>
+                  {/* 세련된 카테고리 띠 배경 헤더 */}
+                  <div className="-mx-4 px-4 py-3 bg-[#5F0080] mb-1 flex items-center justify-between shadow-sm">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-purple-200 uppercase tracking-widest mb-0.5 opacity-90">
+                        {cat.subtitle}
+                      </span>
+                      <h3 className="text-[18px] font-extrabold text-white tracking-tight leading-none">
+                        {cat.title}
+                      </h3>
+                    </div>
                   </div>
                   
-                  {/* 리스트 카드 (고급스러운 패딩과 그림자) */}
-                  <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-gray-100 p-5 flex flex-col gap-4">
+                  {/* 리스트: 박스 없이 바탕 화면에 직접 텍스트+선 정렬 */}
+                  <div className="flex flex-col px-1 pt-1 pb-6">
                     {catItems.map((item) => (
-                      <div key={item.id} className={`flex items-center justify-between pb-4 border-b border-gray-100/70 last:border-b-0 last:pb-0 transition-all ${item.is_sold_out ? 'opacity-50' : ''}`}>
+                      <div key={item.id} className={`flex items-center justify-between py-3.5 border-b border-gray-200 last:border-b-0 transition-all ${item.is_sold_out ? 'opacity-50' : ''}`}>
                         
                         {/* 좌측: 상품명 & 중량 */}
                         <div className="flex items-center flex-1 min-w-0 pr-3 gap-2.5">
                           {item.is_sold_out && (
                             <span className="text-[11px] font-black text-white bg-red-600 px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
-                              SOLD OUT
+                              품절
                             </span>
                           )}
-                          <h4 className={`text-[16px] font-bold text-gray-900 truncate ${item.is_sold_out ? 'line-through text-gray-500' : ''}`}>
+                          <h4 className={`text-[16px] font-bold text-gray-900 truncate ${item.is_sold_out ? 'line-through text-gray-400' : ''}`}>
                             {item.product_name}
                           </h4>
-                          <span className={`text-[14px] font-extrabold px-2.5 py-1 rounded-md shrink-0 leading-none tracking-tight ${item.is_sold_out ? 'bg-gray-200 text-gray-500' : 'bg-purple-100 text-[#5F0080] border border-purple-200 shadow-sm'}`}>
+                          <span className={`text-[13px] font-extrabold tracking-tight ${item.is_sold_out ? 'text-gray-400' : 'text-[#5F0080]'}`}>
                             {item.quantity}
                           </span>
                         </div>
