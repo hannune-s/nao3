@@ -22,6 +22,10 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!slug) {
+      alert('매장 아이디를 입력해주세요.');
+      return;
+    }
     if (!file) {
       alert('사업자등록증을 첨부해주세요.');
       return;
@@ -29,6 +33,18 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
+      // 0. 슬러그(아이디) 중복 체크
+      const { data: existingStore } = await supabase
+        .from('nao3_stores')
+        .select('slug')
+        .eq('slug', slug)
+        .single();
+
+      if (existingStore) {
+        alert('이미 사용 중인 매장 아이디(주소)입니다. 다른 영문 아이디를 입력해주세요.');
+        setLoading(false);
+        return;
+      }
       // 1. 사업자등록증 Storage 업로드
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
