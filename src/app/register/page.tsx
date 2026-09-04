@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [storeName, setStoreName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [address, setAddress] = useState('');
+  const [businessNumber, setBusinessNumber] = useState(''); // 사업자등록번호 추가
   const [businessType, setBusinessType] = useState<'mart' | 'butcher'>('mart');
   const [file, setFile] = useState<File | null>(null);
   
@@ -60,6 +61,7 @@ export default function RegisterPage() {
         store_name: storeName,
         owner_name: ownerName,
         address,
+        business_number: businessNumber, // 사업자등록번호 저장
         business_type: businessType,
         business_license_url: licenseUrl,
       });
@@ -124,6 +126,11 @@ export default function RegisterPage() {
                   className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
                 />
               </div>
+              <input 
+                type="text" required placeholder="사업자등록번호 (예: 123-45-67890)" 
+                value={businessNumber} onChange={e => setBusinessNumber(e.target.value)}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
+              />
               <input 
                 type="text" required placeholder="매장 주소" 
                 value={address} onChange={e => setAddress(e.target.value)}
