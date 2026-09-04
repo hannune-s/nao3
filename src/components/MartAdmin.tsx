@@ -460,10 +460,6 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           <h1 className="text-xl font-extrabold text-[#5F0080] tracking-tight">Nao3</h1>
           <span className="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-0.5 rounded-md">슈퍼마켓 어드민</span>
             </div>
-            {/* 고유 URL 복사 안내 */}
-            <div className="text-[11px] text-gray-500 flex items-center gap-1 mt-1">
-              🔗 <span className="font-medium text-[#5F0080]">nao3.vercel.app/store/{storeSlug}/sale</span>
-            </div>
           </div>
         <button 
           onClick={async () => { await supabase.auth.signOut(); window.location.reload(); }}
