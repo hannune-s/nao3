@@ -163,33 +163,32 @@ export default function CustomerSalePage() {
           </div>
         </div>
 
-        {/* 특가 배너 및 사장님 이야기 (독립된 알약 뱃지 스타일) */}
-        <div className="w-full pb-8 pt-8 bg-white flex flex-col items-center">
+        {/* 연보라색 래퍼 (특가 배너 + 사장님 이야기 묶음) */}
+        <div className="bg-[#F4E8F9] w-full pb-6 shadow-sm border-b border-purple-200">
           
-          <div className="animate-fade-in-up flex flex-col items-center text-center px-4 w-full" style={{ animationDelay: '0.1s' }}>
-            {/* 알약 형태 독립 뱃지 */}
-            <div className="inline-flex items-center justify-center bg-purple-50 border border-purple-200 shadow-sm rounded-full px-5 py-2 mb-3">
-              <span className="text-[16px] font-extrabold text-[#5F0080] tracking-tight">📢 오늘의 특가 찬스!</span>
-            </div>
-            
-            <p className="text-[14px] font-bold text-gray-500 mb-3">
+          {/* 2. 특가 배너 영역 */}
+          <div className="py-6 px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <h3 className="text-xl font-extrabold text-[#5F0080] mb-1.5 tracking-tight">
+              🎉 오늘의 특가 찬스!
+            </h3>
+            <p className="text-[13px] font-bold text-purple-900/60 mb-3">
               단골 고객님을 위해 준비한 깜짝 한정 세일
             </p>
             
             {periodText && (
-              <div className="inline-block bg-gray-50 text-gray-600 font-extrabold text-[12px] px-4 py-1.5 rounded-full border border-gray-200">
-                🗓️ {periodText}
+              <div className="inline-block bg-white text-[#5F0080] font-black text-[12px] px-5 py-2 rounded-full shadow-sm border border-purple-100">
+                {periodText}
               </div>
             )}
           </div>
 
           {/* 오늘의 사장님 이야기 */}
           {bossMessage && (
-            <div className="max-w-md w-full mx-auto px-4 pt-6 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <div className="relative border border-purple-100 rounded-2xl p-6 bg-white shadow-[0_4px_20px_rgba(95,0,128,0.04)]">
+            <div className="max-w-md mx-auto px-4 pt-1 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="relative border border-purple-100 rounded-2xl p-6 bg-white shadow-sm">
                 <div className="flex items-center gap-1.5 mb-3">
                   <span className="text-[#5F0080] text-[16px] leading-none">🌸</span>
-                  <h3 className="text-[14px] font-extrabold text-[#5F0080] tracking-wide">오늘의 사장님 이야기</h3>
+                  <h3 className="text-[14px] font-bold text-[#5F0080] tracking-wide">오늘의 사장님 이야기</h3>
                 </div>
                 <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
                   {bossMessage}
