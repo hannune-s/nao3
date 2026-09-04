@@ -280,13 +280,16 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
     setLoading(true);
     try {
       // 1. 가게 상호명 업데이트
-      const { error: storeError } = await supabase
+      const { data: updatedStore, error: storeError } = await supabase
         .from('nao3_stores')
         .update({ store_name: storeName })
-        .eq('id', storeId);
+        .eq('id', storeId)
+        .select();
       
-      if (storeError) {
+      if (storeError || !updatedStore || updatedStore.length === 0) {
         console.error('상호명 업데이트 실패:', storeError);
+        alert('상호명 수정 권한이 없습니다. (RLS 에러)');
+        return;
       }
 
       // 2. 가장 최근 발송 이력의 기간 및 사장님 멘트 업데이트
