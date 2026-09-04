@@ -25,9 +25,10 @@ const QTY_DICT = [
 interface MartAdminProps {
   storeId: string;
   initialStoreName: string;
+  storeSlug?: string;
 }
 
-export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps) {
+export default function MartAdmin({ storeId, initialStoreName, storeSlug }: MartAdminProps) {
   const [activeTab, setActiveTab] = useState('정육');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -449,7 +450,7 @@ export default function MartAdmin({ storeId, initialStoreName }: MartAdminProps)
             </div>
             {/* 고유 URL 복사 안내 */}
             <div className="text-[11px] text-gray-500 flex items-center gap-1 mt-1">
-              🔗 <span className="font-medium text-[#5F0080]">nao3.vercel.app/store/{storeId}/sale</span>
+              🔗 <span className="font-medium text-[#5F0080]">nao3.vercel.app/store/{storeSlug}/sale</span>
             </div>
           </div>
         <button 
