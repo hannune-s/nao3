@@ -261,15 +261,27 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       }
     } else {
       // 일반 대기열 추가 모드
-      const insertData = { 
-        id: Date.now().toString(),
-        category: activeTab, 
-        product_name: newItem.product_name, 
-        quantity: newItem.quantity, 
-        sale_price: formattedPrice,
-        is_sold_out: false
-      };
-      setItems([...items, insertData]);
+      if (existingIndex !== -1) {
+        // 이미 동일한 품목+단위가 있다면 가격만 업데이트 (중복 방지)
+        const newItems = [...items];
+        newItems[existingIndex] = {
+          ...newItems[existingIndex],
+          sale_price: formattedPrice
+        };
+        setItems(newItems);
+      } else {
+        // 완전히 새로운 항목이면 추가
+        const insertData = { 
+          id: Date.now().toString(),
+          category: activeTab, 
+          product_name: newItem.product_name, 
+          quantity: newItem.quantity, 
+          sale_price: formattedPrice,
+          is_sold_out: false
+        };
+        setItems([...items, insertData]);
+        setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 100);
+      }
     }
 
     setNewItem({ product_name: '', quantity: '', sale_price: '' });
