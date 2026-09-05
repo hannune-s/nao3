@@ -95,7 +95,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   };
 
   // 이력에서 추출한 최근 사용 데이터
-  const recentNames = Array.from(new Set(histories.flatMap(h => h.nao3_sale_items.map((i: any) => i.product_name)))).filter(Boolean);
+  const recentNames = Array.from(new Set(histories.flatMap(h => h.nao3_sale_items.filter((i: any) => i.category === activeTab).map((i: any) => i.product_name)))).filter(Boolean);
   const recentQtys = Array.from(new Set(histories.flatMap(h => h.nao3_sale_items.map((i: any) => i.quantity)))).filter(Boolean);
   const recentPrices = Array.from(new Set(histories.flatMap(h => h.nao3_sale_items.map((i: any) => i.sale_price.replace(/[^0-9]/g, ''))))).filter(Boolean);
 
