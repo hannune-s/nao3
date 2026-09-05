@@ -867,9 +867,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             </div>
 
             {/* 할인율 입력 (인풋 박스 + 퀵 태그) */}
-            <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2 flex flex-col gap-1.5">
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-black text-red-500 flex-shrink-0">🔥 할인율</span>
+            <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2.5 flex flex-col gap-2">
+              <div className="flex items-center gap-2.5">
+                <span className="text-[15px] font-black text-red-600 flex-shrink-0 tracking-tight pl-1">할인율</span>
                 <div className="relative flex items-center flex-1">
                   <input
                     type="text"
@@ -880,7 +880,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                       const raw = e.target.value.replace(/[^0-9]/g, '');
                       setNewItem({...newItem, discount_rate: raw});
                     }}
-                    className="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-[13px] font-bold text-red-500 placeholder:text-gray-300 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-red-400 pr-6"
+                    className="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-[14px] font-bold text-red-500 placeholder:text-gray-300 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-red-400 pr-6"
                   />
                   {newItem.discount_rate && (
                     <span className="absolute right-2 text-[12px] font-black text-red-400 pointer-events-none">%</span>
@@ -890,7 +890,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                   <button
                     type="button"
                     onClick={() => setNewItem({...newItem, discount_rate: ''})}
-                    className="text-[11px] text-gray-400 hover:text-red-400 font-bold flex-shrink-0 px-1"
+                    className="text-[12px] text-gray-400 hover:text-red-400 font-bold flex-shrink-0 px-1"
                   >
                     ✕
                   </button>
@@ -902,7 +902,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                     key={pct}
                     type="button"
                     onClick={() => setNewItem({...newItem, discount_rate: newItem.discount_rate === pct ? '' : pct})}
-                    className={`flex-1 py-0.5 text-[11px] font-bold rounded transition-colors ${
+                    className={`flex-1 py-1 text-[12px] font-bold rounded transition-colors ${
                       newItem.discount_rate === pct
                         ? 'bg-red-500 text-white shadow-sm'
                         : 'bg-white text-red-400 border border-red-200 hover:bg-red-100'
@@ -912,6 +912,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                   </button>
                 ))}
               </div>
+              <p className="text-[10px] text-red-500 font-bold leading-tight tracking-tight mt-0.5 text-center break-keep opacity-80">
+                ※ 입력하신 할인율은 실제 가격 계산에 반영되지 않으며, 고객 화면에 강조 표시용으로만 노출됩니다.
+              </p>
             </div>
 
             <div className="flex gap-2">
