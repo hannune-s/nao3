@@ -689,12 +689,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               {/* 상품명 자동완성 드롭다운 */}
               {showNameDropdown && matchedNames.length > 0 && (
                 <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  {newItem.product_name.trim() === '' && recentNames.length > 0 && (
-                <li className="px-3 py-1.5 text-[11px] font-black text-[#5F0080] bg-purple-50 border-b border-purple-100 flex items-center justify-between">
-                  최근 사용 및 추천 품목
-                  <span className="text-[9px] bg-[#5F0080] text-white px-1.5 py-0.5 rounded-sm font-bold">MY</span>
-                </li>
-              )}
+                  
               {matchedNames.map((name, index) => (
                     <li 
                       key={name}
@@ -749,12 +744,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                 {/* 중량 자동완성 드롭다운 */}
                 {showQtyDropdown && matchedQtys.length > 0 && (
                   <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    {newItem.quantity.trim() === '' && recentQtys.length > 0 && (
-                  <li className="px-3 py-1.5 text-[11px] font-black text-[#5F0080] bg-purple-50 border-b border-purple-100 flex items-center justify-between">
-                    우리 매장 단위
-                    <span className="text-[9px] bg-[#5F0080] text-white px-1.5 py-0.5 rounded-sm font-bold">MY</span>
-                  </li>
-                )}
+                    
                 {matchedQtys.map((qty, index) => (
                       <li 
                         key={qty}
@@ -809,12 +799,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               {/* 세일 가격 자동완성 드롭다운 */}
               {showPriceDropdown && matchedPrices.length > 0 && (
                 <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto top-full left-0">
-                  {newItem.sale_price.trim() === '' && recentPrices.length > 0 && (
-                    <li className="px-3 py-1.5 text-[11px] font-black text-[#5F0080] bg-purple-50 border-b border-purple-100 flex items-center justify-between">
-                      최근 입력한 가격
-                      <span className="text-[9px] bg-[#5F0080] text-white px-1.5 py-0.5 rounded-sm font-bold">MY</span>
-                    </li>
-                  )}
+                  
                   {matchedPrices.map((price, index) => (
                     <li 
                       key={index}
