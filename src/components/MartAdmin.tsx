@@ -443,15 +443,35 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       if (isSamePeriod) {
         // 기존 그룹에 추가 (업데이트)
         pushId = latestPush.id;
+        
+        const existingItemsInDb = latestPush.nao3_sale_items || [];
+        const toUpdate: any[] = [];
+        const toInsert: any[] = [];
+
+        for (const item of validItems) {
+          const dbMatch = existingItemsInDb.find((dbItem: any) => dbItem.product_name === item.product_name);
+          if (dbMatch) {
+            toUpdate.push({ id: dbMatch.id, quantity: item.quantity, sale_price: item.sale_price, category: item.category });
+          } else {
+            toInsert.push(item);
+          }
+        }
+
+        // Run updates for existing DB items
+        for (const up of toUpdate) {
+           await supabase.from('nao3_sale_items').update({ quantity: up.quantity, sale_price: up.sale_price, category: up.category }).eq('id', up.id);
+        }
+        
+        // Update the validItems array to only contain the items we need to insert
+        validItems.length = 0;
+        validItems.push(...toInsert);
+
         const { data: updatedData, error: updateError } = await supabase.from('nao3_push_history').update({
-          item_count: latestPush.item_count + validItems.length,
+          item_count: latestPush.item_count + toInsert.length,
           boss_message: bossMessage.trim() || null
         }).eq('id', pushId).select();
         
         if (updateError) throw updateError;
-        if (!updatedData || updatedData.length === 0) {
-           throw new Error("보안 정책(RLS) 문제로 업데이트가 차단되었습니다. 제공해드린 SQL을 Supabase에서 실행해주세요!");
-        }
       } else {
         // 완전히 새로운 기간이므로 새로운 세일 그룹 생성
         const { data: historyData, error: historyError } = await supabase

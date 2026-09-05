@@ -314,12 +314,13 @@ export default function CustomerSalePage() {
                       catItems.forEach(item => {
                         const existing = mergedItems.find(mi => mi.product_name === item.product_name);
                         if (existing) {
-                          existing.options.push({
+                          // 기존 옵션을 배열에 추가하지 않고 완전히 최신값으로 덮어씌움 (단일 라인 유지)
+                          existing.options = [{
                             id: item.id,
                             quantity: item.quantity,
                             sale_price: item.sale_price,
                             is_sold_out: item.is_sold_out
-                          });
+                          }];
                         } else {
                           mergedItems.push({
                             ...item,
