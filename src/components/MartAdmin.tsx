@@ -54,6 +54,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   // 이력 관리 상태
   const [histories, setHistories] = useState<any[]>([]);
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
+  const [historyPage, setHistoryPage] = useState(1);
 
   // 상호명, 세일 진행 기간 및 사장님 이야기 상태
   const [storeName, setStoreName] = useState(() => {
