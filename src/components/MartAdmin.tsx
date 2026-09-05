@@ -41,7 +41,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
-  const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '' });
+  const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '', discount_rate: '' });
 
   // 자동완성 드롭다운 상태
   const [showNameDropdown, setShowNameDropdown] = useState(false);
@@ -89,7 +89,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   // 탭 변경 시 폼 초기화
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
-    setNewItem({ product_name: '', quantity: '', sale_price: '' });
+    setNewItem({ product_name: '', quantity: '', sale_price: '', discount_rate: '' });
     setNameIdx(-1);
     setQtyIdx(-1);
     setPriceIdx(-1);
@@ -311,13 +311,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         };
         setItems(newItems);
       } else {
-        // 완전히 새로운 항목이면 추가
         const insertData = { 
           id: Date.now().toString(),
           category: activeTab, 
           product_name: newItem.product_name, 
           quantity: newItem.quantity, 
           sale_price: formattedPrice,
+          discount_rate: newItem.discount_rate || '',
           is_sold_out: false
         };
         setItems([...items, insertData]);
@@ -325,7 +325,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       }
     }
 
-    setNewItem({ product_name: '', quantity: '', sale_price: '' });
+    setNewItem({ product_name: '', quantity: '', sale_price: '', discount_rate: '' });
     setNameIdx(-1);
     setQtyIdx(-1);
   };
@@ -335,7 +335,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     setNewItem({ 
       product_name: item.product_name, 
       quantity: item.quantity, 
-      sale_price: item.sale_price.replace(/[^0-9]/g, '') 
+      sale_price: item.sale_price.replace(/[^0-9]/g, ''),
+      discount_rate: item.discount_rate || ''
     });
     setActiveTab(item.category);
     handleRemoveItem(item.id); // 폼으로 끌어올리면서 기존 리스트에서는 제거
@@ -384,7 +385,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     setNewItem({ 
       product_name: item.product_name, 
       quantity: item.quantity, 
-      sale_price: item.sale_price.replace(/[^0-9]/g, '')
+      sale_price: item.sale_price.replace(/[^0-9]/g, ''),
+      discount_rate: item.discount_rate ? String(item.discount_rate) : ''
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -534,6 +536,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           product_name: item.product_name,
           quantity: item.quantity,
           sale_price: item.sale_price,
+          discount_rate: item.discount_rate ? parseInt(item.discount_rate, 10) : null,
           is_sold_out: item.is_sold_out || false,
           push_id: pushId,
           store_id: storeId
@@ -859,6 +862,39 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               )}
             </div>
             </div>
+
+            {/* 할인율 빠른 선택 */}
+            <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+              <span className="text-[11px] font-black text-red-500 flex-shrink-0">🔥 할인율</span>
+              <div className="flex gap-1 flex-1">
+                {['5', '10', '15', '20', '30'].map(pct => (
+                  <button
+                    key={pct}
+                    type="button"
+                    onClick={() => setNewItem({...newItem, discount_rate: newItem.discount_rate === pct ? '' : pct})}
+                    className={`flex-1 py-1 text-[11px] font-bold rounded transition-colors ${
+                      newItem.discount_rate === pct
+                        ? 'bg-red-500 text-white shadow-sm'
+                        : 'bg-white text-red-400 border border-red-200 hover:bg-red-50'
+                    }`}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="직접%"
+                  value={newItem.discount_rate && !['5','10','15','20','30'].includes(newItem.discount_rate) ? newItem.discount_rate + '%' : ''}
+                  onChange={e => {
+                    const raw = e.target.value.replace(/[^0-9]/g, '');
+                    setNewItem({...newItem, discount_rate: raw});
+                  }}
+                  className="w-14 text-center text-[11px] font-bold text-red-500 bg-white border border-red-200 rounded px-1 py-1 focus:outline-none focus:ring-1 focus:ring-red-400 placeholder:text-gray-300 placeholder:font-normal"
+                />
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <button 
                 type="submit"

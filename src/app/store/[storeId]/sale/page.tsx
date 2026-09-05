@@ -67,13 +67,13 @@ const getIconForProduct = (name: string) => {
   return '✨'; // 기본 아이콘
 };
 
-
 interface SaleItem {
   id: string;
   category: string;
   product_name: string;
   quantity: string;
   sale_price: string;
+  discount_rate?: number | null;
   created_at: string;
   is_sold_out?: boolean;
 }
@@ -356,6 +356,11 @@ export default function CustomerSalePage() {
                           <div className="text-right flex-shrink-0 flex flex-col items-end justify-center gap-1.5">
                             {item.options.map((opt: any, idx: number) => (
                               <div key={opt.id || idx} className={`flex items-center gap-2 ${opt.is_sold_out ? 'opacity-50' : ''}`}>
+                                {opt.discount_rate && !opt.is_sold_out && (
+                                  <span className="text-[13px] font-black text-white bg-red-500 px-2 py-0.5 rounded-md shrink-0 tracking-tight shadow-sm">
+                                    {opt.discount_rate}%
+                                  </span>
+                                )}
                                 <span className={`text-[13px] font-extrabold tracking-tight px-2 py-0.5 rounded-md shrink-0 ${opt.is_sold_out ? 'bg-gray-100 text-gray-400' : 'bg-purple-50 text-[#5F0080]'}`}>
                                   {opt.quantity}
                                 </span>
