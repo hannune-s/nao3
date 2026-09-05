@@ -118,7 +118,7 @@ export default function CustomerSalePage() {
   const categoryOrder = [
     { id: '정육', title: '프리미엄 미트 존', subtitle: 'Premium Meat' },
     { id: '청과', title: '엄선된 신선 과일', subtitle: 'Fresh Fruits' },
-    { id: '야채·수산', title: '신선채소 · 수산', subtitle: 'Vegetables & Seafood' },
+    { id: '야채', title: '신선채소 · 수산', subtitle: 'Vegetables & Seafood' },
     { id: '공산품', title: '데일리 생필품', subtitle: 'Daily & Groceries' },
   ];
 
