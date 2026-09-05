@@ -691,7 +691,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                 <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                   {newItem.product_name.trim() === '' && recentNames.length > 0 && (
                 <li className="px-3 py-1.5 text-[11px] font-black text-[#5F0080] bg-purple-50 border-b border-purple-100 flex items-center justify-between">
-                  우리 매장 최근 품목
+                  최근 사용 및 추천 품목
                   <span className="text-[9px] bg-[#5F0080] text-white px-1.5 py-0.5 rounded-sm font-bold">MY</span>
                 </li>
               )}
