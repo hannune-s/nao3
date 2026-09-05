@@ -240,9 +240,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
     // 만약 현재 Active 기간이고, DB에 이미 같은 상품이 있다면?
     if (!targetHistoryItemId && isSamePeriod && latestPush.nao3_sale_items) {
-      const dbMatch = latestPush.nao3_sale_items.find((i: any) => i.product_name === newItem.product_name);
-      if (dbMatch) {
-        targetHistoryItemId = { pushId: latestPush.id, itemId: dbMatch.id };
+      const dbMatches = latestPush.nao3_sale_items.filter((i: any) => i.product_name === newItem.product_name);
+      if (dbMatches.length > 0) {
+        // 기존 중복 데이터가 있을 경우 가장 마지막 항목(화면에 렌더링되는 항목)을 타겟으로 함
+        targetHistoryItemId = { pushId: latestPush.id, itemId: dbMatches[dbMatches.length - 1].id };
       }
     }
 
