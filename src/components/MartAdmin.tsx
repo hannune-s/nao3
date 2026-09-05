@@ -226,7 +226,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     const rawPrice = newItem.sale_price.replace(/[^0-9]/g, '');
     const formattedPrice = rawPrice ? parseInt(rawPrice, 10).toLocaleString() + '원' : '';
 
-    const existingIndex = items.findIndex(i => i.product_name === newItem.product_name && i.quantity === newItem.quantity);
+    const existingIndex = items.findIndex(i => i.product_name === newItem.product_name);
     
     if (editingHistoryItemId) {
       // 즉시 수정 모드
@@ -262,11 +262,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     } else {
       // 일반 대기열 추가 모드
       if (existingIndex !== -1) {
-        // 이미 동일한 품목+단위가 있다면 가격만 업데이트 (중복 방지)
+        // 이미 동일한 이름의 품목이 있다면 중량과 가격을 모두 최신으로 덮어씌움 (완벽한 Update)
         const newItems = [...items];
         newItems[existingIndex] = {
           ...newItems[existingIndex],
-          sale_price: formattedPrice
+          quantity: newItem.quantity,
+          sale_price: formattedPrice,
+          category: activeTab
         };
         setItems(newItems);
       } else {
