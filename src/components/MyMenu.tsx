@@ -6,16 +6,19 @@ import { useRouter } from 'next/navigation';
 export default function MyMenu({ storeData }: { storeData: any }) {
   const router = useRouter();
 
-  const [view, setView] = useState<'main' | 'account' | 'subscription'>('main');
+  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings'>('main');
 
   // Account form states
   const [ownerName, setOwnerName] = useState(storeData.owner_name || '');
+  const [newPassword, setNewPassword] = useState('');
+  const [isSavingAccount, setIsSavingAccount] = useState(false);
+
+  // Settings form states
   const [phone, setPhone] = useState(storeData.phone || '');
   const [address, setAddress] = useState(storeData.address || '');
   const [operatingHours, setOperatingHours] = useState(storeData.operating_hours || '');
   const [closedDays, setClosedDays] = useState(storeData.closed_days || '');
-  const [newPassword, setNewPassword] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   // Subscription mock states
   const [hasCard, setHasCard] = useState(false);
@@ -28,11 +31,11 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   };
 
   const handleSaveAccount = async () => {
-    setIsSaving(true);
+    setIsSavingAccount(true);
     try {
       const { error: dbError } = await supabase
         .from('nao3_stores')
-        .update({ owner_name: ownerName, phone: phone, address: address, operating_hours: operatingHours, closed_days: closedDays })
+        .update({ owner_name: ownerName })
         .eq('id', storeData.id);
 
       if (dbError) throw dbError;
@@ -48,7 +51,26 @@ export default function MyMenu({ storeData }: { storeData: any }) {
       console.error(err);
       alert('업데이트 중 오류가 발생했습니다: ' + err.message);
     } finally {
-      setIsSaving(false);
+      setIsSavingAccount(false);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    setIsSavingSettings(true);
+    try {
+      const { error: dbError } = await supabase
+        .from('nao3_stores')
+        .update({ phone, address, operating_hours: operatingHours, closed_days: closedDays })
+        .eq('id', storeData.id);
+
+      if (dbError) throw dbError;
+
+      alert('가게정보 설정이 성공적으로 업데이트되었습니다.');
+    } catch (err: any) {
+      console.error(err);
+      alert('업데이트 중 오류가 발생했습니다: ' + err.message);
+    } finally {
+      setIsSavingSettings(false);
     }
   };
 
@@ -78,22 +100,52 @@ export default function MyMenu({ storeData }: { storeData: any }) {
               <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">이름 (대표자명)</label>
               <input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="이름을 입력하세요" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" />
             </div>
-            <div>
-              <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">연락처</label>
-              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="연락처 (예: 010-1234-5678)" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" />
-            </div>
-            <div>
-              <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">매장 주소</label>
-              <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="매장 주소를 입력하세요" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" />
-            </div>
             <hr className="my-1 border-gray-100" />
             <div>
               <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">비밀번호 변경</label>
               <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="변경할 비밀번호 (기존 유지 시 비워둠)" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all placeholder:font-normal placeholder:text-gray-400" />
             </div>
           </div>
-          <button onClick={handleSaveAccount} disabled={isSaving} className={`w-full py-4 rounded-xl font-black text-white text-[16px] transition-all shadow-md ${isSaving ? 'bg-gray-400 shadow-none' : 'bg-[#5F0080] hover:bg-[#4A0066] hover:shadow-lg active:scale-[0.98]'}`}>
-            {isSaving ? '저장 중...' : '저장하기'}
+          <button onClick={handleSaveAccount} disabled={isSavingAccount} className={`w-full py-4 rounded-xl font-black text-white text-[16px] transition-all shadow-md ${isSavingAccount ? 'bg-gray-400 shadow-none' : 'bg-[#5F0080] hover:bg-[#4A0066] hover:shadow-lg active:scale-[0.98]'}`}>
+            {isSavingAccount ? '저장 중...' : '저장하기'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'settings') {
+    return (
+      <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
+        {/* Header */}
+        <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+          <button onClick={() => setView('main')} className="text-gray-400 hover:text-[#5F0080] transition-colors p-1 -ml-1">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">앱 환경 설정 (가게정보)</h1>
+        </div>
+
+        <div className="p-5 flex flex-col gap-5">
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col gap-5">
+            <div>
+              <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">매장 전화번호</label>
+              <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="연락처 (예: 010-1234-5678)" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">매장 주소</label>
+              <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="매장 주소를 입력하세요" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">영업시간</label>
+              <input type="text" value={operatingHours} onChange={(e) => setOperatingHours(e.target.value)} placeholder="예: 평일 09:00 ~ 21:00" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">휴무일</label>
+              <input type="text" value={closedDays} onChange={(e) => setClosedDays(e.target.value)} placeholder="예: 매주 일요일 휴무" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" />
+            </div>
+          </div>
+          <button onClick={handleSaveSettings} disabled={isSavingSettings} className={`w-full py-4 rounded-xl font-black text-white text-[16px] transition-all shadow-md ${isSavingSettings ? 'bg-gray-400 shadow-none' : 'bg-[#5F0080] hover:bg-[#4A0066] hover:shadow-lg active:scale-[0.98]'}`}>
+            {isSavingSettings ? '저장 중...' : '저장하기'}
           </button>
         </div>
       </div>
@@ -118,23 +170,28 @@ export default function MyMenu({ storeData }: { storeData: any }) {
             <div className="relative z-10">
               <h3 className="text-[14px] font-extrabold text-gray-800 mb-4 flex items-center gap-2">
                 <svg className="w-5 h-5 text-[#5F0080]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                내 이용권 상태
+                내 이용권
               </h3>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="bg-[#5F0080] text-white text-[12px] font-bold px-2.5 py-1 rounded-md">
-                  {businessLabel} 푸시앱 사용중
-                </span>
-                <span className="text-[13px] font-bold text-gray-500">월 {monthlyFee}원</span>
+              <div className="flex items-end justify-between">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 bg-[#5F0080] text-white px-2.5 py-1 rounded-md mb-2 shadow-sm">
+                    <span className="text-[10px] font-bold opacity-80">{businessLabel} 전용</span>
+                    <span className="text-[12px] font-black">{businessLabel} 푸시앱 사용중</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-[11px] font-bold text-gray-400 mb-0.5">매월 5일 정기결제 예정</p>
+                  <p className="text-[22px] font-black text-gray-900 tracking-tight">월 {monthlyFee}<span className="text-[14px] font-bold text-gray-500">원</span></p>
+                </div>
               </div>
-              <p className="text-[13px] text-gray-500 font-medium">매월 5일 정기결제 예정</p>
             </div>
           </div>
 
-          {/* 2. 자동결제 카드 관리 */}
+          {/* 2. 카드 관리 */}
           <div>
             <h3 className="text-[14px] font-extrabold text-gray-800 mb-3 px-1">자동결제 카드 관리</h3>
             {!hasCard ? (
-              <button onClick={handleRegisterCard} className="w-full bg-white border border-dashed border-[#5F0080] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 hover:bg-purple-50/30 transition-colors group shadow-sm">
+              <button onClick={handleRegisterCard} className="w-full bg-white border border-dashed border-[#5F0080]/30 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-purple-50/50 transition-colors group">
                 <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                   <svg className="w-5 h-5 text-[#5F0080]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
                 </div>
@@ -199,7 +256,7 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         >
           <div>
             <h3 className="font-extrabold text-gray-900 text-[16px] mb-1">계정 정보</h3>
-            <p className="text-[13px] text-gray-500 font-medium">매장 정보 및 연락처 수정</p>
+            <p className="text-[13px] text-gray-500 font-medium">관리자 아이디 및 비밀번호 변경</p>
           </div>
           <span className="text-gray-300">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
@@ -221,15 +278,18 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         </button>
 
         {/* 설정 카드 */}
-        <div className="bg-white rounded-2xl p-5 flex items-center justify-between shadow-sm border border-gray-100 border-l-4 border-l-[#5F0080] cursor-not-allowed opacity-80">
+        <button 
+          onClick={() => setView('settings')}
+          className="w-full bg-white rounded-2xl p-5 flex items-center justify-between shadow-sm border border-gray-100 border-l-4 border-l-[#5F0080] text-left hover:bg-purple-50/50 transition-colors"
+        >
           <div>
-            <h3 className="font-extrabold text-gray-900 text-[16px] mb-1">설정 (준비중)</h3>
-            <p className="text-[13px] text-gray-500 font-medium">알림 및 앱 환경 설정</p>
+            <h3 className="font-extrabold text-gray-900 text-[16px] mb-1">설정</h3>
+            <p className="text-[13px] text-gray-500 font-medium">가게 정보(영업시간, 주소 등) 관리</p>
           </div>
           <span className="text-gray-300">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
           </span>
-        </div>
+        </button>
 
         {/* 고객 서비스 리스트 */}
         <div className="mt-2">
