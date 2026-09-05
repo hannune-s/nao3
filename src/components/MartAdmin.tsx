@@ -226,6 +226,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     const rawPrice = newItem.sale_price.replace(/[^0-9]/g, '');
     const formattedPrice = rawPrice ? parseInt(rawPrice, 10).toLocaleString() + '원' : '';
 
+    const existingIndex = items.findIndex(i => i.product_name === newItem.product_name && i.quantity === newItem.quantity);
+    
     if (editingHistoryItemId) {
       // 즉시 수정 모드
       try {
