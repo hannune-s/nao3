@@ -645,7 +645,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               }`}
             >
               <span className="text-lg leading-none">{cat.icon}</span>
-              <span>{cat.id}</span>
+              <span>{cat.label || cat.id}</span>
               {activeTab === cat.id && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#5F0080]" />}
             </button>
           ))}
