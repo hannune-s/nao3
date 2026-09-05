@@ -48,6 +48,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const [showQtyDropdown, setShowQtyDropdown] = useState(false);
   const [nameIdx, setNameIdx] = useState(-1);
   const [qtyIdx, setQtyIdx] = useState(-1);
+  const [showPriceDropdown, setShowPriceDropdown] = useState(false);
+  const [priceIdx, setPriceIdx] = useState(-1);
 
   // 이력 관리 상태
   const [histories, setHistories] = useState<any[]>([]);
@@ -89,11 +91,29 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     setNewItem({ product_name: '', quantity: '', sale_price: '' });
     setNameIdx(-1);
     setQtyIdx(-1);
+    setPriceIdx(-1);
   };
 
-  // 자동완성 필터링 리스트
-  const matchedNames = ITEM_DICT[activeTab]?.filter(name => matchSearch(newItem.product_name, name)) || [];
-  const matchedQtys = QTY_DICT.filter(qty => matchSearch(newItem.quantity, qty));
+  // 이력에서 추출한 최근 사용 데이터
+  const recentNames = Array.from(new Set(histories.flatMap(h => h.nao3_sale_items.map((i: any) => i.product_name)))).filter(Boolean);
+  const recentQtys = Array.from(new Set(histories.flatMap(h => h.nao3_sale_items.map((i: any) => i.quantity)))).filter(Boolean);
+  const recentPrices = Array.from(new Set(histories.flatMap(h => h.nao3_sale_items.map((i: any) => i.sale_price.replace(/[^0-9]/g, ''))))).filter(Boolean);
+
+  // 자동완성 필터링 리스트 (기본 제공 + 내 이력)
+  const allNames = Array.from(new Set([...recentNames, ...(ITEM_DICT[activeTab] || [])]));
+  const matchedNames = newItem.product_name.trim() === '' 
+    ? recentNames.slice(0, 15) // 빈 칸일 때는 내 최근 이력 표시
+    : allNames.filter(name => matchSearch(newItem.product_name, name));
+
+  const defaultQtys = Array.from(new Set([...recentQtys, ...QTY_DICT])).slice(0, 15);
+  const matchedQtys = newItem.quantity.trim() === ''
+    ? defaultQtys
+    : Array.from(new Set([...recentQtys, ...QTY_DICT])).filter(qty => matchSearch(newItem.quantity, qty));
+
+  const defaultPrices = Array.from(new Set([...recentPrices, '1000', '2000', '3000', '5000', '9900', '10000'])).slice(0, 15);
+  const matchedPrices = newItem.sale_price.trim() === ''
+    ? defaultPrices
+    : defaultPrices.filter(price => price.includes(newItem.sale_price));
 
   // 방향키 스크롤 포커스 처리
   useEffect(() => {
@@ -107,6 +127,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       document.getElementById('qty-item-' + qtyIdx)?.scrollIntoView({ block: 'nearest' });
     }
   }, [qtyIdx]);
+
+  useEffect(() => {
+    if (priceIdx >= 0) {
+      document.getElementById('price-item-' + priceIdx)?.scrollIntoView({ block: 'nearest' });
+    }
+  }, [priceIdx]);
 
   // 이력 수정 모드 상태
   const [editingHistoryItemId, setEditingHistoryItemId] = useState<{pushId: string, itemId: string} | null>(null);
@@ -627,7 +653,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               {/* 상품명 자동완성 드롭다운 */}
               {showNameDropdown && matchedNames.length > 0 && (
                 <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  {matchedNames.map((name, index) => (
+                  {newItem.product_name.trim() === '' && recentNames.length > 0 && (
+                <li className="px-3 py-1.5 text-[11px] font-black text-[#5F0080] bg-purple-50 border-b border-purple-100 flex items-center justify-between">
+                  우리 매장 최근 품목
+                  <span className="text-[9px] bg-[#5F0080] text-white px-1.5 py-0.5 rounded-sm font-bold">MY</span>
+                </li>
+              )}
+              {matchedNames.map((name, index) => (
                     <li 
                       key={name}
                       id={`name-item-${index}`}
@@ -681,7 +713,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                 {/* 중량 자동완성 드롭다운 */}
                 {showQtyDropdown && matchedQtys.length > 0 && (
                   <ul className="absolute top-full left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    {matchedQtys.map((qty, index) => (
+                    {newItem.quantity.trim() === '' && recentQtys.length > 0 && (
+                  <li className="px-3 py-1.5 text-[11px] font-black text-[#5F0080] bg-purple-50 border-b border-purple-100 flex items-center justify-between">
+                    우리 매장 단위
+                    <span className="text-[9px] bg-[#5F0080] text-white px-1.5 py-0.5 rounded-sm font-bold">MY</span>
+                  </li>
+                )}
+                {matchedQtys.map((qty, index) => (
                       <li 
                         key={qty}
                         id={`qty-item-${index}`}
@@ -700,16 +738,66 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                 )}
               </div>
               
+              <div className="relative flex-1">
               <input 
                 type="text" 
-                placeholder="세일 가격"
+                placeholder="세일 가격 (숫자)"
                 value={newItem.sale_price}
+                onFocus={() => setShowPriceDropdown(true)}
+                onBlur={() => setTimeout(() => { setShowPriceDropdown(false); setPriceIdx(-1); }, 200)}
                 onChange={e => {
                   const raw = e.target.value.replace(/[^0-9]/g, '');
                   setNewItem({...newItem, sale_price: raw});
+                  setPriceIdx(-1);
+                  setShowPriceDropdown(true);
                 }}
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] font-bold text-[#5F0080] placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
+                onKeyDown={(e) => {
+                  if (!showPriceDropdown || matchedPrices.length === 0) return;
+                  if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setPriceIdx(prev => (prev < matchedPrices.length - 1 ? prev + 1 : prev));
+                  } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setPriceIdx(prev => (prev > 0 ? prev - 1 : 0));
+                  } else if (e.key === 'Enter' && priceIdx >= 0) {
+                    e.preventDefault();
+                    setNewItem({...newItem, sale_price: matchedPrices[priceIdx]});
+                    setShowPriceDropdown(false);
+                    setPriceIdx(-1);
+                  } else if (e.key === 'Escape') {
+                    setShowPriceDropdown(false);
+                  }
+                }}
+                className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] font-bold text-[#5F0080] placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
               />
+              {/* 세일 가격 자동완성 드롭다운 */}
+              {showPriceDropdown && matchedPrices.length > 0 && (
+                <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto top-full left-0">
+                  {newItem.sale_price.trim() === '' && recentPrices.length > 0 && (
+                    <li className="px-3 py-1.5 text-[11px] font-black text-[#5F0080] bg-purple-50 border-b border-purple-100 flex items-center justify-between">
+                      최근 입력한 가격
+                      <span className="text-[9px] bg-[#5F0080] text-white px-1.5 py-0.5 rounded-sm font-bold">MY</span>
+                    </li>
+                  )}
+                  {matchedPrices.map((price, index) => (
+                    <li 
+                      key={index}
+                      id={'price-item-' + index}
+                      onMouseEnter={() => setPriceIdx(index)}
+                      onClick={() => {
+                        setNewItem({...newItem, sale_price: price});
+                        setShowPriceDropdown(false);
+                      }}
+                      className={`px-3 py-2 text-sm cursor-pointer border-b border-gray-100 last:border-0 ${
+                        index === priceIdx ? 'bg-[#5F0080]/10 text-[#5F0080] font-bold' : 'text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080]'
+                      }`}
+                    >
+                      {parseInt(price, 10).toLocaleString()}원
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             </div>
             <div className="flex gap-2">
               <button 
