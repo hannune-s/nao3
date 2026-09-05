@@ -244,7 +244,7 @@ export default function CustomerSalePage() {
                           <h4 className={`text-[16px] font-bold text-gray-900 truncate ${item.is_sold_out ? 'line-through text-gray-400' : ''}`}>
                             {item.product_name}
                           </h4>
-                          <span className={`text-[13px] font-extrabold tracking-tight ${item.is_sold_out ? 'text-gray-400' : 'text-[#5F0080]'}`}>
+                          <span className={`text-[14px] font-extrabold tracking-tight px-2.5 py-1 rounded-md shrink-0 ${item.is_sold_out ? 'bg-gray-100 text-gray-400' : 'bg-purple-50 text-[#5F0080]'}`}>
                             {item.quantity}
                           </span>
                         </div>
