@@ -965,7 +965,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                 {isExpanded && (
                   <div className="border-t border-gray-100 bg-gray-50/50">
                     {history.nao3_sale_items?.length > 0 ? (
-                      [...history.nao3_sale_items].sort((a: any, b: any) => {
+                      Array.from(new Map(history.nao3_sale_items.map((i: any) => [i.product_name, i])).values()).sort((a: any, b: any) => {
                         const order = ['정육', '청과', '야채', '야채·수산', '공산품'];
                         const idxA = order.indexOf(a.category);
                         const idxB = order.indexOf(b.category);
