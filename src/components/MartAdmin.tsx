@@ -863,35 +863,51 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             </div>
             </div>
 
-            {/* 할인율 빠른 선택 */}
-            <div className="flex items-center gap-2 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
-              <span className="text-[11px] font-black text-red-500 flex-shrink-0">🔥 할인율</span>
-              <div className="flex gap-1 flex-1">
+            {/* 할인율 입력 (인풋 박스 + 퀵 태그) */}
+            <div className="bg-red-50 border border-red-100 rounded-lg px-3 py-2 flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-black text-red-500 flex-shrink-0">🔥 할인율</span>
+                <div className="relative flex items-center flex-1">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="숫자 입력 (예: 50)"
+                    value={newItem.discount_rate}
+                    onChange={e => {
+                      const raw = e.target.value.replace(/[^0-9]/g, '');
+                      setNewItem({...newItem, discount_rate: raw});
+                    }}
+                    className="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-[13px] font-bold text-red-500 placeholder:text-gray-300 placeholder:font-normal focus:outline-none focus:ring-2 focus:ring-red-400 pr-6"
+                  />
+                  {newItem.discount_rate && (
+                    <span className="absolute right-2 text-[12px] font-black text-red-400 pointer-events-none">%</span>
+                  )}
+                </div>
+                {newItem.discount_rate && (
+                  <button
+                    type="button"
+                    onClick={() => setNewItem({...newItem, discount_rate: ''})}
+                    className="text-[11px] text-gray-400 hover:text-red-400 font-bold flex-shrink-0 px-1"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div className="flex gap-1">
                 {['5', '10', '15', '20', '30'].map(pct => (
                   <button
                     key={pct}
                     type="button"
                     onClick={() => setNewItem({...newItem, discount_rate: newItem.discount_rate === pct ? '' : pct})}
-                    className={`flex-1 py-1 text-[11px] font-bold rounded transition-colors ${
+                    className={`flex-1 py-0.5 text-[11px] font-bold rounded transition-colors ${
                       newItem.discount_rate === pct
                         ? 'bg-red-500 text-white shadow-sm'
-                        : 'bg-white text-red-400 border border-red-200 hover:bg-red-50'
+                        : 'bg-white text-red-400 border border-red-200 hover:bg-red-100'
                     }`}
                   >
                     {pct}%
                   </button>
                 ))}
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="직접%"
-                  value={newItem.discount_rate && !['5','10','15','20','30'].includes(newItem.discount_rate) ? newItem.discount_rate + '%' : ''}
-                  onChange={e => {
-                    const raw = e.target.value.replace(/[^0-9]/g, '');
-                    setNewItem({...newItem, discount_rate: raw});
-                  }}
-                  className="w-14 text-center text-[11px] font-bold text-red-500 bg-white border border-red-200 rounded px-1 py-1 focus:outline-none focus:ring-1 focus:ring-red-400 placeholder:text-gray-300 placeholder:font-normal"
-                />
               </div>
             </div>
 

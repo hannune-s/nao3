@@ -319,6 +319,7 @@ export default function CustomerSalePage() {
                             id: item.id,
                             quantity: item.quantity,
                             sale_price: item.sale_price,
+                            discount_rate: item.discount_rate,
                             is_sold_out: item.is_sold_out
                           }];
                         } else {
@@ -328,6 +329,7 @@ export default function CustomerSalePage() {
                               id: item.id,
                               quantity: item.quantity,
                               sale_price: item.sale_price,
+                              discount_rate: item.discount_rate,
                               is_sold_out: item.is_sold_out
                             }]
                           });
