@@ -29,7 +29,15 @@ interface MartAdminProps {
 
 export default function MartAdmin({ storeId, initialStoreName, storeSlug }: MartAdminProps) {
   const [activeTab, setActiveTab] = useState('정육');
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<any[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('nao3_staging_items');
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) {}
+      }
+    }
+    return [];
+  });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
@@ -46,10 +54,34 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const [expandedHistory, setExpandedHistory] = useState<string | null>(null);
 
   // 상호명, 세일 진행 기간 및 사장님 이야기 상태
-  const [storeName, setStoreName] = useState(initialStoreName || '');
-  const [saleStart, setSaleStart] = useState('');
-  const [saleEnd, setSaleEnd] = useState('');
-  const [bossMessage, setBossMessage] = useState('');
+  const [storeName, setStoreName] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_draft_storeName_${storeId}`);
+      if (saved) return saved;
+    }
+    return initialStoreName || '';
+  });
+  const [saleStart, setSaleStart] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_draft_saleStart_${storeId}`);
+      if (saved) return saved;
+    }
+    return '';
+  });
+  const [saleEnd, setSaleEnd] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_draft_saleEnd_${storeId}`);
+      if (saved) return saved;
+    }
+    return '';
+  });
+  const [bossMessage, setBossMessage] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_draft_bossMessage_${storeId}`);
+      if (saved !== null) return saved;
+    }
+    return '';
+  });
 
   // 탭 변경 시 폼 초기화
   const handleTabChange = (tabId: string) => {
@@ -126,17 +158,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
       }
 
-      // 항상 임시 저장 데이터 로드
-      const saved = localStorage.getItem('nao3_staging_items');
-      if (saved) {
-        try { setItems(JSON.parse(saved)); } catch (e) { console.error(e); }
-      }
-
-      const savedBossMsg = localStorage.getItem('nao3_boss_message');
-      if (savedBossMsg !== null && savedBossMsg !== undefined) {
-        setBossMessage(savedBossMsg);
-      } else if (isAppendingToActive && latestPush?.boss_message) {
-        setBossMessage(latestPush.boss_message);
+      if (isAppendingToActive && latestPush?.boss_message) {
+        setBossMessage(prev => prev || latestPush.boss_message);
       }
 
       fetchHistories();
@@ -145,14 +168,26 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     loadInitData();
   }, []);
 
-  // items, bossMessage 상태가 변경될 때마다 로컬 스토리지 업데이트
+  // 상태가 변경될 때마다 로컬 스토리지에 자동 임시 저장 (새로고침 방지)
   useEffect(() => {
     localStorage.setItem('nao3_staging_items', JSON.stringify(items));
   }, [items]);
 
   useEffect(() => {
-    localStorage.setItem('nao3_boss_message', bossMessage);
-  }, [bossMessage]);
+    localStorage.setItem(`nao3_draft_storeName_${storeId}`, storeName);
+  }, [storeName, storeId]);
+
+  useEffect(() => {
+    localStorage.setItem(`nao3_draft_saleStart_${storeId}`, saleStart);
+  }, [saleStart, storeId]);
+
+  useEffect(() => {
+    localStorage.setItem(`nao3_draft_saleEnd_${storeId}`, saleEnd);
+  }, [saleEnd, storeId]);
+
+  useEffect(() => {
+    localStorage.setItem(`nao3_draft_bossMessage_${storeId}`, bossMessage);
+  }, [bossMessage, storeId]);
 
   // 목록에 추가 또는 즉시 수정
   const handleAddItem = async (e?: React.FormEvent) => {
