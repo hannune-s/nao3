@@ -102,7 +102,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   // 자동완성 필터링 리스트 (기본 제공 + 내 이력)
   const allNames = Array.from(new Set([...recentNames, ...(ITEM_DICT[activeTab] || [])]));
   const matchedNames = newItem.product_name.trim() === '' 
-    ? recentNames.slice(0, 15) // 빈 칸일 때는 내 최근 이력 표시
+    ? allNames.slice(0, 30) // 빈 칸일 때는 내 최근 이력 + 기본 예제 표시
     : allNames.filter(name => matchSearch(newItem.product_name, name));
 
   const defaultQtys = Array.from(new Set([...recentQtys, ...QTY_DICT])).slice(0, 15);
