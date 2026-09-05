@@ -238,6 +238,22 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
     let targetHistoryItemId = editingHistoryItemId;
 
+    // 현재 작성 중인 기간이 최신 이력(Active)과 같은지 확인
+    const newStart = saleStart ? new Date(saleStart).getTime() : 0;
+    const newEnd = saleEnd ? new Date(saleEnd).getTime() : 0;
+    const latestPush = histories[0];
+    const isSamePeriod = latestPush && 
+      new Date(latestPush.sale_start).getTime() === newStart && 
+      new Date(latestPush.sale_end).getTime() === newEnd;
+
+    // 만약 현재 Active 기간이고, DB에 이미 같은 상품이 있다면?
+    if (!targetHistoryItemId && isSamePeriod && latestPush.nao3_sale_items) {
+      const dbMatch = latestPush.nao3_sale_items.find((i: any) => i.product_name === newItem.product_name);
+      if (dbMatch) {
+        targetHistoryItemId = { pushId: latestPush.id, itemId: dbMatch.id };
+      }
+    }
+
     if (targetHistoryItemId) {
       // 즉시 수정 모드
       try {
@@ -265,6 +281,14 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         } : h));
         
         setEditingHistoryItemId(null);
+        // 대기열에도 업데이트 반영
+        if (existingIndex !== -1) {
+          const newItems = [...items];
+          newItems[existingIndex] = { ...newItems[existingIndex], quantity: newItem.quantity, sale_price: formattedPrice, category: activeTab };
+          setItems(newItems);
+        } else {
+          setItems([...items, { id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity, sale_price: formattedPrice, is_sold_out: false }]);
+        }
       } catch (err) {
         alert('이력 수정에 실패했습니다.');
         return;
@@ -292,7 +316,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           is_sold_out: false
         };
         setItems([...items, insertData]);
-        setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 100);
+        
       }
     }
 
@@ -842,6 +866,14 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                   type="button"
                   onClick={() => {
                     setEditingHistoryItemId(null);
+        // 대기열에도 업데이트 반영
+        if (existingIndex !== -1) {
+          const newItems = [...items];
+          newItems[existingIndex] = { ...newItems[existingIndex], quantity: newItem.quantity, sale_price: formattedPrice, category: activeTab };
+          setItems(newItems);
+        } else {
+          setItems([...items, { id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity, sale_price: formattedPrice, is_sold_out: false }]);
+        }
         setItems(prev => prev.filter(i => i.product_name !== newItem.product_name));
                     setNewItem({ product_name: '', quantity: '', sale_price: '' });
                   }}
