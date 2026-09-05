@@ -912,7 +912,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                   </button>
                 ))}
               </div>
-              <p className="text-[10px] text-red-500 font-bold leading-tight tracking-tight mt-0.5 text-center break-keep opacity-80">
+              <p className="text-[10px] text-red-500 font-bold leading-tight tracking-tight mt-0.5 text-left break-keep opacity-80 pl-0.5">
                 ※ 입력하신 할인율은 실제 가격 계산에 반영되지 않으며, 고객 화면에 강조 표시용으로만 노출됩니다.
               </p>
             </div>
