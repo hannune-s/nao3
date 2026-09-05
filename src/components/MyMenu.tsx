@@ -12,6 +12,8 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   const [ownerName, setOwnerName] = useState(storeData.owner_name || '');
   const [phone, setPhone] = useState(storeData.phone || '');
   const [address, setAddress] = useState(storeData.address || '');
+  const [operatingHours, setOperatingHours] = useState(storeData.operating_hours || '');
+  const [closedDays, setClosedDays] = useState(storeData.closed_days || '');
   const [newPassword, setNewPassword] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
@@ -30,7 +32,7 @@ export default function MyMenu({ storeData }: { storeData: any }) {
     try {
       const { error: dbError } = await supabase
         .from('nao3_stores')
-        .update({ owner_name: ownerName, phone: phone, address: address })
+        .update({ owner_name: ownerName, phone: phone, address: address, operating_hours: operatingHours, closed_days: closedDays })
         .eq('id', storeData.id);
 
       if (dbError) throw dbError;

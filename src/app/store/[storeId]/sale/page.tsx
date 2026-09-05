@@ -86,7 +86,9 @@ export default function CustomerSalePage() {
   const [isEnded, setIsEnded] = useState(false);
   const [periodText, setPeriodText] = useState('');
   const [bossMessage, setBossMessage] = useState('');
-  const [storeName, setStoreName] = useState('우리동네 마트'); // 가게 이름 상태 추가
+  const [storeName, setStoreName] = useState('우리동네 마트');
+  const [storeInfo, setStoreInfo] = useState<any>(null);
+  const [isStoreInfoOpen, setIsStoreInfoOpen] = useState(false); // 가게 이름 상태 추가
 
   useEffect(() => {
     if (!storeSlug) return;
@@ -115,12 +117,13 @@ export default function CustomerSalePage() {
         // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기
         const { data: store } = await supabase
           .from('nao3_stores')
-          .select('id, store_name')
+          .select('id, store_name, address, phone, operating_hours, closed_days')
           .eq('slug', storeSlug)
           .single();
           
         if (store) {
           setStoreName(store.store_name);
+          setStoreInfo(store);
         }
 
         // 1. 해당 가게의 가장 최근 발송 이력(push_id) 가져오기
@@ -383,6 +386,49 @@ export default function CustomerSalePage() {
           </div>
         )}
       </div>
+
+          {/* 가게 정보 아코디언 */}
+      {storeInfo && (
+        <div className="w-full bg-white border-t border-gray-200 pb-8 mt-4">
+          <button 
+            onClick={() => setIsStoreInfoOpen(!isStoreInfoOpen)}
+            className="w-full py-4 flex items-center justify-center gap-2 text-[14px] font-bold text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            가게정보 {isStoreInfoOpen ? 'ᐱ' : 'ᐯ'}
+          </button>
+          
+          {isStoreInfoOpen && (
+            <div className="px-6 pb-6 pt-2 animate-fade-in-up">
+              <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 flex flex-col gap-3">
+                {storeInfo.address && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[11px] font-bold text-gray-400">매장 주소</span>
+                    <span className="text-[13px] font-medium text-gray-800">{storeInfo.address}</span>
+                  </div>
+                )}
+                {storeInfo.operating_hours && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[11px] font-bold text-gray-400">영업시간</span>
+                    <span className="text-[13px] font-medium text-gray-800">{storeInfo.operating_hours}</span>
+                  </div>
+                )}
+                {storeInfo.closed_days && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[11px] font-bold text-gray-400">휴무일</span>
+                    <span className="text-[13px] font-medium text-gray-800">{storeInfo.closed_days}</span>
+                  </div>
+                )}
+                {storeInfo.phone && (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[11px] font-bold text-gray-400">전화번호</span>
+                    <span className="text-[13px] font-medium text-gray-800"><a href={`tel:${storeInfo.phone}`}>{storeInfo.phone}</a></span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
     </main>
   );
