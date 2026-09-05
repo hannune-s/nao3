@@ -859,15 +859,6 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                   onClick={() => {
                     setEditingHistoryItemId(null);
         // 대기열에도 업데이트 반영
-        if (existingIndex !== -1) {
-          const newItems = [...items];
-          newItems[existingIndex] = { ...newItems[existingIndex], quantity: newItem.quantity, sale_price: formattedPrice, category: activeTab };
-          setItems(newItems);
-        } else {
-          setItems([...items, { id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity, sale_price: formattedPrice, is_sold_out: false }]);
-        }
-        setItems(prev => prev.filter(i => i.product_name !== newItem.product_name));
-                    setNewItem({ product_name: '', quantity: '', sale_price: '' });
                   }}
                   className="px-4 py-2 bg-gray-100 text-gray-600 font-bold rounded-lg hover:bg-gray-200 transition-colors"
                 >
