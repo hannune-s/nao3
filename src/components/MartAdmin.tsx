@@ -267,7 +267,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             product_name: newItem.product_name, 
             quantity: newItem.quantity, 
             sale_price: formattedPrice,
-            category: activeTab
+            category: activeTab,
+            discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null
           })
           .in('id', updateIds);
           
@@ -281,7 +282,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             category: activeTab,
             product_name: newItem.product_name,
             quantity: newItem.quantity,
-            sale_price: formattedPrice
+            sale_price: formattedPrice,
+            discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null
           } : i)
         } : h));
         
@@ -289,10 +291,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         // 대기열에도 업데이트 반영
         if (existingIndex !== -1) {
           const newItems = [...items];
-          newItems[existingIndex] = { ...newItems[existingIndex], quantity: newItem.quantity, sale_price: formattedPrice, category: activeTab };
+          newItems[existingIndex] = { ...newItems[existingIndex], quantity: newItem.quantity, sale_price: formattedPrice, category: activeTab, discount_rate: newItem.discount_rate || '' };
           setItems(newItems);
         } else {
-          setItems([...items, { id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity, sale_price: formattedPrice, is_sold_out: false }]);
+          setItems([...items, { id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity, sale_price: formattedPrice, discount_rate: newItem.discount_rate || '', is_sold_out: false }]);
         }
       } catch (err) {
         alert('이력 수정에 실패했습니다.');
@@ -307,7 +309,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           ...newItems[existingIndex],
           quantity: newItem.quantity,
           sale_price: formattedPrice,
-          category: activeTab
+          category: activeTab,
+          discount_rate: newItem.discount_rate || ''
         };
         setItems(newItems);
       } else {
@@ -500,7 +503,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
         // Run updates for existing DB items
         for (const up of toUpdate) {
-           await supabase.from('nao3_sale_items').update({ quantity: up.quantity, sale_price: up.sale_price, category: up.category }).eq('id', up.id);
+           await supabase.from('nao3_sale_items').update({ quantity: up.quantity, sale_price: up.sale_price, category: up.category, discount_rate: up.discount_rate ? parseInt(up.discount_rate, 10) : null }).eq('id', up.id);
         }
         
         // Update the validItems array to only contain the items we need to insert
