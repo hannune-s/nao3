@@ -975,6 +975,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             const dateObj = new Date(history.created_at);
             const dateStr = `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')} ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
             const isExpanded = expandedHistory === history.id;
+            const uniqueItemCount = history.nao3_sale_items ? new Set(history.nao3_sale_items.map((i: any) => i.product_name)).size : 0;
             
             return (
               <div key={history.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -984,7 +985,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                 >
                   <div className="flex items-center gap-2.5">
                     <span className="text-[14px] font-bold text-gray-800">{dateStr} 발송</span>
-                    <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">{history.item_count}건</span>
+                    <span className="text-[11px] font-bold text-[#5F0080] bg-[#5F0080]/10 px-2 py-0.5 rounded-full">{uniqueItemCount}건</span>
                   </div>
                   <span className={`text-gray-400 text-sm transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
                 </button>
