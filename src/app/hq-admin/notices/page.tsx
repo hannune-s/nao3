@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { supabase } from '@/lib/supabase';
 
 type Notice = {
@@ -17,6 +17,7 @@ export default function HqNoticesPage() {
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [saving, setSaving] = useState(false);
+  const [expandedNoticeId, setExpandedNoticeId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchNotices();
@@ -170,26 +171,47 @@ export default function HqNoticesPage() {
             등록된 공지사항이 없습니다.
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {notices.map((notice) => (
-              <div key={notice.id} className="p-6 hover:bg-gray-50 transition-colors">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="text-lg font-bold text-gray-900">{notice.title}</h4>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-500">
-                      {new Date(notice.created_at).toLocaleDateString('ko-KR')}
-                    </span>
-                    <button onClick={() => handleDelete(notice.id)} className="text-red-500 hover:text-red-700 text-sm font-bold">
-                      삭제
-                    </button>
-                  </div>
-                </div>
-                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed mt-3">
-                  {notice.content}
-                </p>
-              </div>
-            ))}
-          </div>
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50 text-gray-600 font-medium border-b border-gray-200">
+              <tr>
+                <th className="px-6 py-4 w-16 text-center">번호</th>
+                <th className="px-6 py-4">제목</th>
+                <th className="px-6 py-4 w-32 text-center">작성일</th>
+                <th className="px-6 py-4 w-24 text-center">관리</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {notices.map((notice, idx) => (
+                <Fragment key={notice.id}>
+                  <tr 
+                    className="hover:bg-gray-50 transition-colors cursor-pointer group" 
+                    onClick={() => setExpandedNoticeId(expandedNoticeId === notice.id ? null : notice.id)}
+                  >
+                    <td className="px-6 py-4 text-center text-gray-500 font-medium">{notices.length - idx}</td>
+                    <td className="px-6 py-4 font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{notice.title}</td>
+                    <td className="px-6 py-4 text-center text-gray-500">{new Date(notice.created_at).toLocaleDateString('ko-KR')}</td>
+                    <td className="px-6 py-4 text-center">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDelete(notice.id); }} 
+                        className="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-md transition-colors"
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                  {expandedNoticeId === notice.id && (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 bg-gray-50 border-t border-gray-100">
+                        <div className="max-w-4xl whitespace-pre-wrap text-[14px] text-gray-700 leading-relaxed mx-auto">
+                          {notice.content}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

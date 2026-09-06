@@ -28,6 +28,7 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   // Notices state
   const [hqNotices, setHqNotices] = useState<any[]>([]);
   const [loadingNotices, setLoadingNotices] = useState(false);
+  const [expandedNoticeId, setExpandedNoticeId] = useState<string | null>(null);
 
   useEffect(() => {
     if (view === 'notices') {
@@ -278,29 +279,42 @@ export default function MyMenu({ storeData }: { storeData: any }) {
           <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">본사 공지사항</h1>
         </div>
 
-        <div className="p-5">
+        <div className="p-4">
           {loadingNotices ? (
             <div className="text-center py-10 text-gray-400 font-bold">불러오는 중...</div>
           ) : hqNotices.length === 0 ? (
-            <div className="bg-white rounded-2xl p-8 text-center border border-gray-100 shadow-sm mt-4">
+            <div className="bg-white rounded-2xl p-8 text-center border border-gray-100 shadow-sm mt-2">
               <span className="text-gray-400 text-[14px] font-bold">등록된 공지사항이 없습니다.</span>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
-              {hqNotices.map((notice) => (
-                <div key={notice.id} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col gap-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-[16px] font-black text-gray-900 leading-tight break-keep">{notice.title}</h3>
-                    <span className="text-[11px] font-bold text-gray-400 shrink-0 bg-gray-50 px-2 py-1 rounded">
-                      {new Date(notice.created_at).toLocaleDateString('ko-KR')}
-                    </span>
-                  </div>
-                  <div className="w-full h-px bg-gray-50"></div>
-                  <p className="text-[14px] text-gray-600 font-medium leading-relaxed whitespace-pre-wrap break-words">
-                    {notice.content}
-                  </p>
-                </div>
-              ))}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mt-2">
+              <ul className="divide-y divide-gray-100">
+                {hqNotices.map((notice, idx) => (
+                  <li key={notice.id} className="flex flex-col">
+                    <button 
+                      onClick={() => setExpandedNoticeId(expandedNoticeId === notice.id ? null : notice.id)}
+                      className="w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="text-[#5F0080] font-black text-[13px] shrink-0 w-4">
+                          {hqNotices.length - idx}
+                        </span>
+                        <span className="text-[15px] font-bold text-gray-900 truncate">
+                          {notice.title}
+                        </span>
+                      </div>
+                      <span className="text-[12px] text-gray-400 font-medium shrink-0">
+                        {new Date(notice.created_at).toLocaleDateString('ko-KR')}
+                      </span>
+                    </button>
+                    {expandedNoticeId === notice.id && (
+                      <div className="px-5 py-6 bg-gray-50 border-t border-gray-100 text-[14px] text-gray-700 leading-relaxed whitespace-pre-wrap break-words">
+                        {notice.content}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>
