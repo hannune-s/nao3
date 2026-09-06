@@ -274,47 +274,41 @@ export default function CustomerSalePage() {
 
       {/* 오늘의 강력 추천 특가 존 */}
       {storeInfo && (storeInfo.special_title || storeInfo.special_image_url) && (
-        <div className="max-w-md mx-auto w-full px-3 mb-6 mt-2">
-          <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl p-1.5 shadow-xl shadow-orange-500/20 animate-fade-in-up">
-            <div className="bg-white rounded-[20px] overflow-hidden">
-              <div className="bg-gradient-to-r from-orange-500 to-red-500 py-3 px-4 text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-xl"></div>
-                <h3 className="text-[17px] font-black text-white tracking-tight drop-shadow-md">
-                  🔥 오늘 딱 하나, 강력 추천!
-                </h3>
-              </div>
+        <div className="max-w-md mx-auto w-full px-4 mb-5 mt-2 animate-fade-in-up">
+          <div className="bg-white border border-orange-200 rounded-2xl shadow-[0_2px_12px_rgba(249,115,22,0.1)] overflow-hidden flex flex-col">
+            <div className="bg-orange-50/70 py-2.5 text-center border-b border-orange-100">
+              <h3 className="text-[14px] font-extrabold text-orange-600 tracking-tight">
+                🔥 오늘 딱 하나, 강력 추천!
+              </h3>
+            </div>
+            
+            <div className="p-4 flex flex-col gap-2 items-center">
+              {storeInfo.special_image_url && (
+                <div className="w-[75%] aspect-square rounded-xl overflow-hidden bg-gray-50 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-gray-100 mb-2">
+                  {storeInfo.special_image_url.match(/\.(mp4|webm|ogg)$/i) ? (
+                    <video src={storeInfo.special_image_url} className="w-full h-full object-cover" autoPlay muted loop playsInline />
+                  ) : (
+                    <img src={storeInfo.special_image_url} alt={storeInfo.special_title} className="w-full h-full object-cover" />
+                  )}
+                </div>
+              )}
               
-              <div className="p-4 flex flex-col gap-3">
-                {storeInfo.special_image_url && (
-                  <div className="w-full aspect-square md:aspect-video rounded-xl overflow-hidden bg-gray-100 shadow-inner">
-                    {storeInfo.special_image_url.match(/\.(mp4|webm|ogg)$/i) ? (
-                      <video src={storeInfo.special_image_url} className="w-full h-full object-cover" autoPlay muted loop playsInline />
-                    ) : (
-                      <img src={storeInfo.special_image_url} alt={storeInfo.special_title} className="w-full h-full object-cover" />
-                    )}
-                  </div>
-                )}
-                
-                {(storeInfo.special_title || storeInfo.special_price) && (
-                  <div className="text-center mt-2 mb-1">
-                    {storeInfo.special_title && <h4 className="text-[22px] font-black text-gray-900 tracking-tight break-keep leading-tight">{storeInfo.special_title}</h4>}
-                    {storeInfo.special_price && (
-                      <p className="text-[24px] font-extrabold text-red-600 mt-1 drop-shadow-sm">{storeInfo.special_price}</p>
-                    )}
-                  </div>
-                )}
-                
-                {storeInfo.special_message && (
-                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-100 relative mt-2">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-2 py-0.5 rounded-full border border-orange-200 text-[11px] font-bold text-orange-600 shadow-sm flex items-center gap-1 whitespace-nowrap">
-                      <span>🗣️</span> 사장님 한마디
-                    </div>
-                    <p className="text-[14px] font-bold text-gray-800 text-center leading-relaxed break-keep mt-1">
-                      "{storeInfo.special_message}"
-                    </p>
-                  </div>
-                )}
-              </div>
+              {(storeInfo.special_title || storeInfo.special_price) && (
+                <div className="text-center w-full">
+                  {storeInfo.special_title && <h4 className="text-[19px] font-extrabold text-gray-900 tracking-tight leading-tight">{storeInfo.special_title}</h4>}
+                  {storeInfo.special_price && (
+                    <p className="text-[20px] font-black text-red-600 mt-1">{storeInfo.special_price}</p>
+                  )}
+                </div>
+              )}
+              
+              {storeInfo.special_message && (
+                <div className="w-full bg-gray-50 rounded-lg py-2.5 px-3 mt-2">
+                  <p className="text-[13px] font-bold text-gray-700 text-center leading-snug break-keep">
+                    "{storeInfo.special_message}"
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
