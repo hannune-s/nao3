@@ -244,8 +244,11 @@ export default function CustomerSalePage() {
             </p>
             
             {periodText && (
-              <div className="inline-block bg-white text-[#5F0080] font-black text-[12px] px-5 py-2 rounded-full shadow-sm border border-purple-100">
-                {periodText}
+              <div className="mt-3 mx-2 sm:mx-4 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-2xl py-3.5 px-3 shadow-xl shadow-red-500/20 border-b-4 border-red-700 flex flex-col items-center justify-center relative overflow-hidden group">
+                <div className="flex items-center gap-1.5 font-black text-[15px] sm:text-[17px] tracking-tight relative z-10">
+                  <svg className="w-5 h-5 shrink-0 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span className="leading-tight text-center break-keep drop-shadow-sm">{periodText}</span>
+                </div>
               </div>
             )}
           </div>
