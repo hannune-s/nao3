@@ -459,46 +459,70 @@ export default function CustomerSalePage() {
         )}
       </div>
 
-          {/* 가게 정보 아코디언 */}
+      {/* 매장 정보 아코디언 */}
       {storeInfo && (
-        <div className="w-full bg-white border-t border-gray-200 pb-8 mt-4">
+        <div className="w-full bg-[#1A1A1A] text-white pb-12 mt-8 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
           <button 
             onClick={() => setIsStoreInfoOpen(!isStoreInfoOpen)}
-            className="w-full py-4 flex items-center justify-center gap-2 text-[14px] font-bold text-gray-500 hover:text-gray-700 transition-colors"
+            className="w-full py-7 flex items-center justify-center gap-2 text-[15px] font-bold text-gray-400 hover:text-white transition-colors"
           >
-            가게정보 {isStoreInfoOpen ? 'ᐱ' : 'ᐯ'}
+            <span>매장 정보</span>
+            <svg 
+              className={`w-5 h-5 transition-transform duration-300 ${isStoreInfoOpen ? 'rotate-180' : ''}`} 
+              fill="none" stroke="currentColor" viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
           
           {isStoreInfoOpen && (
             <div className="px-6 pb-6 pt-2 animate-fade-in-up">
-              <div className="bg-gray-50 rounded-xl p-5 border border-gray-100 flex flex-col gap-3">
+              <div className="bg-[#222222] rounded-2xl p-6 border border-gray-800 flex flex-col gap-5">
                 {storeInfo.address && (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[11px] font-bold text-gray-400">매장 주소</span>
-                    <span className="text-[13px] font-medium text-gray-800">{storeInfo.address}</span>
+                  <div className="flex flex-col gap-1.5">
+                    <span className="text-[11px] font-black text-[#E5D7B7] tracking-wider">매장 주소</span>
+                    <span className="text-[14px] font-medium text-gray-300 leading-relaxed">{storeInfo.address}</span>
                   </div>
                 )}
-                {storeInfo.operating_hours && (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[11px] font-bold text-gray-400">영업시간</span>
-                    <span className="text-[13px] font-medium text-gray-800">{storeInfo.operating_hours}</span>
-                  </div>
+                
+                {(storeInfo.operating_hours || storeInfo.closed_days || storeInfo.phone) && (
+                  <div className="h-px w-full bg-gray-800/50 my-1"></div>
                 )}
-                {storeInfo.closed_days && (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[11px] font-bold text-gray-400">휴무일</span>
-                    <span className="text-[13px] font-medium text-gray-800">{storeInfo.closed_days}</span>
-                  </div>
-                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  {storeInfo.operating_hours && (
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[11px] font-black text-[#E5D7B7] tracking-wider">영업시간</span>
+                      <span className="text-[13px] font-medium text-gray-300">{storeInfo.operating_hours}</span>
+                    </div>
+                  )}
+                  {storeInfo.closed_days && (
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[11px] font-black text-[#E5D7B7] tracking-wider">휴무일</span>
+                      <span className="text-[13px] font-medium text-gray-300">{storeInfo.closed_days}</span>
+                    </div>
+                  )}
+                </div>
+
                 {storeInfo.phone && (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[11px] font-bold text-gray-400">전화번호</span>
-                    <span className="text-[13px] font-medium text-gray-800"><a href={`tel:${storeInfo.phone}`}>{storeInfo.phone}</a></span>
-                  </div>
+                  <>
+                    <div className="h-px w-full bg-gray-800/50 my-1"></div>
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-[11px] font-black text-[#E5D7B7] tracking-wider">고객센터</span>
+                      <span className="text-[16px] font-bold text-white"><a href={`tel:${storeInfo.phone}`} className="hover:underline">{storeInfo.phone}</a></span>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
           )}
+
+          {/* 호스팅 제공자 */}
+          <div className="text-center pt-8 pb-4">
+            <p className="text-[13px] font-medium text-gray-500 tracking-wide">
+              호스팅 제공자 : <span className="font-bold text-gray-400">한누네</span>
+            </p>
+          </div>
         </div>
       )}
 
