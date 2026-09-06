@@ -257,13 +257,13 @@ export default function CustomerSalePage() {
           {/* 오늘의 사장님 이야기 */}
           {bossMessage && (
             <div className="max-w-md mx-auto px-4 pt-1 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <div className="relative border-2 border-[#F0D5B6] rounded-3xl px-6 py-7 bg-[#FFFDF7] shadow-sm overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#F2C99D] to-[#F9B772]"></div>
-                <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-[#E59849]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                  <h3 className="text-[16px] font-black text-[#8B5A2B] tracking-tight">오늘의 사장님 이야기</h3>
+              <div className="relative border border-gray-300 rounded-none px-6 py-7 bg-white shadow-sm overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-[#1A1A1A]"></div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[#1A1A1A] text-[18px] leading-none opacity-80">🖋️</span>
+                  <h3 className="text-[14px] font-black text-[#1A1A1A] tracking-[0.15em] uppercase">오늘의 사장님 이야기</h3>
                 </div>
-                <p className="text-[15.5px] text-[#5A4531] leading-[1.7] whitespace-pre-wrap font-bold tracking-tight">
+                <p className="text-[14.5px] text-gray-700 leading-[1.8] whitespace-pre-wrap font-medium tracking-wide">
                   {bossMessage}
                 </p>
               </div>
@@ -277,7 +277,7 @@ export default function CustomerSalePage() {
       {storeInfo && (storeInfo.special_title || storeInfo.special_image_url) && (
         <div className="max-w-md mx-auto w-full px-4 mb-8 mt-2 animate-fade-in-up">
           {/* 깊은 그림자와 순백색 배경으로 포장된 상자처럼 띄우기 */}
-          <div className="bg-white rounded-none shadow-[0_15px_40px_-10px_rgba(0,0,0,0.12)] border border-gray-200 overflow-hidden flex flex-col relative">
+          <div className="bg-white rounded-[20px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)] border border-gray-100/50 overflow-hidden flex flex-col relative">
             
             {/* 다크 챠콜 & 골드빛 텍스트 헤더 */}
             <div className="bg-[#1A1A1A] py-4 text-center border-b border-[#1A1A1A]">
