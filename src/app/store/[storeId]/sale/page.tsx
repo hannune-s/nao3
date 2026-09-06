@@ -256,14 +256,21 @@ export default function CustomerSalePage() {
 
           {/* 오늘의 사장님 이야기 */}
           {bossMessage && (
-            <div className="max-w-md mx-auto px-4 pt-1 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <div className="relative border border-gray-300 rounded-none px-6 py-7 bg-white shadow-sm overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-[#1A1A1A]"></div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[#1A1A1A] text-[18px] leading-none opacity-80">🖋️</span>
-                  <h3 className="text-[14px] font-black text-[#1A1A1A] tracking-[0.15em] uppercase">오늘의 사장님 이야기</h3>
+            <div className="max-w-md mx-auto px-4 pt-4 pb-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              {/* 타이틀을 바깥으로 빼고, 수평 라인과 연결 (미니멀 인포메이션 패널 스타일) */}
+              <div className="flex items-center gap-3 mb-3 px-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[#1A1A1A] text-[15px] leading-none opacity-90">🖋️</span>
+                  <h3 className="text-[13px] font-black text-[#1A1A1A] tracking-[0.2em] uppercase whitespace-nowrap">
+                    오늘의 사장님 이야기
+                  </h3>
                 </div>
-                <p className="text-[14.5px] text-gray-700 leading-[1.8] whitespace-pre-wrap font-medium tracking-wide">
+                <div className="flex-1 h-[1px] bg-[#1A1A1A]/20"></div>
+              </div>
+              
+              {/* 날렵한 사각 모서리 텍스트 전용 박스 */}
+              <div className="border border-gray-300 rounded-none px-6 py-6 bg-white shadow-sm">
+                <p className="text-[14.5px] text-gray-800 leading-[1.85] whitespace-pre-wrap font-medium tracking-wide">
                   {bossMessage}
                 </p>
               </div>
