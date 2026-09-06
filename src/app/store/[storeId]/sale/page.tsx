@@ -275,19 +275,20 @@ export default function CustomerSalePage() {
       {/* 오늘의 강력 추천 특가 존 */}
       {storeInfo && (storeInfo.special_title || storeInfo.special_image_url) && (
         <div className="max-w-md mx-auto w-full px-4 mb-8 mt-2 animate-fade-in-up">
-          <div className="bg-white rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden flex flex-col relative">
+          {/* 깊은 그림자와 순백색 배경으로 포장된 상자처럼 띄우기 */}
+          <div className="bg-white rounded-[20px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)] border border-gray-100/50 overflow-hidden flex flex-col relative">
             
-            {/* 세련된 헤더 (아이콘 제거, 얇은 폰트) */}
-            <div className="bg-[#FAF9F7] py-3.5 text-center border-b border-gray-100/60">
-              <h3 className="text-[13px] font-medium text-gray-700 tracking-[0.2em] uppercase">
+            {/* 다크 챠콜 & 골드빛 텍스트 헤더 */}
+            <div className="bg-[#1A1A1A] py-3.5 text-center border-b border-[#1A1A1A]">
+              <h3 className="text-[13px] font-semibold text-[#E5D7B7] tracking-[0.25em] uppercase">
                 오늘의 추천 특가
               </h3>
             </div>
             
             <div className="flex flex-col items-center">
-              {/* 넓고 시원한 사진 영역 (비율 4:3, 모서리 둥글기 제거하여 잡지 스타일로) */}
+              {/* 시원한 사진 영역 */}
               {storeInfo.special_image_url && (
-                <div className="w-full aspect-[4/3] bg-gray-50 overflow-hidden relative border-b border-gray-100/50">
+                <div className="w-full aspect-[4/3] bg-gray-50 overflow-hidden relative">
                   {storeInfo.special_image_url.match(/\.(mp4|webm|ogg)$/i) ? (
                     <video src={storeInfo.special_image_url} className="w-full h-full object-cover" autoPlay muted loop playsInline />
                   ) : (
@@ -297,30 +298,31 @@ export default function CustomerSalePage() {
               )}
               
               {/* 텍스트 영역 */}
-              <div className="w-full px-6 pt-6 pb-7 flex flex-col items-center">
+              <div className="w-full px-6 pt-7 pb-8 flex flex-col items-center">
                 
                 {(storeInfo.special_title || storeInfo.special_price) && (
-                  <div className="text-center w-full mb-3">
+                  <div className="text-center w-full mb-1">
                     {storeInfo.special_title && (
-                      <h4 className="text-[22px] font-black text-gray-900 tracking-tight leading-tight mb-1.5">
+                      <h4 className="text-[22px] font-black text-gray-900 tracking-tight leading-tight mb-2">
                         {storeInfo.special_title}
                       </h4>
                     )}
                     {storeInfo.special_price && (
-                      <p className="text-[24px] font-light text-gray-800 tracking-tight">
+                      <p className="text-[26px] font-light text-[#8B1818] tracking-tight">
                         {storeInfo.special_price}{/^\d/.test(storeInfo.special_price) && !storeInfo.special_price.includes('원') && !storeInfo.special_price.match(/[a-zA-Z]/) ? '원' : ''}
                       </p>
                     )}
                   </div>
                 )}
                 
-                {/* 사장님 한마디 (은은한 말풍선) */}
+                {/* 감성적인 메모 형태의 사장님 한마디 (큰 따옴표 엠블럼 활용) */}
                 {storeInfo.special_message && (
-                  <div className="w-full bg-[#F8F9FA] rounded-2xl py-4 px-5 relative border border-gray-100/80 mt-3">
-                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-[#F8F9FA] border-t border-l border-gray-100/80 rotate-45"></div>
-                    <p className="text-[14px] font-medium text-gray-600 text-center leading-relaxed break-keep relative z-10">
+                  <div className="w-full mt-6 flex items-start justify-center gap-2 px-1">
+                    <svg className="w-5 h-5 text-gray-300 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                    <p className="text-[14.5px] font-medium text-gray-600 text-center leading-relaxed break-keep">
                       {storeInfo.special_message}
                     </p>
+                    <svg className="w-5 h-5 text-gray-300 shrink-0 mt-0.5 rotate-180" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
                   </div>
                 )}
                 
