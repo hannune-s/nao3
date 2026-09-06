@@ -257,12 +257,13 @@ export default function CustomerSalePage() {
           {/* 오늘의 사장님 이야기 */}
           {bossMessage && (
             <div className="max-w-md mx-auto px-4 pt-1 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <div className="relative border border-gray-200 rounded-2xl p-6 bg-white shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
-                <div className="flex items-center gap-1.5 mb-3">
-                  <span className="text-[#1A1A1A] text-[16px] leading-none">🖋️</span>
-                  <h3 className="text-[14px] font-bold text-[#1A1A1A] tracking-wide">오늘의 사장님 이야기</h3>
+              <div className="relative border border-[#E8E2D2] rounded-2xl px-6 py-7 bg-[#FDFBF7] shadow-[0_10px_30px_rgba(0,0,0,0.05)] overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#1A1A1A] to-[#3A3A3A]"></div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[#1A1A1A] text-[18px] leading-none opacity-90">🖋️</span>
+                  <h3 className="text-[16px] font-black text-[#1A1A1A] tracking-tight">오늘의 사장님 이야기</h3>
                 </div>
-                <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
+                <p className="text-[15.5px] text-[#2C2C2C] leading-[1.75] whitespace-pre-wrap font-semibold tracking-[-0.01em]">
                   {bossMessage}
                 </p>
               </div>
@@ -279,8 +280,8 @@ export default function CustomerSalePage() {
           <div className="bg-white rounded-[20px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)] border border-gray-100/50 overflow-hidden flex flex-col relative">
             
             {/* 다크 챠콜 & 골드빛 텍스트 헤더 */}
-            <div className="bg-[#1A1A1A] py-3.5 text-center border-b border-[#1A1A1A]">
-              <h3 className="text-[13px] font-semibold text-[#E5D7B7] tracking-[0.25em] uppercase">
+            <div className="bg-[#1A1A1A] py-4 text-center border-b border-[#1A1A1A]">
+              <h3 className="text-[16px] font-bold text-[#E5D7B7] tracking-[0.2em] uppercase">
                 오늘의 추천 특가
               </h3>
             </div>
