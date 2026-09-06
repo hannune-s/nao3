@@ -417,7 +417,7 @@ export default function CustomerSalePage() {
                           {/* 좌측: 상품명 & 품절 상태 */}
                           <div className="flex items-center flex-1 min-w-0 pr-3 gap-2.5">
                             {item.options.every((opt: any) => opt.is_sold_out) && (
-                              <span className="text-[11px] font-black text-white bg-gray-700 px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
+                              <span className="text-[11px] font-black text-white bg-[#E52525] px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
                                 품절
                               </span>
                             )}
