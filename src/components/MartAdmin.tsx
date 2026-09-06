@@ -765,13 +765,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
             <div className="flex flex-col gap-2">
               <div className="flex gap-2">
-                <input type="text" placeholder="상품명 (예: 활 꽃게)" value={specialForm.title} onChange={e => setSpecialForm({...specialForm, title: e.target.value})} className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[14px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all" />
+                <input type="text" placeholder="상품명 (예: 활 꽃게)" value={specialForm.title} onChange={e => setSpecialForm({...specialForm, title: e.target.value})} className="flex-1 min-w-0 w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[14px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all" />
                 
                 <input type="text" placeholder="가격 (예: 29,800원)" value={specialForm.price} onChange={e => {
                   let val = e.target.value.replace(/,/g, '');
                   val = val.replace(/\d+/g, (match) => Number(match).toLocaleString('ko-KR'));
                   setSpecialForm({...specialForm, price: val});
-                }} className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[14px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all" />
+                }} className="flex-1 min-w-0 w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[14px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all" />
               </div>
               
               <textarea placeholder="사장님 멘트 (예: 오늘 새벽 직송! 살아 파닥거리는 거 겨우 잡아왔어요!)" value={specialForm.message} onChange={e => setSpecialForm({...specialForm, message: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[13px] font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 min-h-[60px] resize-none transition-all"></textarea>
