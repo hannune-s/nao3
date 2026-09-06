@@ -269,8 +269,8 @@ export default function CustomerSalePage() {
               </div>
               
               {/* 날렵한 사각 모서리 텍스트 전용 박스 */}
-              <div className="border border-gray-300 rounded-none px-6 py-6 bg-white shadow-sm">
-                <p className="text-[14.5px] text-gray-800 leading-[1.85] whitespace-pre-wrap font-medium tracking-wide">
+              <div className="border border-[#EBE4D8] rounded-none px-6 py-6 bg-[#FBF9F5] shadow-sm">
+                <p className="text-[14.5px] text-[#38332E] leading-[1.85] whitespace-pre-wrap font-medium tracking-wide">
                   {bossMessage}
                 </p>
               </div>
