@@ -32,9 +32,12 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               </div>
             </li>
             <li>
-              <div className="flex items-center px-6 py-3 text-sm font-medium text-gray-500 cursor-not-allowed">
+              <Link 
+                href="/hq-admin/notices" 
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/notices' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+              >
                 본사 공지사항
-              </div>
+              </Link>
             </li>
             <li>
               <div className="flex items-center px-6 py-3 text-sm font-medium text-gray-500 cursor-not-allowed">

@@ -1,12 +1,12 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
 export default function MyMenu({ storeData }: { storeData: any }) {
   const router = useRouter();
 
-  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings'>('main');
+  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'notices'>('main');
 
   // Account form states
   const [ownerName, setOwnerName] = useState(storeData.owner_name || '');
@@ -24,6 +24,36 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   const [hasCard, setHasCard] = useState(false);
   const businessLabel = storeData.business_type === 'mart' ? '마트' : '정육점';
   const monthlyFee = '39,000';
+
+  // Notices state
+  const [hqNotices, setHqNotices] = useState<any[]>([]);
+  const [loadingNotices, setLoadingNotices] = useState(false);
+
+  useEffect(() => {
+    if (view === 'notices') {
+      fetchHqNotices();
+    }
+  }, [view]);
+
+  const fetchHqNotices = async () => {
+    setLoadingNotices(true);
+    try {
+      const { data, error } = await supabase
+        .from('nao3_hq_notices')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setHqNotices(data || []);
+    } catch (err) {
+      console.error(err);
+      // Fallback if DB table doesn't exist
+      setHqNotices([
+        { id: '1', title: '[테스트] DB 연동 전 모의 공지사항입니다.', content: '실제 DB(nao3_hq_notices)를 연동하시면 본사에서 등록한 공지가 표시됩니다.\n\n감사합니다.', created_at: new Date().toISOString() }
+      ]);
+    } finally {
+      setLoadingNotices(false);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -237,6 +267,47 @@ export default function MyMenu({ storeData }: { storeData: any }) {
     );
   }
 
+  if (view === 'notices') {
+    return (
+      <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
+        {/* Header */}
+        <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+          <button onClick={() => setView('main')} className="text-gray-400 hover:text-gray-800 transition-colors p-1 -ml-1">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">본사 공지사항</h1>
+        </div>
+
+        <div className="p-5">
+          {loadingNotices ? (
+            <div className="text-center py-10 text-gray-400 font-bold">불러오는 중...</div>
+          ) : hqNotices.length === 0 ? (
+            <div className="bg-white rounded-2xl p-8 text-center border border-gray-100 shadow-sm mt-4">
+              <span className="text-gray-400 text-[14px] font-bold">등록된 공지사항이 없습니다.</span>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {hqNotices.map((notice) => (
+                <div key={notice.id} className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-[16px] font-black text-gray-900 leading-tight break-keep">{notice.title}</h3>
+                    <span className="text-[11px] font-bold text-gray-400 shrink-0 bg-gray-50 px-2 py-1 rounded">
+                      {new Date(notice.created_at).toLocaleDateString('ko-KR')}
+                    </span>
+                  </div>
+                  <div className="w-full h-px bg-gray-50"></div>
+                  <p className="text-[14px] text-gray-600 font-medium leading-relaxed whitespace-pre-wrap break-words">
+                    {notice.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // Main MyMenu View
   return (
     <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
@@ -299,13 +370,15 @@ export default function MyMenu({ storeData }: { storeData: any }) {
               <span className="text-[15px] font-bold text-gray-800">이용 가이드</span>
               <span className="text-gray-300"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg></span>
             </button>
-            <button className="w-full flex items-center justify-between p-5 border-b border-gray-50 text-left hover:bg-gray-50 transition-colors">
-              <span className="text-[15px] font-bold text-gray-800">공지사항</span>
-              <span className="text-gray-300"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg></span>
+            <button onClick={() => setView('notices')} className="w-full flex items-center justify-between p-5 border-b border-gray-50 text-left hover:bg-gray-50 transition-colors group">
+              <span className="text-[15px] font-bold text-gray-800 flex items-center gap-2 group-hover:text-blue-600 transition-colors">
+                본사 공지사항 <span className="bg-red-500 text-white text-[10px] font-black px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">N</span>
+              </span>
+              <span className="text-gray-300 group-hover:text-blue-600 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg></span>
             </button>
             <button onClick={handleLogout} className="w-full flex items-center justify-between p-5 text-left hover:bg-red-50 transition-colors group">
               <span className="text-[15px] font-extrabold text-red-500 group-hover:text-red-600">로그아웃</span>
-              <span className="text-gray-300"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></span>
+              <span className="text-gray-300 group-hover:text-red-400"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></span>
             </button>
           </div>
         </div>
