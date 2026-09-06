@@ -233,21 +233,21 @@ export default function CustomerSalePage() {
         </div>
 
         {/* 연보라색 래퍼 (특가 배너 + 사장님 이야기 묶음) */}
-        <div className="bg-[#F8F9FA] w-full pb-6 shadow-sm border-b border-gray-200">
+        <div className="bg-[#1A1A1A] w-full pb-10 shadow-md border-b border-[#2C2C2C]">
           
           {/* 2. 특가 배너 영역 */}
-          <div className="py-6 px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-1.5 tracking-tight">
+          <div className="py-7 px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <h3 className="text-[22px] font-black text-white mb-1.5 tracking-tight">
               🎉 오늘의 특가 찬스!
             </h3>
-            <p className="text-[13px] font-bold text-gray-500 mb-3">
+            <p className="text-[13px] font-bold text-gray-400 mb-3">
               단골 고객님을 위해 준비한 깜짝 한정 세일
             </p>
             
             {periodText && (
-              <div className="mt-3 inline-flex bg-white text-[#1A1A1A] font-bold text-[14px] sm:text-[16px] px-5 py-3.5 rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-gray-200 items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
-                <div className="flex items-center gap-1.5 tracking-tighter whitespace-nowrap">
-                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <div className="mt-3 inline-flex bg-[#222222] text-[#E5D7B7] font-bold text-[14px] sm:text-[15px] px-5 py-3 rounded-none border border-[#444444] items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
+                <div className="flex items-center gap-2 tracking-tighter whitespace-nowrap">
+                  <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   <span className="leading-tight">{periodText}</span>
                 </div>
               </div>
@@ -256,82 +256,77 @@ export default function CustomerSalePage() {
 
           {/* 오늘의 사장님 이야기 */}
           {bossMessage && (
-            <div className="max-w-md mx-auto px-4 pt-1 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <div className="relative border-2 border-[#F0D5B6] rounded-3xl px-6 py-7 bg-[#FFFDF7] shadow-sm overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#F2C99D] to-[#F9B772]"></div>
+            <div className="max-w-md mx-auto px-4 pt-3 pb-6 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="relative border border-[#333333] rounded-none px-6 py-6 bg-[#111111] overflow-hidden">
                 <div className="flex items-center gap-2 mb-3">
-                  <svg className="w-5 h-5 text-[#E59849]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                  <h3 className="text-[16px] font-black text-[#8B5A2B] tracking-tight">오늘의 사장님 이야기</h3>
+                  <span className="text-[#E5D7B7] text-[16px] leading-none opacity-90">🖋️</span>
+                  <h3 className="text-[14px] font-bold text-[#E5D7B7] tracking-[0.15em] uppercase">오늘의 사장님 이야기</h3>
                 </div>
-                <p className="text-[15.5px] text-[#5A4531] leading-[1.7] whitespace-pre-wrap font-bold tracking-tight">
+                <p className="text-[14.5px] text-gray-300 leading-[1.8] whitespace-pre-wrap font-light tracking-wide">
                   {bossMessage}
                 </p>
               </div>
             </div>
           )}
-        </div>
 
-      </div>
-
-      {/* 오늘의 강력 추천 특가 존 */}
-      {storeInfo && (storeInfo.special_title || storeInfo.special_image_url) && (
-        <div className="max-w-md mx-auto w-full px-4 mb-8 mt-2 animate-fade-in-up">
-          {/* 깊은 그림자와 순백색 배경으로 포장된 상자처럼 띄우기 */}
-          <div className="bg-white rounded-[20px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)] border border-gray-100/50 overflow-hidden flex flex-col relative">
-            
-            {/* 다크 챠콜 & 골드빛 텍스트 헤더 */}
-            <div className="bg-[#1A1A1A] py-4 text-center border-b border-[#1A1A1A]">
-              <h3 className="text-[16px] font-bold text-[#E5D7B7] tracking-[0.2em] uppercase">
-                오늘의 추천 특가
-              </h3>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              {/* 시원한 사진 영역 */}
-              {storeInfo.special_image_url && (
-                <div className="w-full aspect-[4/3] bg-gray-50 overflow-hidden relative">
-                  {storeInfo.special_image_url.match(/\.(mp4|webm|ogg)$/i) ? (
-                    <video src={storeInfo.special_image_url} className="w-full h-full object-cover" autoPlay muted loop playsInline />
-                  ) : (
-                    <img src={storeInfo.special_image_url} alt={storeInfo.special_title} className="w-full h-full object-cover" />
-                  )}
+          {/* 오늘의 강력 추천 특가 존 */}
+          {storeInfo && (storeInfo.special_title || storeInfo.special_image_url) && (
+            <div className="max-w-md mx-auto w-full px-4 animate-fade-in-up">
+              <div className="bg-white rounded-none shadow-xl border border-gray-200 overflow-hidden flex flex-col relative">
+                
+                <div className="bg-[#111111] py-3.5 text-center border-b border-[#222]">
+                  <h3 className="text-[15px] font-bold text-[#E5D7B7] tracking-[0.2em] uppercase">
+                    오늘의 추천 특가
+                  </h3>
                 </div>
-              )}
-              
-              {/* 텍스트 영역 */}
-              <div className="w-full px-6 pt-7 pb-8 flex flex-col items-center">
                 
-                {(storeInfo.special_title || storeInfo.special_price) && (
-                  <div className="text-center w-full mb-1">
-                    {storeInfo.special_title && (
-                      <h4 className="text-[22px] font-black text-gray-900 tracking-tight leading-tight mb-2">
-                        {storeInfo.special_title}
-                      </h4>
+                <div className="flex flex-col items-center">
+                  {storeInfo.special_image_url && (
+                    <div className="w-full aspect-[4/3] bg-gray-50 overflow-hidden relative">
+                      {storeInfo.special_image_url.match(/\.(mp4|webm|ogg)$/i) ? (
+                        <video src={storeInfo.special_image_url} className="w-full h-full object-cover rounded-none" autoPlay muted loop playsInline />
+                      ) : (
+                        <img src={storeInfo.special_image_url} alt={storeInfo.special_title} className="w-full h-full object-cover rounded-none" />
+                      )}
+                    </div>
+                  )}
+                  
+                  <div className="w-full px-6 pt-7 pb-8 flex flex-col items-center">
+                    
+                    {(storeInfo.special_title || storeInfo.special_price) && (
+                      <div className="text-center w-full mb-1">
+                        {storeInfo.special_title && (
+                          <h4 className="text-[22px] font-black text-gray-900 tracking-tight leading-tight mb-2">
+                            {storeInfo.special_title}
+                          </h4>
+                        )}
+                        {storeInfo.special_price && (
+                          <p className="text-[26px] font-semibold text-[#8B1818] tracking-tight">
+                            {storeInfo.special_price}{/^\d/.test(storeInfo.special_price) && !storeInfo.special_price.includes('원') && !storeInfo.special_price.match(/[a-zA-Z]/) ? '원' : ''}
+                          </p>
+                        )}
+                      </div>
                     )}
-                    {storeInfo.special_price && (
-                      <p className="text-[26px] font-semibold text-[#8B1818] tracking-tight">
-                        {storeInfo.special_price}{/^\d/.test(storeInfo.special_price) && !storeInfo.special_price.includes('원') && !storeInfo.special_price.match(/[a-zA-Z]/) ? '원' : ''}
-                      </p>
+                    
+                    {storeInfo.special_message && (
+                      <div className="w-full mt-6 flex items-start justify-center gap-2 px-1">
+                        <svg className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                        <p className="text-[14px] font-medium text-gray-700 text-center leading-[1.6] break-keep">
+                          {storeInfo.special_message}
+                        </p>
+                        <svg className="w-4 h-4 text-gray-400 shrink-0 mt-0.5 rotate-180" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+                      </div>
                     )}
+                    
                   </div>
-                )}
-                
-                {/* 감성적인 메모 형태의 사장님 한마디 (큰 따옴표 엠블럼 활용) */}
-                {storeInfo.special_message && (
-                  <div className="w-full mt-6 flex items-start justify-center gap-2 px-1">
-                    <svg className="w-5 h-5 text-gray-300 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
-                    <p className="text-[14.5px] font-medium text-gray-600 text-center leading-relaxed break-keep">
-                      {storeInfo.special_message}
-                    </p>
-                    <svg className="w-5 h-5 text-gray-300 shrink-0 mt-0.5 rotate-180" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
-                  </div>
-                )}
-                
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
         </div>
-      )}
+      </div>
+
 
       {/* 세일 품목 리스트 */}
       <div className="max-w-md mx-auto w-full flex flex-col gap-3 pt-3 pb-8">
