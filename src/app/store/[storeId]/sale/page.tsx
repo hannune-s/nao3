@@ -274,17 +274,20 @@ export default function CustomerSalePage() {
 
       {/* 오늘의 강력 추천 특가 존 */}
       {storeInfo && (storeInfo.special_title || storeInfo.special_image_url) && (
-        <div className="max-w-md mx-auto w-full px-4 mb-5 mt-2 animate-fade-in-up">
-          <div className="bg-white border border-orange-200 rounded-2xl shadow-[0_2px_12px_rgba(249,115,22,0.1)] overflow-hidden flex flex-col">
-            <div className="bg-orange-50/70 py-2.5 text-center border-b border-orange-100">
-              <h3 className="text-[14px] font-extrabold text-orange-600 tracking-tight">
-                🔥 오늘 딱 하나, 강력 추천!
+        <div className="max-w-md mx-auto w-full px-4 mb-8 mt-2 animate-fade-in-up">
+          <div className="bg-white rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-gray-100 overflow-hidden flex flex-col relative">
+            
+            {/* 세련된 헤더 (아이콘 제거, 얇은 폰트) */}
+            <div className="bg-[#FAF9F7] py-3.5 text-center border-b border-gray-100/60">
+              <h3 className="text-[13px] font-medium text-gray-700 tracking-[0.2em] uppercase">
+                오늘의 추천 특가
               </h3>
             </div>
             
-            <div className="p-4 flex flex-col gap-2 items-center">
+            <div className="flex flex-col items-center">
+              {/* 넓고 시원한 사진 영역 (비율 4:3, 모서리 둥글기 제거하여 잡지 스타일로) */}
               {storeInfo.special_image_url && (
-                <div className="w-[75%] aspect-square rounded-xl overflow-hidden bg-gray-50 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border border-gray-100 mb-2">
+                <div className="w-full aspect-[4/3] bg-gray-50 overflow-hidden relative border-b border-gray-100/50">
                   {storeInfo.special_image_url.match(/\.(mp4|webm|ogg)$/i) ? (
                     <video src={storeInfo.special_image_url} className="w-full h-full object-cover" autoPlay muted loop playsInline />
                   ) : (
@@ -293,22 +296,35 @@ export default function CustomerSalePage() {
                 </div>
               )}
               
-              {(storeInfo.special_title || storeInfo.special_price) && (
-                <div className="text-center w-full">
-                  {storeInfo.special_title && <h4 className="text-[19px] font-extrabold text-gray-900 tracking-tight leading-tight">{storeInfo.special_title}</h4>}
-                  {storeInfo.special_price && (
-                    <p className="text-[20px] font-black text-red-600 mt-1">{storeInfo.special_price}</p>
-                  )}
-                </div>
-              )}
-              
-              {storeInfo.special_message && (
-                <div className="w-full bg-gray-50 rounded-lg py-2.5 px-3 mt-2">
-                  <p className="text-[13px] font-bold text-gray-700 text-center leading-snug break-keep">
-                    "{storeInfo.special_message}"
-                  </p>
-                </div>
-              )}
+              {/* 텍스트 영역 */}
+              <div className="w-full px-6 pt-6 pb-7 flex flex-col items-center">
+                
+                {(storeInfo.special_title || storeInfo.special_price) && (
+                  <div className="text-center w-full mb-3">
+                    {storeInfo.special_title && (
+                      <h4 className="text-[22px] font-black text-gray-900 tracking-tight leading-tight mb-1.5">
+                        {storeInfo.special_title}
+                      </h4>
+                    )}
+                    {storeInfo.special_price && (
+                      <p className="text-[24px] font-light text-gray-800 tracking-tight">
+                        {storeInfo.special_price}{/^\d/.test(storeInfo.special_price) && !storeInfo.special_price.includes('원') && !storeInfo.special_price.match(/[a-zA-Z]/) ? '원' : ''}
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                {/* 사장님 한마디 (은은한 말풍선) */}
+                {storeInfo.special_message && (
+                  <div className="w-full bg-[#F8F9FA] rounded-2xl py-4 px-5 relative border border-gray-100/80 mt-3">
+                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 bg-[#F8F9FA] border-t border-l border-gray-100/80 rotate-45"></div>
+                    <p className="text-[14px] font-medium text-gray-600 text-center leading-relaxed break-keep relative z-10">
+                      {storeInfo.special_message}
+                    </p>
+                  </div>
+                )}
+                
+              </div>
             </div>
           </div>
         </div>
