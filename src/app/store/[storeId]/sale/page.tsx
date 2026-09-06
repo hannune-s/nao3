@@ -117,7 +117,7 @@ export default function CustomerSalePage() {
         // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기
         const { data: store } = await supabase
           .from('nao3_stores')
-          .select('id, store_name, address, phone, operating_hours, closed_days')
+          .select('id, store_name, address, phone, operating_hours, closed_days, special_image_url, special_title, special_price, special_message')
           .eq('slug', storeSlug)
           .single();
           

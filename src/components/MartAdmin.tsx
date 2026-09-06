@@ -4,6 +4,7 @@ import { matchSearch } from '@/lib/hangul';
 import { supabase } from '@/lib/supabase';
 
 const CATEGORIES = [
+  { id: '특가', label: '강력 추천', icon: '🔥' },
   { id: '정육', icon: '🥩' },
   { id: '청과', icon: '🍎' },
   { id: '야채', label: '야채·수산', icon: '🥬🐟' },
@@ -28,7 +29,18 @@ interface MartAdminProps {
 }
 
 export default function MartAdmin({ storeId, initialStoreName, storeSlug }: MartAdminProps) {
-  const [activeTab, setActiveTab] = useState('정육');
+  const [activeTab, setActiveTab] = useState('특가');
+  
+  // 특가 폼 상태
+  const [specialForm, setSpecialForm] = useState({
+    title: '',
+    price: '',
+    message: '',
+    media_url: ''
+  });
+  const [specialFile, setSpecialFile] = useState<File | null>(null);
+  const [specialPreview, setSpecialPreview] = useState<string>('');
+  const [isSavingSpecial, setIsSavingSpecial] = useState(false);
   const [items, setItems] = useState<any[]>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('nao3_staging_items');
@@ -87,6 +99,53 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   });
 
   // 탭 변경 시 폼 초기화
+  const handleSpecialFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSpecialFile(file);
+      setSpecialPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveSpecial = async () => {
+    setIsSavingSpecial(true);
+    try {
+      let finalUrl = specialForm.media_url;
+      if (specialFile) {
+        const ext = specialFile.name.split('.').pop();
+        const fileName = `${storeId}_special_${Date.now()}.${ext}`;
+        
+        // Supabase Storage (버킷명: nao3_media)
+        const { error: uploadError } = await supabase.storage.from('nao3_media').upload(fileName, specialFile, { upsert: true });
+        
+        if (uploadError) {
+          alert('이미지/영상 업로드에 실패했습니다.\nSupabase에 "nao3_media" 버킷이 공개(Public) 상태로 생성되어 있는지 확인해주세요.');
+          console.error(uploadError);
+          setIsSavingSpecial(false);
+          return;
+        }
+
+        const { data: publicUrlData } = supabase.storage.from('nao3_media').getPublicUrl(fileName);
+        finalUrl = publicUrlData.publicUrl;
+      }
+
+      const { error: dbError } = await supabase.from('nao3_stores').update({
+        special_image_url: finalUrl,
+        special_title: specialForm.title,
+        special_price: specialForm.price,
+        special_message: specialForm.message
+      }).eq('id', storeId);
+
+      if (dbError) throw dbError;
+
+      alert('오늘의 강력 추천 특가가 고객 화면에 실시간 적용되었습니다!');
+    } catch (e: any) {
+      alert(e.message || '오류가 발생했습니다.');
+    } finally {
+      setIsSavingSpecial(false);
+    }
+  };
+
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
     setNewItem({ product_name: '', quantity: '', sale_price: '', discount_rate: '' });
