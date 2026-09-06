@@ -194,7 +194,7 @@ export default function CustomerSalePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#5F0080] border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-[#1A1A1A] border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -219,11 +219,11 @@ export default function CustomerSalePage() {
       <div className="flex flex-col">
         
         {/* 1. 브랜드 & 상호명 영역 (진한 보라색 딥톤) */}
-        <div className="bg-[#5F0080] pt-8 pb-8 text-center relative overflow-hidden border-b border-purple-900">
+        <div className="bg-[#1A1A1A] pt-8 pb-8 text-center relative overflow-hidden border-b border-[#222]">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           
           <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in-up">
-            <h1 className="text-sm font-black tracking-widest text-purple-200 uppercase bg-purple-900/40 px-4 py-1 rounded-full border border-purple-700/50 mb-3">
+            <h1 className="text-sm font-bold tracking-[0.25em] text-[#E5D7B7] uppercase bg-black/40 px-4 py-1 rounded-full border border-[#E5D7B7]/30 mb-3">
               Nao3
             </h1>
             <h2 className="text-3xl sm:text-4xl font-black text-white drop-shadow-md tracking-tight break-keep px-4">
@@ -233,19 +233,19 @@ export default function CustomerSalePage() {
         </div>
 
         {/* 연보라색 래퍼 (특가 배너 + 사장님 이야기 묶음) */}
-        <div className="bg-[#F4E8F9] w-full pb-6 shadow-sm border-b border-purple-200">
+        <div className="bg-[#F8F9FA] w-full pb-6 shadow-sm border-b border-gray-200">
           
           {/* 2. 특가 배너 영역 */}
           <div className="py-6 px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <h3 className="text-xl font-extrabold text-[#5F0080] mb-1.5 tracking-tight">
+            <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-1.5 tracking-tight">
               🎉 오늘의 특가 찬스!
             </h3>
-            <p className="text-[13px] font-bold text-purple-900/60 mb-3">
+            <p className="text-[13px] font-bold text-gray-500 mb-3">
               단골 고객님을 위해 준비한 깜짝 한정 세일
             </p>
             
             {periodText && (
-              <div className="mt-3 inline-flex bg-white text-[#5F0080] font-black text-[14px] sm:text-[16px] px-4 py-3 rounded-full shadow-[0_4px_12px_rgba(95,0,128,0.1)] border-2 border-purple-100 items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
+              <div className="mt-3 inline-flex bg-white text-[#1A1A1A] font-bold text-[14px] sm:text-[16px] px-5 py-3.5 rounded-full shadow-[0_8px_20px_rgba(0,0,0,0.06)] border border-gray-200 items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
                 <div className="flex items-center gap-1.5 tracking-tighter whitespace-nowrap">
                   <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   <span className="leading-tight">{periodText}</span>
@@ -257,10 +257,10 @@ export default function CustomerSalePage() {
           {/* 오늘의 사장님 이야기 */}
           {bossMessage && (
             <div className="max-w-md mx-auto px-4 pt-1 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <div className="relative border border-purple-100 rounded-2xl p-6 bg-white shadow-sm">
+              <div className="relative border border-gray-200 rounded-2xl p-6 bg-white shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
                 <div className="flex items-center gap-1.5 mb-3">
-                  <span className="text-[#5F0080] text-[16px] leading-none">🌸</span>
-                  <h3 className="text-[14px] font-bold text-[#5F0080] tracking-wide">오늘의 사장님 이야기</h3>
+                  <span className="text-[#1A1A1A] text-[16px] leading-none">🖋️</span>
+                  <h3 className="text-[14px] font-bold text-[#1A1A1A] tracking-wide">오늘의 사장님 이야기</h3>
                 </div>
                 <p className="text-[15px] text-gray-800 leading-relaxed whitespace-pre-wrap font-medium">
                   {bossMessage}
@@ -363,12 +363,12 @@ export default function CustomerSalePage() {
                   
                   {/* 고급스러운 좌측 정렬 카테고리 헤더 */}
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-1.5 h-6 bg-[#5F0080] rounded-full"></div>
+                    <div className="w-1.5 h-6 bg-[#1A1A1A] rounded-full"></div>
                     <div className="flex flex-col">
                       <h3 className="text-[20px] font-extrabold text-gray-900 tracking-tight leading-none">
                         {cat.title}
                       </h3>
-                      <span className="text-[11px] font-black text-[#5F0080]/60 uppercase tracking-[0.2em] mt-1 block">
+                      <span className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1 block">
                         {cat.subtitle}
                       </span>
                     </div>
@@ -409,7 +409,7 @@ export default function CustomerSalePage() {
                           {/* 좌측: 상품명 & 품절 상태 */}
                           <div className="flex items-center flex-1 min-w-0 pr-3 gap-2.5">
                             {item.options.every((opt: any) => opt.is_sold_out) && (
-                              <span className="text-[11px] font-black text-white bg-red-600 px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
+                              <span className="text-[11px] font-black text-white bg-gray-700 px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
                                 품절
                               </span>
                             )}
@@ -426,14 +426,14 @@ export default function CustomerSalePage() {
                             {item.options.map((opt: any, idx: number) => (
                               <div key={opt.id || idx} className={`flex items-center gap-2 ${opt.is_sold_out ? 'opacity-50' : ''}`}>
                                 {opt.discount_rate && !opt.is_sold_out && (
-                                  <span className="text-[13px] font-black text-white bg-red-500 px-2 py-0.5 rounded-md shrink-0 tracking-tight shadow-sm">
+                                  <span className="text-[13px] font-black text-white bg-[#8B1818] px-2 py-0.5 rounded-md shrink-0 tracking-tight shadow-sm">
                                     {opt.discount_rate}%
                                   </span>
                                 )}
-                                <span className={`text-[13px] font-extrabold tracking-tight px-2 py-0.5 rounded-md shrink-0 ${opt.is_sold_out ? 'bg-gray-100 text-gray-400' : 'bg-purple-50 text-[#5F0080]'}`}>
+                                <span className={`text-[13px] font-extrabold tracking-tight px-2 py-0.5 rounded-md shrink-0 ${opt.is_sold_out ? 'bg-gray-100 text-gray-400' : 'bg-gray-100 text-[#1A1A1A]'}`}>
                                   {opt.quantity}
                                 </span>
-                                <span className={`text-[16px] font-black tracking-tight ${opt.is_sold_out ? 'text-gray-400 line-through decoration-red-500 decoration-2' : 'text-[#5F0080]'}`}>
+                                <span className={`text-[16px] font-black tracking-tight ${opt.is_sold_out ? 'text-gray-400 line-through decoration-gray-400 decoration-2' : 'text-[#8B1818]'}`}>
                                   {opt.sale_price}
                                 </span>
                               </div>
