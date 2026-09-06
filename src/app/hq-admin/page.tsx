@@ -11,15 +11,16 @@ type Store = {
   email: string;
   created_at: string;
   slug: string;
-  // Assumed new columns for HQ feature:
   is_approved?: boolean;
   is_suspended?: boolean;
   subscription_paid?: boolean;
+  business_license_url?: string;
 };
 
 export default function HqDashboardPage() {
   const [stores, setStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLicense, setSelectedLicense] = useState<string | null>(null);
 
   useEffect(() => {
     fetchStores();
@@ -54,7 +55,6 @@ export default function HqDashboardPage() {
     } catch (err: any) {
       console.error(err);
       alert('승인 처리 중 오류가 발생했습니다. (DB 컬럼 추가 필요할 수 있음)');
-      // UI 강제 업데이트 (DB 연동 실패해도 동작 확인용)
       setStores(stores.map(s => s.id === storeId ? { ...s, is_approved: true, is_suspended: false } : s));
     }
   };
@@ -118,6 +118,7 @@ export default function HqDashboardPage() {
                 <th className="px-6 py-4">대표자명</th>
                 <th className="px-6 py-4">연락처 (이메일)</th>
                 <th className="px-6 py-4">가입일자</th>
+                <th className="px-6 py-4 text-center">사업자등록증</th>
                 <th className="px-6 py-4">구독 상태</th>
                 <th className="px-6 py-4 text-center">월 구독료 납부</th>
                 <th className="px-6 py-4 text-center">계정 제어</th>
@@ -126,7 +127,7 @@ export default function HqDashboardPage() {
             <tbody className="divide-y divide-gray-100">
               {stores.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                     등록된 가맹점이 없습니다.
                   </td>
                 </tr>
@@ -134,7 +135,6 @@ export default function HqDashboardPage() {
                 stores.map((store) => {
                   const dateStr = store.created_at ? new Date(store.created_at).toLocaleDateString('ko-KR') : '정보 없음';
                   
-                  // 상태 계산 로직
                   let statusLabel = '승인 대기';
                   let statusColor = 'bg-yellow-100 text-yellow-800 border-yellow-200';
                   
@@ -162,6 +162,19 @@ export default function HqDashboardPage() {
                       <td className="px-6 py-4 text-gray-600">{store.owner_name}</td>
                       <td className="px-6 py-4 text-gray-600">{store.email}</td>
                       <td className="px-6 py-4 text-gray-500 text-xs">{dateStr}</td>
+                      <td className="px-6 py-4 text-center">
+                        {store.business_license_url ? (
+                          <button 
+                            onClick={() => setSelectedLicense(store.business_license_url!)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          >
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            뷰어
+                          </button>
+                        ) : (
+                          <span className="text-xs text-gray-400">미등록</span>
+                        )}
+                      </td>
                       <td className="px-6 py-4">
                         <span className={`px-2.5 py-1 text-[12px] font-bold rounded-full border ${statusColor}`}>
                           {statusLabel}
@@ -201,6 +214,53 @@ export default function HqDashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* 사업자등록증 뷰어 팝업 모달 */}
+      {selectedLicense && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                사업자등록증 원본
+              </h3>
+              <button 
+                onClick={() => setSelectedLicense(null)} 
+                className="text-gray-400 hover:text-gray-900 hover:bg-gray-100 p-1.5 rounded-full transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto bg-gray-50 flex-1 flex justify-center items-center min-h-[50vh]">
+              <img 
+                src={selectedLicense} 
+                alt="사업자등록증 사본" 
+                className="max-w-full max-h-[70vh] object-contain rounded-md shadow-sm border border-gray-200" 
+              />
+            </div>
+            
+            <div className="p-4 border-t border-gray-100 bg-white flex justify-end gap-3">
+              <button 
+                onClick={() => setSelectedLicense(null)}
+                className="px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                닫기
+              </button>
+              <a 
+                href={selectedLicense} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                download 
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                원본 다운로드
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
