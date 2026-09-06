@@ -94,27 +94,8 @@ export default function CustomerSalePage() {
     if (!storeSlug) return;
 
     const fetchItems = async () => {
-      const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
-      if (isPreview) {
-        const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
-        setStoreName(stagedSettings.storeName || '상호명 미리보기');
-        
-        if (stagedSettings.saleStart && stagedSettings.saleEnd) {
-          const start = new Date(stagedSettings.saleStart);
-          const end = new Date(stagedSettings.saleEnd);
-          const formattedStart = start.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-          const formattedEnd = end.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-          setPeriodText(formattedStart + ' ~ ' + formattedEnd);
-        }
-        setBossMessage(stagedSettings.bossMessage || '');
-
-        const stagedItems = JSON.parse(localStorage.getItem('nao3_staging_items') || '[]');
-        setItems(stagedItems);
-        setLoading(false);
-        return;
-      }
       try {
-        // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기
+        // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기 (미리보기 모드라도 항상 가져와서 가게정보/특가 정보를 렌더링해야 함)
         const { data: store } = await supabase
           .from('nao3_stores')
           .select('id, store_name, address, phone, operating_hours, closed_days, special_image_url, special_title, special_price, special_message')
@@ -124,6 +105,26 @@ export default function CustomerSalePage() {
         if (store) {
           setStoreName(store.store_name);
           setStoreInfo(store);
+        }
+
+        const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
+        if (isPreview) {
+          const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+          if (stagedSettings.storeName) setStoreName(stagedSettings.storeName);
+          
+          if (stagedSettings.saleStart && stagedSettings.saleEnd) {
+            const start = new Date(stagedSettings.saleStart);
+            const end = new Date(stagedSettings.saleEnd);
+            const formattedStart = start.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+            const formattedEnd = end.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+            setPeriodText(formattedStart + ' ~ ' + formattedEnd);
+          }
+          setBossMessage(stagedSettings.bossMessage || '');
+
+          const stagedItems = JSON.parse(localStorage.getItem('nao3_staging_items') || '[]');
+          setItems(stagedItems);
+          setLoading(false);
+          return;
         }
 
         // 1. 해당 가게의 가장 최근 발송 이력(push_id) 가져오기
@@ -270,6 +271,54 @@ export default function CustomerSalePage() {
         </div>
 
       </div>
+
+      {/* 오늘의 강력 추천 특가 존 */}
+      {storeInfo && (storeInfo.special_title || storeInfo.special_image_url) && (
+        <div className="max-w-md mx-auto w-full px-3 mb-6 mt-2">
+          <div className="bg-gradient-to-br from-orange-400 to-red-500 rounded-3xl p-1.5 shadow-xl shadow-orange-500/20 animate-fade-in-up">
+            <div className="bg-white rounded-[20px] overflow-hidden">
+              <div className="bg-gradient-to-r from-orange-500 to-red-500 py-3 px-4 text-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10 blur-xl"></div>
+                <h3 className="text-[17px] font-black text-white tracking-tight drop-shadow-md">
+                  🔥 오늘 딱 하나, 강력 추천!
+                </h3>
+              </div>
+              
+              <div className="p-4 flex flex-col gap-3">
+                {storeInfo.special_image_url && (
+                  <div className="w-full aspect-square md:aspect-video rounded-xl overflow-hidden bg-gray-100 shadow-inner">
+                    {storeInfo.special_image_url.match(/\.(mp4|webm|ogg)$/i) ? (
+                      <video src={storeInfo.special_image_url} className="w-full h-full object-cover" autoPlay muted loop playsInline />
+                    ) : (
+                      <img src={storeInfo.special_image_url} alt={storeInfo.special_title} className="w-full h-full object-cover" />
+                    )}
+                  </div>
+                )}
+                
+                {(storeInfo.special_title || storeInfo.special_price) && (
+                  <div className="text-center mt-2 mb-1">
+                    {storeInfo.special_title && <h4 className="text-[22px] font-black text-gray-900 tracking-tight break-keep leading-tight">{storeInfo.special_title}</h4>}
+                    {storeInfo.special_price && (
+                      <p className="text-[24px] font-extrabold text-red-600 mt-1 drop-shadow-sm">{storeInfo.special_price}</p>
+                    )}
+                  </div>
+                )}
+                
+                {storeInfo.special_message && (
+                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-100 relative mt-2">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-2 py-0.5 rounded-full border border-orange-200 text-[11px] font-bold text-orange-600 shadow-sm flex items-center gap-1 whitespace-nowrap">
+                      <span>🗣️</span> 사장님 한마디
+                    </div>
+                    <p className="text-[14px] font-bold text-gray-800 text-center leading-relaxed break-keep mt-1">
+                      "{storeInfo.special_message}"
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 세일 품목 리스트 */}
       <div className="max-w-md mx-auto w-full flex flex-col gap-3 pt-3 pb-8">
