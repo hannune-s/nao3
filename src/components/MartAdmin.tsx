@@ -737,14 +737,14 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           </div>
         </div>
         {/* 오늘의 강력 추천 섹션 (단독 섹션) */}
-        <div className="max-w-2xl mx-auto w-full px-4 pt-6 pb-2 border-b border-gray-100 bg-orange-50">
-          <div className="bg-white border border-orange-200 rounded-3xl p-5 shadow-sm flex flex-col gap-4 animate-fade-in-up">
-            <div className="text-center">
-              <h3 className="text-[18px] font-black text-orange-600 mb-1">🔥 오늘 딱 하나, 강력 추천!</h3>
-              <p className="text-[12px] font-bold text-gray-500">이곳에 입력하고 저장하면 즉시 세일 페이지 최상단에 반영됩니다.</p>
+        <div className="max-w-2xl mx-auto w-full px-3 pt-4 pb-2 border-b border-gray-100 bg-orange-50">
+          <div className="bg-white border border-orange-200 rounded-2xl p-4 shadow-sm flex flex-col gap-3 animate-fade-in-up">
+            <div className="text-center mb-1">
+              <h3 className="text-[16px] font-black text-orange-600 mb-0.5">🔥 오늘 딱 하나, 강력 추천!</h3>
+              <p className="text-[11px] font-bold text-gray-500">이곳에 입력하면 즉시 세일 페이지 최상단에 노출됩니다.</p>
             </div>
             
-            <label className="flex flex-col items-center justify-center w-full h-48 bg-gray-50 border-2 border-dashed border-orange-300 rounded-2xl cursor-pointer hover:bg-orange-50 transition-colors overflow-hidden relative group">
+            <label className="flex flex-col items-center justify-center w-full h-28 bg-gray-50 border-2 border-dashed border-orange-300 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors overflow-hidden relative group">
               {specialPreview ? (
                 specialPreview.match(/\.(mp4|webm|ogg)$/i) ? (
                   <video src={specialPreview} className="w-full h-full object-cover" autoPlay muted loop playsInline />
@@ -752,28 +752,32 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                   <img src={specialPreview} className="w-full h-full object-cover" alt="미리보기" />
                 )
               ) : (
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <span className="text-4xl mb-3">📸</span>
-                  <p className="text-[15px] font-extrabold text-orange-600">+ 사진/영상 추가</p>
-                  <p className="text-[11px] font-bold text-gray-400 mt-1">눌러서 갤러리나 카메라 실행</p>
+                <div className="flex flex-col items-center justify-center">
+                  <span className="text-2xl mb-1">📸</span>
+                  <p className="text-[13px] font-extrabold text-orange-600">+ 사진/영상 추가</p>
                 </div>
               )}
               <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-white font-black text-lg mb-1">변경하기</span>
-                <span className="text-white/80 font-medium text-xs">사진/영상을 다시 선택합니다.</span>
+                <span className="text-white font-black text-sm">변경하기</span>
               </div>
               <input type="file" accept="image/*,video/*" className="hidden" onChange={handleSpecialFileChange} />
             </label>
 
-            <div className="flex flex-col gap-3">
-              <input type="text" placeholder="상품명 (예: 활 꽃게)" value={specialForm.title} onChange={e => setSpecialForm({...specialForm, title: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-[15px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all" />
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-2">
+                <input type="text" placeholder="상품명 (예: 활 꽃게)" value={specialForm.title} onChange={e => setSpecialForm({...specialForm, title: e.target.value})} className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[14px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all" />
+                
+                <input type="text" placeholder="가격 (예: 29,800원)" value={specialForm.price} onChange={e => {
+                  let val = e.target.value.replace(/,/g, '');
+                  val = val.replace(/\d+/g, (match) => Number(match).toLocaleString('ko-KR'));
+                  setSpecialForm({...specialForm, price: val});
+                }} className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[14px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all" />
+              </div>
               
-              <input type="text" placeholder="가격 (예: 1kg 29,800원)" value={specialForm.price} onChange={e => setSpecialForm({...specialForm, price: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-[15px] font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all" />
-              
-              <textarea placeholder="사장님 멘트 (예: 오늘 새벽 직송! 살아 파닥거리는 거 겨우 잡아왔어요!)" value={specialForm.message} onChange={e => setSpecialForm({...specialForm, message: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3.5 text-[14px] font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 min-h-[90px] resize-none transition-all"></textarea>
+              <textarea placeholder="사장님 멘트 (예: 오늘 새벽 직송! 살아 파닥거리는 거 겨우 잡아왔어요!)" value={specialForm.message} onChange={e => setSpecialForm({...specialForm, message: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-[13px] font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-400 min-h-[60px] resize-none transition-all"></textarea>
             </div>
             
-            <button onClick={handleSaveSpecial} disabled={isSavingSpecial} className={`w-full py-4 mt-2 rounded-xl font-black text-white text-[16px] shadow-[0_4px_14px_rgba(249,115,22,0.3)] transition-all ${isSavingSpecial ? 'bg-orange-300' : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 active:scale-[0.98]'}`}>
+            <button onClick={handleSaveSpecial} disabled={isSavingSpecial} className={`w-full py-3 mt-1 rounded-xl font-black text-white text-[15px] shadow-[0_4px_14px_rgba(249,115,22,0.3)] transition-all ${isSavingSpecial ? 'bg-orange-300' : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 active:scale-[0.98]'}`}>
               {isSavingSpecial ? '저장 중...' : '오늘의 특가 실시간 반영하기'}
             </button>
           </div>
