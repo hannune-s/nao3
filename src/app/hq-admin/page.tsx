@@ -15,6 +15,7 @@ type Store = {
   is_suspended?: boolean;
   subscription_paid?: boolean;
   business_license_url?: string;
+  business_type?: string;
 };
 
 export default function HqDashboardPage() {
@@ -111,28 +112,30 @@ export default function HqDashboardPage() {
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-left min-w-[1000px]">
             <thead className="bg-gray-50 text-gray-600 font-medium border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4">가맹점 상호명</th>
-                <th className="px-6 py-4">대표자명</th>
-                <th className="px-6 py-4">연락처 (이메일)</th>
-                <th className="px-6 py-4">가입일자</th>
-                <th className="px-6 py-4 text-center">사업자등록증</th>
-                <th className="px-6 py-4">구독 상태</th>
-                <th className="px-6 py-4 text-center">월 구독료 납부</th>
-                <th className="px-6 py-4 text-center">계정 제어</th>
+                <th className="px-6 py-4 w-16 text-center whitespace-nowrap">번호</th>
+                <th className="px-6 py-4 text-center whitespace-nowrap w-24">업종</th>
+                <th className="px-6 py-4 whitespace-nowrap">가맹점 상호명</th>
+                <th className="px-6 py-4 whitespace-nowrap">대표자명</th>
+                <th className="px-6 py-4 whitespace-nowrap">연락처 (이메일)</th>
+                <th className="px-6 py-4 whitespace-nowrap text-center">가입일자</th>
+                <th className="px-6 py-4 text-center whitespace-nowrap">사업자등록증</th>
+                <th className="px-6 py-4 text-center whitespace-nowrap">구독 상태</th>
+                <th className="px-6 py-4 text-center whitespace-nowrap">월 구독료 납부</th>
+                <th className="px-6 py-4 text-center whitespace-nowrap">계정 제어</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {stores.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
                     등록된 가맹점이 없습니다.
                   </td>
                 </tr>
               ) : (
-                stores.map((store) => {
+                stores.map((store, idx) => {
                   const dateStr = store.created_at ? new Date(store.created_at).toLocaleDateString('ko-KR') : '정보 없음';
                   
                   let statusLabel = '승인 대기';
@@ -151,36 +154,47 @@ export default function HqDashboardPage() {
                     }
                   }
 
+                  const typeLabel = store.business_type === 'mart' ? '마트' : store.business_type === 'butcher' ? '정육점' : '미지정';
+                  const typeColor = store.business_type === 'mart' ? 'bg-blue-50 text-blue-700 border-blue-200' : store.business_type === 'butcher' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-gray-50 text-gray-600 border-gray-200';
+
                   return (
                     <tr key={store.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-gray-900">
+                      <td className="px-6 py-4 text-center text-gray-500 font-medium whitespace-nowrap">
+                        {stores.length - idx}
+                      </td>
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
+                        <span className={`px-2.5 py-1 text-[11px] font-bold rounded-md border ${typeColor}`}>
+                          {typeLabel}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">
                         <Link href={`/store/${store.slug}`} className="hover:text-blue-600 hover:underline flex items-center gap-2">
                           {store.store_name}
                           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                         </Link>
                       </td>
-                      <td className="px-6 py-4 text-gray-600">{store.owner_name}</td>
-                      <td className="px-6 py-4 text-gray-600">{store.email}</td>
-                      <td className="px-6 py-4 text-gray-500 text-xs">{dateStr}</td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-6 py-4 text-gray-600 whitespace-nowrap">{store.owner_name}</td>
+                      <td className="px-6 py-4 text-gray-600 whitespace-nowrap">{store.email}</td>
+                      <td className="px-6 py-4 text-gray-500 text-xs text-center whitespace-nowrap">{dateStr}</td>
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
                         {store.business_license_url ? (
                           <button 
                             onClick={() => setSelectedLicense(store.business_license_url!)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                           >
                             <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                             뷰어
                           </button>
                         ) : (
-                          <span className="text-xs text-gray-400">미등록</span>
+                          <span className="text-xs text-gray-400 font-medium">미등록</span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
                         <span className={`px-2.5 py-1 text-[12px] font-bold rounded-full border ${statusColor}`}>
                           {statusLabel}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
                         <button 
                           onClick={() => handleTogglePayment(store)}
                           disabled={!store.is_approved}
@@ -189,7 +203,7 @@ export default function HqDashboardPage() {
                           <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${store.subscription_paid ? 'translate-x-6' : 'translate-x-1'}`} />
                         </button>
                       </td>
-                      <td className="px-6 py-4 text-center">
+                      <td className="px-6 py-4 text-center whitespace-nowrap">
                         {!store.is_approved ? (
                           <button 
                             onClick={() => handleApprove(store.id)}
