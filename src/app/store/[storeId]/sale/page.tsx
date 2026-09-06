@@ -257,13 +257,13 @@ export default function CustomerSalePage() {
           {/* 오늘의 사장님 이야기 */}
           {bossMessage && (
             <div className="max-w-md mx-auto px-4 pt-1 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-              <div className="relative border border-[#E8E2D2] rounded-2xl px-6 py-7 bg-[#FDFBF7] shadow-[0_10px_30px_rgba(0,0,0,0.05)] overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#1A1A1A] to-[#3A3A3A]"></div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[#1A1A1A] text-[18px] leading-none opacity-90">🖋️</span>
-                  <h3 className="text-[16px] font-black text-[#1A1A1A] tracking-tight">오늘의 사장님 이야기</h3>
+              <div className="relative border-2 border-[#F0D5B6] rounded-3xl px-6 py-7 bg-[#FFFDF7] shadow-sm overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#F2C99D] to-[#F9B772]"></div>
+                <div className="flex items-center gap-2 mb-3">
+                  <svg className="w-5 h-5 text-[#E59849]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                  <h3 className="text-[16px] font-black text-[#8B5A2B] tracking-tight">오늘의 사장님 이야기</h3>
                 </div>
-                <p className="text-[15.5px] text-[#2C2C2C] leading-[1.75] whitespace-pre-wrap font-semibold tracking-[-0.01em]">
+                <p className="text-[15.5px] text-[#5A4531] leading-[1.7] whitespace-pre-wrap font-bold tracking-tight">
                   {bossMessage}
                 </p>
               </div>
@@ -309,7 +309,7 @@ export default function CustomerSalePage() {
                       </h4>
                     )}
                     {storeInfo.special_price && (
-                      <p className="text-[26px] font-light text-[#8B1818] tracking-tight">
+                      <p className="text-[26px] font-semibold text-[#8B1818] tracking-tight">
                         {storeInfo.special_price}{/^\d/.test(storeInfo.special_price) && !storeInfo.special_price.includes('원') && !storeInfo.special_price.match(/[a-zA-Z]/) ? '원' : ''}
                       </p>
                     )}
