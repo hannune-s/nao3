@@ -225,7 +225,69 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature 3: Flexibility & Zero Barrier */}
+      {/* Feature 3: Live Photo & Special Deals */}
+      <section className="py-32 bg-gray-50/50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <div className="order-2 lg:order-1 relative flex justify-center">
+              {/* CSS UI Mockup - Photo Upload Feature */}
+              <div className="relative rounded-[2.5rem] bg-white p-5 shadow-[0_30px_80px_rgba(0,0,0,0.1)] border border-gray-200 transform -rotate-2 hover:rotate-0 transition-all duration-500 max-w-sm w-full">
+                <div className="bg-[#111] text-white rounded-2xl py-4 px-4 text-center font-black tracking-widest mb-5 shadow-inner">
+                  오늘의 추천 특가
+                </div>
+                <div className="relative rounded-2xl overflow-hidden mb-5 group shadow-md">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent z-10 flex flex-col justify-end p-5">
+                    <span className="text-white font-black text-xl drop-shadow-md mb-1">산지직송 달콤 꿀수박 🍉</span>
+                    <span className="text-yellow-300 font-bold text-sm tracking-wide">지금 막 들어왔어요! 30수 한정</span>
+                  </div>
+                  {/* Dummy Unsplash Image */}
+                  <img src="https://images.unsplash.com/photo-1589984662646-e7b2e4962f18?w=800&q=80" alt="수박" className="w-full h-72 object-cover transform group-hover:scale-110 transition-transform duration-700" />
+                </div>
+                <div className="flex justify-between items-end px-3 pb-2">
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-400 line-through mb-1">25,000원</span>
+                    <span className="font-black text-3xl text-red-600 tracking-tight">19,900<span className="text-xl">원</span></span>
+                  </div>
+                  <div className="bg-red-50 text-red-600 border border-red-200 font-bold px-4 py-2 rounded-xl text-sm">
+                    🚨 선착순 득템
+                  </div>
+                </div>
+                <div className="absolute -top-6 -right-6 bg-red-500 text-white font-black text-sm px-6 py-3 rounded-full shadow-xl transform rotate-12 animate-pulse border-4 border-white">
+                  실시간 사진 업로드! 📸
+                </div>
+              </div>
+            </div>
+            
+            <div className="order-1 lg:order-2">
+              <h2 className="text-sm font-black text-[#5F0080] tracking-widest uppercase mb-3">Vivid Real-time Photo</h2>
+              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+                방금 들어온 제철 상품,<br /><span className="text-[#5F0080]">사진 한 장으로 시선 집중.</span>
+              </h3>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
+                텍스트만으로는 신선함이 다 안 담기나요? <strong>'오늘의 추천 특가'</strong> 메뉴를 통해 매장에 방금 들어온 싱싱한 고기, 과일 사진을 현장에서 바로 찍어 올리세요. 생생한 사진 한 장이 백 마디 말보다 강력하게 고객의 식욕과 구매 욕구를 200% 자극합니다.
+              </p>
+              <div className="space-y-8 mt-10">
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-[#5F0080]/10 flex items-center justify-center text-2xl shadow-sm border border-purple-100">📸</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">현장감 넘치는 실시간 사진 등록</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">복잡한 편집 없이 스마트폰으로 방금 찍은 사진을 그대로! 산지의 신선함을 고객의 스마트폰으로 즉시 전송하세요.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-[#5F0080]/10 flex items-center justify-center text-2xl shadow-sm border border-purple-100">✨</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">압도적인 클릭률과 매출 상승</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">글씨만 있는 딱딱한 전단지보다, 먹음직스러운 이미지형 특가 상품이 3배 이상 높은 주목도와 구매 전환율을 보여줍니다.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 4: Flexibility & Zero Barrier */}
       <section className="py-32 bg-gray-900 text-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
