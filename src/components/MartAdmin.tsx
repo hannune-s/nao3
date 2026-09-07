@@ -112,6 +112,23 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     setIsSavingSpecial(true);
     try {
       let finalUrl = specialForm.media_url;
+
+      // [체험 모드] demo-guest 계정은 Supabase 없이 localStorage에만 저장
+      if (storeId.startsWith('demo-guest-')) {
+        if (specialFile) {
+          finalUrl = URL.createObjectURL(specialFile);
+        }
+        const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+        stagedSettings.special_title = specialForm.title;
+        stagedSettings.special_price = specialForm.price;
+        stagedSettings.special_message = specialForm.message;
+        stagedSettings.special_image_url = finalUrl;
+        localStorage.setItem('nao3_staging_settings', JSON.stringify(stagedSettings));
+        alert('체험 모드: 특가 정보가 반영되었습니다! [고객 화면 보기] 버튼으로 확인해보세요.');
+        setIsSavingSpecial(false);
+        return;
+      }
+
       if (specialFile) {
         const ext = specialFile.name.split('.').pop();
         const fileName = `${storeId}_special_${Date.now()}.${ext}`;
@@ -468,6 +485,19 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     }
     setLoading(true);
     try {
+      // [체험 모드] demo-guest 계정은 localStorage에만 저장
+      if (storeId.startsWith('demo-guest-')) {
+        const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+        stagedSettings.storeName = storeName;
+        stagedSettings.saleStart = saleStart;
+        stagedSettings.saleEnd = saleEnd;
+        stagedSettings.bossMessage = bossMessage;
+        localStorage.setItem('nao3_staging_settings', JSON.stringify(stagedSettings));
+        alert('체험 모드: 상호명, 기간, 멘트가 고객화면에 반영되었습니다! [고객 화면 보기]로 확인해보세요.');
+        setLoading(false);
+        return;
+      }
+
       // 1. 가게 상호명 업데이트
       const { data: updatedStore, error: storeError } = await supabase
         .from('nao3_stores')
