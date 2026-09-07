@@ -1098,8 +1098,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                     <span className="text-[14px] font-bold text-gray-800 truncate">{item.product_name}</span>
                     {item.grade && <span className="text-[11px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded flex-shrink-0">{item.grade}</span>}
                     {item.origin && <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.origin}</span>}
-                    {item.grade && <span className="text-[11px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded flex-shrink-0">{item.grade}</span>}
-                    {item.origin && <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.origin}</span>}
+
                     <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
                   </div>
                   <span className={`text-[15px] font-black flex-shrink-0 text-[#5F0080]`}>

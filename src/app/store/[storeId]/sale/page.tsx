@@ -415,19 +415,35 @@ export default function CustomerSalePage() {
                         <div key={item.id} className="flex items-center justify-between py-3.5 border-b border-gray-200 last:border-b-0 transition-all">
                           
                           {/* 좌측: 상품명 & 품절 상태 */}
-                          <div className="flex items-center flex-1 min-w-0 pr-3 gap-2.5">
-                            {item.options.every((opt: any) => opt.is_sold_out) && (
-                              <span className="text-[11px] font-black text-white bg-[#E52525] px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
-                                품절
-                              </span>
-                            )}
-                            <span className="flex-shrink-0 w-[26px] h-[26px] bg-[#F9F9F9] rounded-full flex items-center justify-center border border-gray-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)] text-[14px]">
-                              {getIconForProduct(item.product_name)}
-                            </span>
-                            <h4 className={`text-[16px] font-bold text-gray-900 truncate ${item.options.every((opt: any) => opt.is_sold_out) ? 'line-through text-gray-400' : ''}`}>
-                              {item.product_name}
-                            </h4>
-                          </div>
+                            <div className="flex flex-col flex-1 min-w-0 pr-3">
+                              <div className="flex items-center gap-2.5">
+                                {item.options.every((opt: any) => opt.is_sold_out) && (
+                                  <span className="text-[11px] font-black text-white bg-[#E52525] px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
+                                    품절
+                                  </span>
+                                )}
+                                <span className="flex-shrink-0 w-[26px] h-[26px] bg-[#F9F9F9] rounded-full flex items-center justify-center border border-gray-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)] text-[14px]">
+                                  {getIconForProduct(item.product_name)}
+                                </span>
+                                <h4 className={`text-[16px] font-bold text-gray-900 truncate ${item.options.every((opt: any) => opt.is_sold_out) ? 'line-through text-gray-400' : ''}`}>
+                                  {item.product_name}
+                                </h4>
+                              </div>
+                              {(item.options[0]?.grade || item.options[0]?.origin) && (
+                                <div className="flex items-center gap-1.5 mt-1 ml-9">
+                                  {item.options[0]?.grade && (
+                                    <span className="text-[10px] font-bold text-red-500 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded flex-shrink-0">
+                                      {item.options[0].grade}
+                                    </span>
+                                  )}
+                                  {item.options[0]?.origin && (
+                                    <span className="text-[10px] font-bold text-gray-500 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded flex-shrink-0">
+                                      {item.options[0].origin}
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                           
                           {/* 우측: 중량 & 가격 옵션 그룹 */}
                           <div className="text-right flex-shrink-0 flex flex-col items-end justify-center gap-1.5">
