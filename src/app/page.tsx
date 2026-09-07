@@ -188,7 +188,7 @@ export default function LandingPage() {
                       <span className="font-black text-[14px] text-gray-900 uppercase tracking-widest">오늘의 사장님 이야기</span>
                     </div>
                     <div className="bg-[#F5F0E6] p-5 border border-[#E8DFD1] text-[14px] font-medium leading-[1.6] text-gray-800 shadow-sm">
-                      어머님들! 지금 바로 나오시면 한우 등급 2팩 만원! 선착순 2명!! 신발 짝짝이로 신고 뛰어나오세유~~~
+                      어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~
                     </div>
                   </div>
 
