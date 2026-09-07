@@ -22,6 +22,7 @@ export default function MyMenu({ storeData }: { storeData: any }) {
 
   // Subscription mock states
   const [hasCard, setHasCard] = useState(false);
+  const [subscriptionPlan, setSubscriptionPlan] = useState('annual');
   const businessLabel = storeData.business_type === 'mart' ? '마트' : '정육점';
   const monthlyFee = '39,000';
 
@@ -197,74 +198,60 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         </div>
 
         <div className="p-5 flex flex-col gap-6">
-          {/* 1. 구독 상태 */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-50 rounded-bl-full -z-0"></div>
-            <div className="relative z-10">
-              <h3 className="text-[14px] font-extrabold text-gray-800 mb-4 flex items-center gap-2">
-                <svg className="w-5 h-5 text-[#5F0080]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                내 이용권
-              </h3>
-              <div className="flex items-end justify-between">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 bg-[#5F0080] text-white px-2.5 py-1 rounded-md mb-2 shadow-sm">
-                    <span className="text-[10px] font-bold opacity-80">{businessLabel} 전용</span>
-                    <span className="text-[12px] font-black">{businessLabel} 푸시앱 사용중</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-[11px] font-bold text-gray-400 mb-0.5">매월 5일 정기결제 예정</p>
-                  <p className="text-[22px] font-black text-gray-900 tracking-tight">월 {monthlyFee}<span className="text-[14px] font-bold text-gray-500">원</span></p>
-                </div>
-              </div>
+          
+          {/* 요금제 선택 및 결제 수단 등록 */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-2">
+            <h3 className="text-[14px] font-extrabold text-gray-800 mb-4 px-1">요금제 선택 및 결제 수단 등록</h3>
+
+            {/* 안내문 */}
+            <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-5 text-[13px] text-gray-700 leading-relaxed shadow-sm">
+              <p className="font-black text-[#5F0080] flex items-center gap-1 mb-1">
+                <span className="text-base">📢</span> [안내] 오늘 결제되는 금액은 0원입니다.
+              </p>
+              <p className="text-gray-700">1개월 무료 체험 기간(2026-10-07까지) 이후 선택하신 요금제로 자동 결제되며, <strong className="text-gray-900">무료 기간 내 언제든 해지 가능</strong>합니다.</p>
             </div>
-          </div>
 
-          {/* 2. 카드 관리 */}
-          <div>
-            <h3 className="text-[14px] font-extrabold text-gray-800 mb-3 px-1">자동결제 카드 관리</h3>
-            {!hasCard ? (
-              <button onClick={handleRegisterCard} className="w-full bg-white border border-dashed border-[#5F0080]/30 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 hover:bg-purple-50/50 transition-colors group">
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <svg className="w-5 h-5 text-[#5F0080]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                </div>
-                <span className="text-[15px] font-bold text-[#5F0080]">월 구독료 자동결제 카드 등록하기</span>
-              </button>
-            ) : (
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-8 bg-gray-100 rounded flex items-center justify-center text-[10px] font-black text-gray-500 border border-gray-200">
-                    KB국민
+            {/* 요금제 선택 */}
+            <div className="flex flex-col gap-3 mb-6">
+              <label className={`relative flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'annual' ? 'border-[#5F0080] bg-purple-50/20 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <input type="radio" name="plan" value="annual" checked={subscriptionPlan === 'annual'} onChange={() => setSubscriptionPlan('annual')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
+                    <span className="font-black text-gray-900 text-[15px]">연간 결제</span>
+                    <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-sm">⭐ BEST</span>
                   </div>
-                  <div>
-                    <p className="text-[14px] font-bold text-gray-900">KB국민카드</p>
-                    <p className="text-[12px] text-gray-500 font-medium">끝자리 1234</p>
+                  <div className="text-right">
+                    <span className="text-[11px] text-gray-400 line-through mr-1.5">490,000원</span>
+                    <span className="font-black text-[#5F0080] text-[15px]">연 390,000원</span>
                   </div>
                 </div>
-                <button onClick={handleRegisterCard} className="text-[12px] font-bold text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg hover:bg-gray-200">변경하기</button>
-              </div>
-            )}
-          </div>
+                <div className="pl-6 text-[12px] text-gray-600 font-medium space-y-1">
+                  <p>· 12개월 이용 <span className="text-gray-400 text-[11px]">(월 32,500원 꼴 / 일시불)</span></p>
+                  <p>· 2개월 무료 혜택 자동 반영</p>
+                </div>
+              </label>
 
-          {/* 3. 결제 내역 */}
-          <div>
-            <h3 className="text-[14px] font-extrabold text-gray-800 mb-3 px-1">결제 및 이용 내역</h3>
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-              {[1, 2, 3].map((_, i) => (
-                <div key={i} className="p-4 border-b border-gray-50 last:border-0 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                  <div>
-                    <p className="text-[14px] font-bold text-gray-800 mb-0.5">39,000원 결제</p>
-                    <p className="text-[12px] text-gray-400 font-medium">2026.{String(9 - i).padStart(2, '0')}.05 • KB국민카드</p>
+              <label className={`relative flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'monthly' ? 'border-[#5F0080] bg-purple-50/20 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <input type="radio" name="plan" value="monthly" checked={subscriptionPlan === 'monthly'} onChange={() => setSubscriptionPlan('monthly')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
+                    <span className="font-bold text-gray-800 text-[15px]">월간 결제</span>
                   </div>
-                  <button onClick={() => alert('영수증 출력 기능이 연결될 자리입니다.')} className="text-[11px] font-bold text-[#5F0080] border border-[#5F0080]/30 bg-purple-50 px-2.5 py-1.5 rounded flex items-center gap-1 hover:bg-[#5F0080] hover:text-white transition-colors">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                    영수증
-                  </button>
+                  <div className="text-right">
+                    <span className="text-[11px] text-gray-400 line-through mr-1.5">49,000원</span>
+                    <span className="font-bold text-gray-900 text-[15px]">월 39,000원</span>
+                  </div>
                 </div>
-              ))}
+                <div className="pl-6 text-[12px] text-gray-600 space-y-1">
+                  <p>· 매월 정기결제 / 언제든 해지 가능</p>
+                </div>
+              </label>
             </div>
+            
+            <button onClick={() => alert('PG사 결제 시스템 연동을 준비 중입니다.')} className="w-full bg-[#5F0080] text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-purple-900 transition-colors">
+              요금제 확정 및 카드 등록하기
+            </button>
           </div>
-
         </div>
       </div>
     );
