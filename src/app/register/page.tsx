@@ -272,10 +272,15 @@ export default function RegisterPage() {
                 💳 정기결제 카드 등록
               </h4>
               <div className="flex flex-col gap-3">
-                <input 
-                  type="text" placeholder="카드 번호 (숫자만 입력)" maxLength={16}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white"
-                />
+                <div className="flex items-center gap-1.5">
+                  <input type="text" maxLength={4} placeholder="1234" className="w-1/4 border border-gray-200 rounded-xl px-2 py-3 text-center text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white tracking-wider" />
+                  <span className="text-gray-300 font-bold">-</span>
+                  <input type="text" maxLength={4} placeholder="5678" className="w-1/4 border border-gray-200 rounded-xl px-2 py-3 text-center text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white tracking-wider" />
+                  <span className="text-gray-300 font-bold">-</span>
+                  <input type="password" maxLength={4} placeholder="****" className="w-1/4 border border-gray-200 rounded-xl px-2 py-3 text-center text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white tracking-wider" />
+                  <span className="text-gray-300 font-bold">-</span>
+                  <input type="password" maxLength={4} placeholder="****" className="w-1/4 border border-gray-200 rounded-xl px-2 py-3 text-center text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white tracking-wider" />
+                </div>
                 <div className="flex gap-3">
                   <input 
                     type="text" placeholder="유효기간 (MM/YY)" maxLength={5}
