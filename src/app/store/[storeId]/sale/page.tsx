@@ -221,7 +221,7 @@ export default function CustomerSalePage() {
       <div className="flex flex-col">
         
         {/* 1. 브랜드 & 상호명 영역 (진한 보라색 딥톤) */}
-        <div className="bg-[#1A1A1A] pt-8 pb-8 text-center relative overflow-hidden border-b border-[#222]">
+        <div className="bg-[#5F0080] pt-8 pb-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           
           <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in-up">
@@ -289,7 +289,7 @@ export default function CustomerSalePage() {
           <div className="bg-white rounded-[20px] shadow-[0_20px_50px_-12px_rgba(0,0,0,0.18)] border border-gray-100/50 overflow-hidden flex flex-col relative">
             
             {/* 다크 챠콜 & 골드빛 텍스트 헤더 */}
-            <div className="bg-[#1A1A1A] py-4 text-center border-b border-[#1A1A1A]">
+            <div className="bg-[#5F0080] py-4 text-center">
               <h3 className="text-[16px] font-bold text-[#E5D7B7] tracking-[0.2em] uppercase">
                 오늘의 추천 특가
               </h3>
