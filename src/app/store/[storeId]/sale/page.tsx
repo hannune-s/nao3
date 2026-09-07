@@ -116,7 +116,7 @@ export default function CustomerSalePage() {
           }
         }
 
-        const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
+        const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true' || storeSlug.startsWith('demo-guest-');
         if (isPreview) {
           const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
           if (stagedSettings.storeName) setStoreName(stagedSettings.storeName);
