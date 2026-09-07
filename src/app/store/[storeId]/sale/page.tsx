@@ -262,8 +262,8 @@ export default function CustomerSalePage() {
               {/* 타이틀을 바깥으로 빼고, 수평 라인과 연결 (미니멀 인포메이션 패널 스타일) */}
               <div className="flex items-center gap-3 mb-3 px-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[#1A1A1A] text-[15px] leading-none opacity-90">🖋️</span>
-                  <h3 className="text-[13px] font-black text-[#1A1A1A] tracking-[0.2em] uppercase whitespace-nowrap">
+                  <span className="text-[#1A1A1A] text-[18px] leading-none opacity-90">🖋️</span>
+                  <h3 className="text-[16px] font-black text-[#1A1A1A] tracking-[0.1em] uppercase whitespace-nowrap">
                     오늘의 사장님 이야기
                   </h3>
                 </div>
@@ -271,7 +271,7 @@ export default function CustomerSalePage() {
               </div>
               
               {/* 날렵한 사각 모서리 텍스트 전용 박스 */}
-              <div className="border border-[#EBE4D8] rounded-none px-6 py-6 bg-[#FBF9F5] shadow-sm">
+              <div className="border border-[#E8DFD1] rounded-none px-6 py-6 bg-[#F5F0E6] shadow-sm">
                 <p className="text-[14.5px] text-[#38332E] leading-[1.85] whitespace-pre-wrap font-medium tracking-wide">
                   {bossMessage}
                 </p>
