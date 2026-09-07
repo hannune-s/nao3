@@ -15,7 +15,10 @@ export default function LandingPage() {
             <Link href="/login" className="text-sm font-semibold text-gray-600 hover:text-[#5F0080] transition-colors">
               어드민 로그인
             </Link>
-            <Link href="/register" className="text-sm font-bold text-white bg-[#5F0080] hover:bg-purple-900 px-5 py-2.5 rounded-full shadow-lg shadow-purple-900/20 transition-all hover:scale-105">
+            <DemoButton className="text-sm font-bold text-[#5F0080] bg-purple-50 hover:bg-purple-100 border border-purple-200 px-4 py-2.5 rounded-full transition-all">
+              가입 없이 체험하기
+            </DemoButton>
+            <Link href="/register" className="text-sm font-bold text-white bg-[#5F0080] hover:bg-purple-900 px-4 py-2.5 rounded-full shadow-lg shadow-purple-900/20 transition-all hover:scale-105">
               무료 스토어 개설
             </Link>
           </div>
@@ -42,7 +45,10 @@ export default function LandingPage() {
             복잡한 앱 설치도, 값비싼 문자 비용도 필요 없습니다. 단 3초면 끝나는 상품 등록부터 고객의 지갑을 여는 실시간 품절 알림까지, NAO3가 동네 장사를 혁신합니다.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <Link href="/register" className="w-full sm:w-auto px-10 py-5 rounded-full bg-[#5F0080] text-white font-black text-lg hover:scale-105 transition-transform shadow-[0_10px_30px_rgba(95,0,128,0.3)]">
+            <DemoButton className="w-full sm:w-auto px-8 py-5 rounded-full bg-white text-[#5F0080] border-2 border-[#5F0080] font-black text-lg hover:bg-purple-50 hover:scale-105 transition-transform">
+              👀 가입 없이 어드민 체험하기
+            </DemoButton>
+            <Link href="/register" className="w-full sm:w-auto px-8 py-5 rounded-full bg-[#5F0080] text-white font-black text-lg hover:scale-105 transition-transform shadow-[0_10px_30px_rgba(95,0,128,0.3)]">
               지금 바로 시작하기 (무료)
             </Link>
           </div>
