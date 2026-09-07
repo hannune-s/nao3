@@ -61,6 +61,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const [qtyIdx, setQtyIdx] = useState(-1);
   const [showPriceDropdown, setShowPriceDropdown] = useState(false);
   const [priceIdx, setPriceIdx] = useState(-1);
+  const [showGradeDropdown, setShowGradeDropdown] = useState(false);
+  const [gradeIdx, setGradeIdx] = useState(-1);
 
   // 이력 관리 상태
   const [histories, setHistories] = useState<any[]>([]);
@@ -151,6 +153,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     setNameIdx(-1);
     setQtyIdx(-1);
     setPriceIdx(-1);
+    setGradeIdx(-1);
   };
 
   // 이력에서 추출한 최근 사용 데이터
