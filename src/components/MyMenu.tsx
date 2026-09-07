@@ -30,11 +30,7 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   const [loadingNotices, setLoadingNotices] = useState(false);
   const [expandedNoticeId, setExpandedNoticeId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (view === 'notices') {
-      fetchHqNotices();
-    }
-  }, [view]);
+  
 
   const fetchHqNotices = async () => {
     setLoadingNotices(true);
@@ -45,16 +41,22 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         .order('created_at', { ascending: false });
       if (error) throw error;
       setHqNotices(data || []);
-    } catch (err) {
-      console.error(err);
-      // Fallback if DB table doesn't exist
-      setHqNotices([
-        { id: '1', title: '[테스트] DB 연동 전 모의 공지사항입니다.', content: '실제 DB(nao3_hq_notices)를 연동하시면 본사에서 등록한 공지가 표시됩니다.\n\n감사합니다.', created_at: new Date().toISOString() }
-      ]);
+    } catch (error) {
+      console.error('Error fetching notices:', error);
     } finally {
       setLoadingNotices(false);
     }
   };
+
+  useEffect(() => {
+    if (view === 'notices') {
+      fetchHqNotices();
+    }
+  }, [view]);
+
+  
+
+  
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
