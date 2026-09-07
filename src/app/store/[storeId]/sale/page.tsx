@@ -226,7 +226,7 @@ export default function CustomerSalePage() {
           
           <div className="relative z-10 flex flex-col items-center justify-center animate-fade-in-up">
             <h1 className="text-sm font-bold tracking-[0.25em] text-[#E5D7B7] uppercase bg-black/40 px-4 py-1 rounded-full border border-[#E5D7B7]/30 mb-3">
-              Nao3
+              NAO3
             </h1>
             <h2 className="text-3xl sm:text-4xl font-black text-white drop-shadow-md tracking-tight break-keep px-4">
               {storeName}

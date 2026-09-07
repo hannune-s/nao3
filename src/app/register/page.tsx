@@ -87,7 +87,7 @@ export default function RegisterPage() {
 
       if (dbError) throw new Error(`스토어 정보 저장 실패: ${dbError.message}`);
 
-      alert('나오3 가입이 완료되었습니다! 승인 후 로그인해주세요.');
+      alert('NAO3 가입이 완료되었습니다! 승인 후 로그인해주세요.');
       router.push('/'); // 로그인/어드민 페이지로 이동
 
     } catch (err: any) {
@@ -105,7 +105,7 @@ export default function RegisterPage() {
         {/* 헤더 */}
         <div className="bg-[#5F0080] text-white p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-          <h1 className="text-3xl font-black relative z-10 tracking-tight">Nao3 가입하기</h1>
+          <h1 className="text-3xl font-black relative z-10 tracking-tight">NAO3 가입하기</h1>
           <p className="text-purple-200 mt-2 relative z-10 text-sm">매달 나가는 문자비 0원! 3초 만에 쏘는 단골 세일 알림</p>
         </div>
 
@@ -220,7 +220,7 @@ export default function RegisterPage() {
             type="submit" disabled={loading}
             className="w-full mt-4 py-4 bg-[#5F0080] hover:bg-purple-900 disabled:bg-purple-300 text-white font-black text-lg rounded-xl transition-colors shadow-lg"
           >
-            {loading ? '가입 처리 중...' : '나오3 시작하기'}
+            {loading ? '가입 처리 중...' : 'NAO3 시작하기'}
           </button>
           
         </form>

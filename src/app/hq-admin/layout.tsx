@@ -14,7 +14,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
           <h1 className="text-xl font-black tracking-tight text-[#E5D7B7]">
             본사 어드민 (HQ)
           </h1>
-          <p className="text-gray-400 text-xs mt-1">nao3 최고 관리자 시스템</p>
+          <p className="text-gray-400 text-xs mt-1">NAO3 최고 관리자 시스템</p>
         </div>
         <nav className="flex-1 py-4">
           <ul className="space-y-1">
@@ -47,7 +47,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
           </ul>
         </nav>
         <div className="p-4 text-xs text-gray-500 text-center border-t border-gray-800">
-          © 2026 nao3 HQ
+          © 2026 NAO3 HQ
         </div>
       </aside>
 

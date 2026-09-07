@@ -57,7 +57,7 @@ export default function AdminRouterPage() {
         <div className="w-16 h-16 bg-[#5F0080]/10 rounded-full flex items-center justify-center mb-4">
           <span className="text-3xl">🔑</span>
         </div>
-        <h2 className="text-2xl font-black text-[#5F0080] mb-2 tracking-tight">Nao3 어드민</h2>
+        <h2 className="text-2xl font-black text-[#5F0080] mb-2 tracking-tight">NAO3 어드민</h2>
         <p className="text-sm text-gray-500 mb-8 text-center">동네 사장님들을 위한 1초 전단지</p>
         
         <input 
@@ -76,7 +76,7 @@ export default function AdminRouterPage() {
         </button>
 
         <Link href="/register" className="mt-6 text-sm text-gray-500 underline hover:text-[#5F0080]">
-          Nao3가 처음이신가요? 가입하기
+          NAO3가 처음이신가요? 가입하기
         </Link>
       </form>
     </div>
