@@ -98,15 +98,22 @@ export default function CustomerSalePage() {
     const fetchItems = async () => {
       try {
         // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기 (미리보기 모드라도 항상 가져와서 가게정보/특가 정보를 렌더링해야 함)
-        const { data: store } = await supabase
-          .from('nao3_stores')
-          .select('id, store_name, address, phone, operating_hours, closed_days, special_image_url, special_title, special_price, special_message')
-          .eq('slug', storeSlug)
-          .single();
-          
-        if (store) {
-          setStoreName(store.store_name);
-          setStoreInfo(store);
+                let storeIdForQuery = storeSlug;
+        if (storeSlug.startsWith('demo-guest-')) {
+          setStoreName('체험용 마트');
+          setStoreInfo({ id: storeSlug, store_name: '체험용 마트' });
+        } else {
+          const { data: store } = await supabase
+            .from('nao3_stores')
+            .select('id, store_name, address, phone, operating_hours, closed_days, special_image_url, special_title, special_price, special_message')
+            .eq('slug', storeSlug)
+            .single();
+            
+          if (store) {
+            storeIdForQuery = store.id;
+            setStoreName(store.store_name);
+            setStoreInfo(store);
+          }
         }
 
         const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true';
@@ -133,7 +140,7 @@ export default function CustomerSalePage() {
         const { data: latestPush, error: pushError } = await supabase
           .from('nao3_push_history')
           .select('id, sale_start, sale_end, boss_message')
-          .eq('store_id', store?.id)
+          .eq('store_id', storeIdForQuery)
           .order('created_at', { ascending: false })
           .limit(1)
           .single();

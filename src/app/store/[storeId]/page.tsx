@@ -24,10 +24,23 @@ export default function StoreAdminPage() {
   }, [storeSlug]);
 
   const checkUserAndStore = async () => {
+    // Demo Mode Bypass
+    if (storeSlug.startsWith('demo-guest-')) {
+      // Create fake store data based on local storage or defaults
+      setStoreData({
+        id: storeSlug,
+        slug: storeSlug,
+        name: '체험용 마트',
+        business_type: 'mart'
+      });
+      setLoading(false);
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session?.user) {
-      router.push('/');
+      router.push('/login');
       return;
     }
 

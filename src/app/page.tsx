@@ -1,3 +1,4 @@
+import DemoButton from '@/components/DemoButton';
 import Link from 'next/link';
 
 export default function LandingPage() {
