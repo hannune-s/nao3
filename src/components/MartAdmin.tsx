@@ -927,7 +927,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                   className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
                 >
                   <option value="">원산지 선택 (선택안함)</option>
-                  <option value="국내산(국산)">국내산 (국산)</option>
+                  <option value="국산">국산</option>
                   <option value="수입산">수입산</option>
                 </select>
               </div>
@@ -1146,7 +1146,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                     </span>
                     <span className="text-[14px] font-bold text-gray-800 truncate">{item.product_name}</span>
                     {item.grade && <span className="text-[11px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded flex-shrink-0">{item.grade}</span>}
-                    {item.origin && <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.origin}</span>}
+                    {item.origin && <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.origin === '국내산(국산)' ? '국산' : item.origin}</span>}
 
                     <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
                   </div>
@@ -1259,7 +1259,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                                           <span className="text-[10px] text-[#5F0080] border border-[#5F0080]/20 bg-[#5F0080]/5 px-1 rounded flex-shrink-0">{item.category}</span>
                                           <h4 className={`text-[13px] font-bold truncate ${item.is_sold_out ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{item.product_name}</h4>
                                           {item.grade && <span className="text-[10px] text-red-500 bg-red-50 border border-red-100 px-1 rounded flex-shrink-0">{item.grade}</span>}
-                                          {item.origin && <span className="text-[10px] text-gray-500 bg-gray-100 border border-gray-200 px-1 rounded flex-shrink-0">{item.origin}</span>}
+                                          {item.origin && <span className="text-[10px] text-gray-500 bg-gray-100 border border-gray-200 px-1 rounded flex-shrink-0">{item.origin === '국내산(국산)' ? '국산' : item.origin}</span>}
                                           <span className="text-[11px] text-gray-500 bg-white border border-gray-200 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
                                         </div>
                                         <div className="text-right flex-shrink-0">

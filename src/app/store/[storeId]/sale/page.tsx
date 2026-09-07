@@ -444,7 +444,7 @@ export default function CustomerSalePage() {
                                   )}
                                   {item.options[0]?.origin && (
                                     <span className="text-[10px] font-bold text-gray-500 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded flex-shrink-0">
-                                      {item.options[0].origin}
+                                      {item.options[0].origin === '국내산(국산)' ? '국산' : item.options[0].origin}
                                     </span>
                                   )}
                                 </div>
