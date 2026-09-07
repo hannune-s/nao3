@@ -670,7 +670,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           <div className="flex flex-col gap-1 relative z-10">
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black text-white tracking-tight drop-shadow-sm">NAO3</h1>
-              <span className="bg-purple-900/50 text-purple-100 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-700/50">슈퍼마켓 어드민</span>
+              <span className="bg-purple-900/50 text-purple-100 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-700/50">{storeName}</span>
             </div>
           </div>
           
