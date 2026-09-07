@@ -74,6 +74,8 @@ interface SaleItem {
   quantity: string;
   sale_price: string;
   discount_rate?: number | null;
+  grade?: string | null;
+  origin?: string | null;
   created_at: string;
   is_sold_out?: boolean;
 }
@@ -395,6 +397,8 @@ export default function CustomerSalePage() {
                             quantity: item.quantity,
                             sale_price: item.sale_price,
                             discount_rate: item.discount_rate,
+                            grade: item.grade,
+                            origin: item.origin,
                             is_sold_out: item.is_sold_out
                           }];
                         } else {
@@ -405,6 +409,8 @@ export default function CustomerSalePage() {
                               quantity: item.quantity,
                               sale_price: item.sale_price,
                               discount_rate: item.discount_rate,
+                              grade: item.grade,
+                              origin: item.origin,
                               is_sold_out: item.is_sold_out
                             }]
                           });
