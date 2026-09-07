@@ -17,6 +17,7 @@ export default function RegisterPage() {
   const [businessNumber, setBusinessNumber] = useState(''); // 사업자등록번호 추가
   const [businessType, setBusinessType] = useState('마트/슈퍼');
   const [customBusinessType, setCustomBusinessType] = useState('');
+  const [subscriptionPlan, setSubscriptionPlan] = useState('annual');
   const [file, setFile] = useState<File | null>(null);
   
   const [loading, setLoading] = useState(false);
@@ -213,6 +214,86 @@ export default function RegisterPage() {
                 onChange={e => setFile(e.target.files ? e.target.files[0] : null)}
                 className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-white file:text-[#5F0080] file:shadow-sm hover:file:bg-gray-50 cursor-pointer"
               />
+            </div>
+          </div>
+
+          {/* 요금제 선택 및 결제 정보 */}
+          <div className="mt-4 border-t pt-6">
+            <h3 className="text-sm font-bold text-[#5F0080] mb-3">요금제 선택 및 결제 수단 등록</h3>
+            
+            {/* 안내문 */}
+            <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-5 text-sm text-gray-700 leading-relaxed shadow-sm">
+              <p className="font-black text-[#5F0080] flex items-center gap-1 mb-1">
+                <span className="text-base">📢</span> [안내] 오늘 결제되는 금액은 0원입니다.
+              </p>
+              <p className="text-gray-700">1개월 무료 체험 기간(2026-10-07까지) 이후 선택하신 요금제로 자동 결제되며, <strong className="text-gray-900">무료 기간 내 언제든 해지 가능</strong>합니다.</p>
+            </div>
+
+            {/* 요금제 선택 */}
+            <div className="flex flex-col gap-3 mb-6">
+              <label className={`relative flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'annual' ? 'border-[#5F0080] bg-purple-50/20 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <input type="radio" name="plan" value="annual" checked={subscriptionPlan === 'annual'} onChange={() => setSubscriptionPlan('annual')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
+                    <span className="font-black text-gray-900 text-base">연간 결제</span>
+                    <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-sm">⭐ BEST</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-gray-400 line-through mr-1.5">490,000원</span>
+                    <span className="font-black text-[#5F0080] text-base">연 390,000원</span>
+                  </div>
+                </div>
+                <div className="pl-6 text-[13px] text-gray-600 font-medium space-y-1">
+                  <p>· 12개월 이용 <span className="text-gray-400 text-xs">(월 32,500원 꼴 / 일시불)</span></p>
+                  <p>· 2개월 무료 혜택 자동 반영</p>
+                </div>
+              </label>
+
+              <label className={`relative flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'monthly' ? 'border-[#5F0080] bg-purple-50/20 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <input type="radio" name="plan" value="monthly" checked={subscriptionPlan === 'monthly'} onChange={() => setSubscriptionPlan('monthly')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
+                    <span className="font-bold text-gray-800 text-base">월간 결제</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xs text-gray-400 line-through mr-1.5">49,000원</span>
+                    <span className="font-bold text-gray-900 text-base">월 39,000원</span>
+                  </div>
+                </div>
+                <div className="pl-6 text-[13px] text-gray-600 space-y-1">
+                  <p>· 매월 정기결제 / 언제든 해지 가능</p>
+                </div>
+              </label>
+            </div>
+
+            {/* 카드 등록 폼 */}
+            <div className="bg-[#F8F9FA] rounded-xl p-5 border border-gray-200 shadow-inner">
+              <h4 className="text-sm font-bold text-gray-700 mb-4 flex items-center gap-1.5">
+                💳 정기결제 카드 등록
+              </h4>
+              <div className="flex flex-col gap-3">
+                <input 
+                  type="text" placeholder="카드 번호 (숫자만 입력)" maxLength={16}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white"
+                />
+                <div className="flex gap-3">
+                  <input 
+                    type="text" placeholder="유효기간 (MM/YY)" maxLength={5}
+                    className="w-1/2 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white"
+                  />
+                  <input 
+                    type="password" placeholder="비밀번호 앞 2자리" maxLength={2}
+                    className="w-1/2 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white"
+                  />
+                </div>
+                <input 
+                  type="text" placeholder="생년월일 6자리 (법인: 사업자번호 10자리)" maxLength={10}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-white"
+                />
+              </div>
+              <p className="text-[11px] text-gray-400 mt-3 text-center">
+                * 입력하신 결제 정보는 안전하게 암호화되어 보관됩니다.
+              </p>
             </div>
           </div>
 
