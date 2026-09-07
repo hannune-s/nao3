@@ -106,7 +106,7 @@ export default function RegisterPage() {
         <div className="bg-[#5F0080] text-white p-8 text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
           <h1 className="text-3xl font-black relative z-10 tracking-tight">Nao3 가입하기</h1>
-          <p className="text-purple-200 mt-2 relative z-10 text-sm">동네 사장님들을 위한 모바일 전단지 1초 발송</p>
+          <p className="text-purple-200 mt-2 relative z-10 text-sm">매달 나가는 문자비 0원! 3초 만에 쏘는 단골 세일 알림</p>
         </div>
 
         {/* 회원가입 폼 */}
