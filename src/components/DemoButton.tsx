@@ -36,7 +36,7 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
       title: '상큼한 샤인머스캣',
       price: '9,900',
       message: '상큼하게 번지는 달콤함 가득~',
-      media_url: 'https://images.unsplash.com/photo-1537249826354-9464e837699d?auto=format&fit=crop&q=80&w=800' // 샤인머스캣 대체 이미지 (청포도)
+      media_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Shine_Muscat_1.jpg/800px-Shine_Muscat_1.jpg' // 샤인머스캣 대체 이미지 (청포도)
     };
     localStorage.setItem(`nao3_draft_special_${demoId}`, JSON.stringify(demoSpecial));
     // 고객화면에서 읽을 수 있도록 staging_settings 에도 병합
