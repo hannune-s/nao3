@@ -865,6 +865,29 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               <div className="relative flex-1">
                 <input 
                   type="text" 
+                  placeholder="등급 (예: 1++, 1등급)"
+                  value={newItem.grade || ''}
+                  onChange={e => setNewItem({...newItem, grade: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
+                />
+              </div>
+              <div className="relative flex-1">
+                <select 
+                  value={newItem.origin || ''}
+                  onChange={e => setNewItem({...newItem, origin: e.target.value})}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
+                >
+                  <option value="">원산지 선택 (선택안함)</option>
+                  <option value="국내산(국산)">국내산 (국산)</option>
+                  <option value="수입산">수입산</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <input 
+                  type="text" 
                   placeholder="중량 (초성 검색)"
                   value={newItem.quantity}
                   onFocus={() => setShowQtyDropdown(true)}
