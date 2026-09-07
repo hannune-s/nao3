@@ -121,6 +121,16 @@ export default function CustomerSalePage() {
           const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
           if (stagedSettings.storeName) setStoreName(stagedSettings.storeName);
           
+          setStoreInfo((prev: any) => ({
+            ...prev,
+            id: prev?.id || storeSlug,
+            store_name: stagedSettings.storeName || prev?.store_name || storeSlug,
+            special_title: stagedSettings.special_title || prev?.special_title,
+            special_price: stagedSettings.special_price || prev?.special_price,
+            special_message: stagedSettings.special_message || prev?.special_message,
+            special_image_url: stagedSettings.special_image_url || prev?.special_image_url
+          }));
+          
           if (stagedSettings.saleStart && stagedSettings.saleEnd) {
             const start = new Date(stagedSettings.saleStart);
             const end = new Date(stagedSettings.saleEnd);
