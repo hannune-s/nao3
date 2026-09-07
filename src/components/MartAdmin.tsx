@@ -873,7 +873,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               <div className="relative flex-1">
 <input 
                   type="text" 
-                  placeholder="복급 (예: 1++, 직접입렦)"
+                  placeholder="등급 (예: 1++, 직접입력)"
                   value={newItem.grade || ''}
                   onFocus={() => setShowGradeDropdown(true)}
                   onBlur={() => setTimeout(() => { setShowGradeDropdown(false); setGradeIdx(-1); }, 200)}
