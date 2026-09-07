@@ -176,6 +176,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const matchedPrices = newItem.sale_price.trim() === ''
     ? defaultPrices
     : defaultPrices.filter(price => price.includes(newItem.sale_price));
+  const defaultGrades = ["1++", "1+", "1등급", "2등급"];
+  const matchedGrades = (!newItem.grade || newItem.grade.trim() === "")
+    ? defaultGrades
+    : defaultGrades.filter(g => g.includes(newItem.grade));
+
 
   // 방향키 스크롤 포커스 처리
   useEffect(() => {
@@ -866,17 +871,54 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <select 
+<input 
+                  type="text" 
+                  placeholder="복급 (예: 1++, 직접입렦)"
                   value={newItem.grade || ''}
-                  onChange={e => setNewItem({...newItem, grade: e.target.value})}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
-                >
-                  <option value="">등급 선택 (선택안함)</option>
-                  <option value="1++">1++</option>
-                  <option value="1+">1+</option>
-                  <option value="1등급">1등급</option>
-                  <option value="2등급">2등급</option>
-                </select>
+                  onFocus={() => setShowGradeDropdown(true)}
+                  onBlur={() => setTimeout(() => { setShowGradeDropdown(false); setGradeIdx(-1); }, 200)}
+                  onChange={e => {
+                    setNewItem({...newItem, grade: e.target.value});
+                    setGradeIdx(-1);
+                    setShowGradeDropdown(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (!showGradeDropdown || matchedGrades.length === 0) return;
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      setGradeIdx(prev => (prev < matchedGrades.length - 1 ? prev + 1 : prev));
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      setGradeIdx(prev => (prev > 0 ? prev - 1 : 0));
+                    } else if (e.key === 'Enter' && gradeIdx >= 0) {
+                      e.preventDefault();
+                      setNewItem({...newItem, grade: matchedGrades[gradeIdx]});
+                      setShowGradeDropdown(false);
+                      setGradeIdx(-1);
+                    } else if (e.key === 'Escape') {
+                      setShowGradeDropdown(false);
+                    }
+                  }}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
+                />
+                {showGradeDropdown && matchedGrades.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg max-h-48 overflow-y-auto top-full left-0">
+                    {matchedGrades.map((grade, index) => (
+                      <li 
+                        key={index}
+                        onMouseEnter={() => setGradeIdx(index)}
+                        onMouseDown={(e) => e.preventDefault()} // prevent blur
+                        onClick={() => {
+                          setNewItem({...newItem, grade: grade});
+                          setShowGradeDropdown(false);
+                        }}
+                        className={`px-3 py-2 text-sm cursor-pointer border-b border-gray-100 last:border-0 ${index === gradeIdx ? 'bg-[#5F0080]/10 text-[#5F0080] font-bold' : 'text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080]'}`}
+                      >
+                        {grade}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
               <div className="relative flex-1">
                 <select 
