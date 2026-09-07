@@ -618,16 +618,24 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         existing.unshift(newPush);
         localStorage.setItem('nao3_demo_histories', JSON.stringify(existing));
         
-        // 고객화면에도 반영
-        localStorage.setItem('nao3_staging_items', JSON.stringify(validItems));
+        // 고객화면에 아이템 반영 (staging_items 유지 - 절대 삭제하지 않음)
+        localStorage.setItem('nao3_staging_items', JSON.stringify(newPush.nao3_sale_items));
+        
+        // staging_settings에도 기간/멘트 최신화
+        const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+        stagedSettings.saleStart = saleStart;
+        stagedSettings.saleEnd = saleEnd;
+        stagedSettings.bossMessage = bossMessage;
+        stagedSettings.storeName = storeName;
+        localStorage.setItem('nao3_staging_settings', JSON.stringify(stagedSettings));
         
         setItems([]);
-        localStorage.removeItem('nao3_staging_items');
         setHistories(existing);
         setSubmitted(true);
         setLoading(false);
         return;
       }
+
 
       // 1. 가장 최근 이력을 가져와서 기간 비교
       const { data: latestPush } = await supabase.from('nao3_push_history').select('*').eq('store_id', storeId).order('created_at', { ascending: false })
