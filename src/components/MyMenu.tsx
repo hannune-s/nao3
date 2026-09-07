@@ -198,64 +198,69 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         </div>
 
         <div className="p-5 flex flex-col gap-6">
-          
-          {/* 요금제 선택 및 결제 수단 등록 */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-2">
-            <h3 className="text-[14px] font-extrabold text-gray-800 mb-4 px-1">요금제 선택 및 결제 수단 등록</h3>
+
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-[14px] font-extrabold text-gray-800 mb-4 px-1">요금제 선택</h3>
 
             {/* 안내문 */}
             <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-5 text-[13px] text-gray-700 leading-relaxed shadow-sm">
-              <p className="font-black text-[#5F0080] flex items-center gap-1 mb-1">
-                <span className="text-base">📢</span> [안내] 오늘 결제되는 금액은 0원입니다.
+              <p className="font-black text-[#5F0080] flex items-center gap-1.5 mb-1.5">
+                <span>📢</span> 1개월 무료 체험 안내
               </p>
-              <p className="text-gray-700">1개월 무료 체험 기간(2026-10-07까지) 이후 선택하신 요금제로 자동 결제되며, <strong className="text-gray-900">무료 기간 내 언제든 해지 가능</strong>합니다.</p>
+              <p className="text-gray-700 leading-relaxed">현재 <strong className="text-gray-900">1개월 무료 체험</strong> 중입니다.<br/>무료 체험 이후에도 NAO3를 계속 이용하시려면 아래에서 요금제를 선택하고 구독을 시작해 주세요.</p>
             </div>
 
             {/* 요금제 선택 */}
             <div className="flex flex-col gap-3 mb-6">
-              <label className={`relative flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'annual' ? 'border-[#5F0080] bg-purple-50/20 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <input type="radio" name="plan" value="annual" checked={subscriptionPlan === 'annual'} onChange={() => setSubscriptionPlan('annual')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
-                    <span className="font-black text-gray-900 text-[15px]">연간 결제</span>
-                    <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse shadow-sm">⭐ BEST</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[11px] text-gray-400 line-through mr-1.5">490,000원</span>
-                    <span className="font-black text-[#5F0080] text-[15px]">연 390,000원</span>
+
+              {/* 연간 결제 */}
+              <label className={`flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'annual' ? 'border-[#5F0080] bg-purple-50/30 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
+                <div className="flex items-start gap-3 mb-3">
+                  <input type="radio" name="plan" value="annual" checked={subscriptionPlan === 'annual'} onChange={() => setSubscriptionPlan('annual')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4 mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                      <span className="font-black text-gray-900 text-[15px]">연간 결제</span>
+                      <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">⭐ BEST</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] text-gray-400 line-through">490,000원</span>
+                      <span className="font-black text-[#5F0080] text-[16px]">연 390,000원</span>
+                    </div>
                   </div>
                 </div>
-                <div className="pl-6 text-[12px] text-gray-600 font-medium space-y-1">
-                  <p>· 12개월 이용 <span className="text-gray-400 text-[11px]">(월 32,500원 꼴 / 일시불)</span></p>
+                <div className="pl-7 text-[12px] text-gray-600 font-medium space-y-0.5">
+                  <p>· 12개월 이용 <span className="text-gray-400">(월 32,500원 꼴 / 일시불)</span></p>
                   <p>· 2개월 무료 혜택 자동 반영</p>
                 </div>
               </label>
 
-              <label className={`relative flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'monthly' ? 'border-[#5F0080] bg-purple-50/20 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <input type="radio" name="plan" value="monthly" checked={subscriptionPlan === 'monthly'} onChange={() => setSubscriptionPlan('monthly')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
-                    <span className="font-bold text-gray-800 text-[15px]">월간 결제</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[11px] text-gray-400 line-through mr-1.5">49,000원</span>
-                    <span className="font-bold text-gray-900 text-[15px]">월 39,000원</span>
+              {/* 월간 결제 */}
+              <label className={`flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'monthly' ? 'border-[#5F0080] bg-purple-50/30 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
+                <div className="flex items-start gap-3 mb-2">
+                  <input type="radio" name="plan" value="monthly" checked={subscriptionPlan === 'monthly'} onChange={() => setSubscriptionPlan('monthly')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4 mt-0.5 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-gray-800 text-[15px] mb-1">월간 결제</p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] text-gray-400 line-through">49,000원</span>
+                      <span className="font-bold text-gray-900 text-[16px]">월 39,000원</span>
+                    </div>
                   </div>
                 </div>
-                <div className="pl-6 text-[12px] text-gray-600 space-y-1">
+                <div className="pl-7 text-[12px] text-gray-600 space-y-0.5">
                   <p>· 매월 정기결제 / 언제든 해지 가능</p>
                 </div>
               </label>
             </div>
-            
-            <button onClick={() => alert('PG사 결제 시스템 연동을 준비 중입니다.')} className="w-full bg-[#5F0080] text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-purple-900 transition-colors">
-              요금제 확정 및 카드 등록하기
+
+            <button onClick={() => alert('PG사 결제 시스템 연동을 준비 중입니다. 곧 오픈 예정입니다!')} className="w-full bg-[#5F0080] text-white font-black py-4 rounded-xl shadow-md hover:bg-purple-900 transition-colors text-[16px]">
+              구독하기
             </button>
           </div>
         </div>
       </div>
     );
   }
+
 
   if (view === 'notices') {
     return (
