@@ -371,7 +371,113 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature 5: Flexibility & Zero Barrier */}
+            {/* Feature 5: Industry Previews (NEW) */}
+      <section className="py-32 bg-gray-50 border-t border-gray-100 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
+          <h2 className="text-sm font-black text-[#5F0080] tracking-widest uppercase mb-3">Custom For Every Store</h2>
+          <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2]">
+            내 가게는 어떻게 보일까요?<br />업종별 찰떡 맞춤 화면
+          </h3>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium break-keep">
+            사장님들은 백 마디 글보다 한 장의 그림으로 이해하는 게 빠르죠!<br/>
+            가짜 상호명이지만 진짜 내 가게인 것처럼, 각 업종에 맞게 상호명과 아이콘이 자동으로 세팅된 고객 화면을 미리 확인해 보세요.
+          </p>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-10">
+            {/* Mockup 1: Butcher */}
+            <div className="relative rounded-[2.5rem] bg-[#FAFAFA] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-gray-200 overflow-hidden flex flex-col transform hover:-translate-y-2 transition-transform duration-500 hover:shadow-[0_30px_60px_rgba(95,0,128,0.15)]">
+              <div className="bg-[#5F0080] py-8 text-center relative shadow-inner">
+                <h1 className="text-[#E5D7B7] font-bold text-[9px] tracking-[0.2em] uppercase mb-2 border border-[#E5D7B7]/30 px-3 py-1 rounded-full inline-block">NAO3</h1>
+                <h2 className="text-white font-black text-2xl tracking-tight">우리동네 정육점</h2>
+              </div>
+              <div className="p-5 flex-1">
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <span className="text-[18px]">🖋️</span>
+                  <span className="font-black text-[14px] text-gray-900 tracking-widest">한우 갈비 사전예약 🥩</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-2xl">🥩</div>
+                    <div className="flex-1">
+                      <div className="flex gap-1 mb-1">
+                        <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold">1++</span>
+                        <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-bold">국산</span>
+                      </div>
+                      <h4 className="font-black text-[15px] text-gray-800">명품 특수부위 모듬</h4>
+                    </div>
+                  </div>
+                  <div className="text-right mt-2 flex items-center justify-end gap-2">
+                     <span className="bg-red-500 text-white font-black text-xs px-2 py-0.5 rounded">사전예약</span>
+                    <div className="text-red-600 font-black text-xl">89,000원</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mockup 2: Fruits */}
+            <div className="relative rounded-[2.5rem] bg-[#FAFAFA] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-gray-200 overflow-hidden flex flex-col transform hover:-translate-y-2 transition-transform duration-500 delay-100 hover:shadow-[0_30px_60px_rgba(95,0,128,0.15)]">
+              <div className="bg-[#5F0080] py-8 text-center relative shadow-inner">
+                <h1 className="text-[#E5D7B7] font-bold text-[9px] tracking-[0.2em] uppercase mb-2 border border-[#E5D7B7]/30 px-3 py-1 rounded-full inline-block">NAO3</h1>
+                <h2 className="text-white font-black text-2xl tracking-tight">싱싱청과</h2>
+              </div>
+              <div className="p-5 flex-1">
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <span className="text-[18px]">🖋️</span>
+                  <span className="font-black text-[14px] text-gray-900 tracking-widest">오늘 들어온 제철 과일 🍎</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-2xl">🍎</div>
+                    <div className="flex-1">
+                      <div className="flex gap-1 mb-1">
+                        <span className="text-[10px] bg-yellow-100 text-yellow-600 px-1.5 py-0.5 rounded font-bold">당도최고</span>
+                      </div>
+                      <h4 className="font-black text-[15px] text-gray-800">꿀사과 1박스 (5kg)</h4>
+                    </div>
+                  </div>
+                  <div className="text-right mt-2 flex items-center justify-end gap-2">
+                    <span className="bg-red-500 text-white font-black text-xs px-2 py-0.5 rounded">30%</span>
+                    <div className="text-red-600 font-black text-xl">25,000원</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Mockup 3: Side Dish */}
+            <div className="relative rounded-[2.5rem] bg-[#FAFAFA] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-gray-200 overflow-hidden flex flex-col transform hover:-translate-y-2 transition-transform duration-500 delay-200 hover:shadow-[0_30px_60px_rgba(95,0,128,0.15)]">
+              <div className="bg-[#5F0080] py-8 text-center relative shadow-inner">
+                <h1 className="text-[#E5D7B7] font-bold text-[9px] tracking-[0.2em] uppercase mb-2 border border-[#E5D7B7]/30 px-3 py-1 rounded-full inline-block">NAO3</h1>
+                <h2 className="text-white font-black text-2xl tracking-tight">엄마손 반찬가게</h2>
+              </div>
+              <div className="p-5 flex-1">
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <span className="text-[18px]">🖋️</span>
+                  <span className="font-black text-[14px] text-gray-900 tracking-widest">오늘의 스페셜 반찬 🍱</span>
+                </div>
+                <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-2xl">🍱</div>
+                    <div className="flex-1">
+                      <div className="flex gap-1 mb-1">
+                        <span className="text-[10px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-bold">당일조리</span>
+                      </div>
+                      <h4 className="font-black text-[15px] text-gray-800">수제 밥도둑 양념게장</h4>
+                    </div>
+                  </div>
+                  <div className="text-right mt-2 flex items-center justify-end gap-2">
+                    <span className="bg-red-500 text-white font-black text-xs px-2 py-0.5 rounded">20%</span>
+                    <div className="text-red-600 font-black text-xl">12,000원</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 6: Flexibility & Zero Barrier */}
       <section className="py-32 bg-gray-900 text-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
