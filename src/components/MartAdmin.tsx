@@ -234,6 +234,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
   // 이력 데이터 불러오기 함수
   const fetchHistories = async () => {
+    // [체험 모드] demo-guest 계정은 localStorage에서 이력 로드
+    if (storeId.startsWith('demo-guest-')) {
+      const saved = JSON.parse(localStorage.getItem('nao3_demo_histories') || '[]');
+      setHistories(saved);
+      return;
+    }
     const { data, error } = await supabase
       .from('nao3_push_history')
       .select('*, nao3_sale_items(*)')
@@ -254,6 +260,17 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         const offset = dt.getTimezoneOffset() * 60000;
         return new Date(dt.getTime() - offset).toISOString().slice(0, 16);
       };
+
+      // [체험 모드] demo-guest 계정은 Supabase 조회 건너뜀
+      if (storeId.startsWith('demo-guest-')) {
+        if (!saleStart) setSaleStart(toLocalStr(now));
+        const tmrw = new Date(now);
+        tmrw.setDate(tmrw.getDate() + 1);
+        tmrw.setHours(23, 59, 0, 0);
+        if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
+        fetchHistories();
+        return;
+      }
 
       // 1. 진행 중인 세일이 있는지 확인해서 기간/멘트 기본값으로 깔아주기
       const { data: latestPush } = await supabase
@@ -576,6 +593,42 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
     setLoading(true);
     try {
+      // [체험 모드] demo-guest 계정은 localStorage에만 저장
+      if (storeId.startsWith('demo-guest-')) {
+        const newPush = {
+          id: `demo-push-${Date.now()}`,
+          store_id: storeId,
+          sale_start: new Date(saleStart).toISOString(),
+          sale_end: new Date(saleEnd).toISOString(),
+          boss_message: bossMessage || '',
+          created_at: new Date().toISOString(),
+          nao3_sale_items: validItems.map((item, i) => ({
+            id: `demo-item-${Date.now()}-${i}`,
+            product_name: item.product_name,
+            quantity: item.quantity,
+            sale_price: item.sale_price,
+            discount_rate: item.discount_rate || null,
+            grade: item.grade || null,
+            origin: item.origin || null,
+            category: item.category,
+            is_sold_out: false,
+          }))
+        };
+        const existing = JSON.parse(localStorage.getItem('nao3_demo_histories') || '[]');
+        existing.unshift(newPush);
+        localStorage.setItem('nao3_demo_histories', JSON.stringify(existing));
+        
+        // 고객화면에도 반영
+        localStorage.setItem('nao3_staging_items', JSON.stringify(validItems));
+        
+        setItems([]);
+        localStorage.removeItem('nao3_staging_items');
+        setHistories(existing);
+        setSubmitted(true);
+        setLoading(false);
+        return;
+      }
+
       // 1. 가장 최근 이력을 가져와서 기간 비교
       const { data: latestPush } = await supabase.from('nao3_push_history').select('*').eq('store_id', storeId).order('created_at', { ascending: false })
         .limit(1)
