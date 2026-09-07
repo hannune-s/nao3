@@ -115,17 +115,28 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
       // [체험 모드] demo-guest 계정은 Supabase 없이 localStorage에만 저장
       if (storeId.startsWith('demo-guest-')) {
+        const saveToLocal = (imageDataUrl: string) => {
+          const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+          stagedSettings.special_title = specialForm.title;
+          stagedSettings.special_price = specialForm.price;
+          stagedSettings.special_message = specialForm.message;
+          stagedSettings.special_image_url = imageDataUrl || finalUrl;
+          localStorage.setItem('nao3_staging_settings', JSON.stringify(stagedSettings));
+          alert('체험 모드: 특가 정보가 반영되었습니다! [고객 화면 보기] 버튼으로 확인해보세요.');
+          setIsSavingSpecial(false);
+        };
+
         if (specialFile) {
-          finalUrl = URL.createObjectURL(specialFile);
+          // blob URL 대신 base64로 변환해 localStorage에 저장 (새 탭에서도 접근 가능)
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64 = e.target?.result as string;
+            saveToLocal(base64);
+          };
+          reader.readAsDataURL(specialFile);
+        } else {
+          saveToLocal(finalUrl);
         }
-        const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
-        stagedSettings.special_title = specialForm.title;
-        stagedSettings.special_price = specialForm.price;
-        stagedSettings.special_message = specialForm.message;
-        stagedSettings.special_image_url = finalUrl;
-        localStorage.setItem('nao3_staging_settings', JSON.stringify(stagedSettings));
-        alert('체험 모드: 특가 정보가 반영되었습니다! [고객 화면 보기] 버튼으로 확인해보세요.');
-        setIsSavingSpecial(false);
         return;
       }
 
