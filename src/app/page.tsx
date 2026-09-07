@@ -287,7 +287,84 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature 4: Flexibility & Zero Barrier */}
+            {/* Feature 4: Smart Icons & Bakery */}
+      <section className="py-32 bg-white overflow-hidden relative border-t border-gray-100">
+        <div className="absolute top-0 left-0 w-full h-1/2 bg-yellow-50/30 transform -skew-y-3 origin-bottom-left pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <div>
+              <h2 className="text-sm font-black text-yellow-600 tracking-widest uppercase mb-3">Smart Auto Icons</h2>
+              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+                제품에 찰떡인 귀여운 아이콘,<br /><span className="text-yellow-500">어떤 업종이든 생동감 200%.</span>
+              </h3>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
+                마트나 정육점이 아니어도 걱정 마세요! 베이커리, 반찬가게 등 어떤 업종이든 상품명에 맞는 귀여운 아이콘이 <strong>고객 화면에 자동으로 매칭</strong>되어 생동감 넘치는 세일 화면이 연출됩니다.
+              </p>
+              <div className="space-y-8 mt-10">
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-yellow-100 flex items-center justify-center text-2xl border border-yellow-200">🍞</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">업종 제한 없는 마법 같은 자동화</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">"우유식빵"을 입력하면 빵 아이콘이, "사과"를 입력하면 과일 아이콘이 고객 화면에 쏙! 밋밋한 텍스트가 순식간에 아기자기한 디자인으로 변신하여 고객의 눈을 즐겁게 합니다.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* CSS UI Mockup - Bakery Example */}
+            <div className="relative max-w-md mx-auto w-full">
+              <div className="bg-gray-50 rounded-3xl p-6 shadow-2xl border border-gray-200 relative transform hover:scale-[1.02] transition-transform duration-500">
+                <div className="absolute -top-4 -left-4 bg-yellow-400 text-yellow-900 font-black px-4 py-2 rounded-full shadow-md transform -rotate-6">베이커리 적용 예시</div>
+                
+                {/* Admin Input */}
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+                  <div className="text-xs font-bold text-gray-400 mb-3 tracking-wider">사장님 입력 화면</div>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-800 font-bold border-l-4 border-l-yellow-400">
+                        당일 갓구운 우유식빵
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <div className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-800 font-bold">
+                        3,500원
+                      </div>
+                    </div>
+                    <div className="w-full bg-yellow-400 rounded-lg p-3 text-yellow-900 text-center font-bold shadow-sm">
+                      + 등록하기
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-center text-gray-300 text-2xl mb-6 animate-bounce">⬇</div>
+
+                {/* Customer Output */}
+                <div className="bg-[#111] rounded-[2rem] p-3 shadow-lg">
+                  <div className="bg-[#FAFAFA] rounded-3xl p-4">
+                    <div className="text-xs font-bold text-gray-400 mb-3 tracking-wider text-center">고객 전단지 화면</div>
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-3xl">
+                          🍞
+                        </div>
+                        <div>
+                          <h4 className="font-black text-[16px] text-gray-800">당일 갓구운 우유식빵</h4>
+                          <span className="text-[11px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded font-bold mt-1 inline-block">따끈따끈</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-gray-900 font-black text-xl">3,500원</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 5: Flexibility & Zero Barrier */}
       <section className="py-32 bg-gray-900 text-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
