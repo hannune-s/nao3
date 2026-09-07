@@ -15,7 +15,8 @@ export default function RegisterPage() {
   const [ownerName, setOwnerName] = useState('');
   const [address, setAddress] = useState('');
   const [businessNumber, setBusinessNumber] = useState(''); // 사업자등록번호 추가
-  const [businessType, setBusinessType] = useState<'mart' | 'butcher'>('mart');
+  const [businessType, setBusinessType] = useState('마트/슈퍼');
+  const [customBusinessType, setCustomBusinessType] = useState('');
   const [file, setFile] = useState<File | null>(null);
   
   const [loading, setLoading] = useState(false);
@@ -80,7 +81,7 @@ export default function RegisterPage() {
         owner_name: ownerName,
         address,
         business_number: businessNumber, // 사업자등록번호 저장
-        business_type: businessType,
+        business_type: businessType === '기타' ? customBusinessType : businessType,
         business_license_url: licenseUrl,
       });
 
@@ -168,36 +169,41 @@ export default function RegisterPage() {
           {/* 핵심 정보: 업종 및 사업자등록증 */}
           <div className="bg-[#5F0080]/5 p-5 rounded-2xl border border-[#5F0080]/15 mt-2">
             <h3 className="text-sm font-bold text-[#5F0080] mb-3 flex items-center gap-2">
-              <span>🌟</span> 나오3 분양 핵심 정보
+              <span>🌟</span> 업종 선택
             </h3>
             
             <div className="mb-4">
               <label className="block text-xs font-bold text-gray-600 mb-2">운영하시는 업종을 선택해주세요</label>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setBusinessType('mart')}
-                  className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all border ${
-                    businessType === 'mart' 
-                      ? 'bg-[#5F0080] text-white border-[#5F0080] shadow-md' 
-                      : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  🛒 슈퍼/마트
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBusinessType('butcher')}
-                  className={`flex-1 py-3 rounded-xl font-bold text-sm transition-all border ${
-                    businessType === 'butcher' 
-                      ? 'bg-[#5F0080] text-white border-[#5F0080] shadow-md' 
-                      : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  🥩 정육점
-                </button>
+              
+              <div className="flex flex-col gap-3 mb-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="businessType" value="마트/슈퍼" checked={businessType === '마트/슈퍼'} onChange={() => setBusinessType('마트/슈퍼')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
+                  <span className="text-sm text-gray-700 font-bold">마트/슈퍼</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="businessType" value="정육점" checked={businessType === '정육점'} onChange={() => setBusinessType('정육점')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
+                  <span className="text-sm text-gray-700 font-bold">정육점</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="businessType" value="청과야채" checked={businessType === '청과야채'} onChange={() => setBusinessType('청과야채')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
+                  <span className="text-sm text-gray-700 font-bold">청과야채</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="businessType" value="기타" checked={businessType === '기타'} onChange={() => setBusinessType('기타')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
+                  <span className="text-sm text-gray-700 font-bold">기타 (수기입력)</span>
+                </label>
               </div>
-              <p className="text-[11px] text-[#5F0080]/70 mt-2 text-center">선택하신 업종에 맞춰 어드민과 전단지 디자인이 맞춤 최적화됩니다.</p>
+              
+              {businessType === '기타' && (
+                <input 
+                  type="text" 
+                  required
+                  placeholder="업종을 직접 입력해주세요" 
+                  value={customBusinessType} 
+                  onChange={e => setCustomBusinessType(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] mt-1 mb-2"
+                />
+              )}
             </div>
 
             <div>
