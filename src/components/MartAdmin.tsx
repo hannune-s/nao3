@@ -52,7 +52,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   
-  const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '', discount_rate: '' });
+  const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '', discount_rate: '', grade: '', origin: '' });
 
   // 자동완성 드롭다운 상태
   const [showNameDropdown, setShowNameDropdown] = useState(false);
@@ -147,7 +147,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
-    setNewItem({ product_name: '', quantity: '', sale_price: '', discount_rate: '' });
+    setNewItem({ product_name: '', quantity: '', sale_price: '', discount_rate: '', grade: '', origin: '' });
     setNameIdx(-1);
     setQtyIdx(-1);
     setPriceIdx(-1);
@@ -326,7 +326,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             quantity: newItem.quantity, 
             sale_price: formattedPrice,
             category: activeTab,
-            discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null
+            discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null, grade: newItem.grade || null, origin: newItem.origin || null
           })
           .in('id', updateIds);
           
@@ -341,7 +341,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             product_name: newItem.product_name,
             quantity: newItem.quantity,
             sale_price: formattedPrice,
-            discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null
+            discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null, grade: newItem.grade || null, origin: newItem.origin || null
           } : i)
         } : h));
         
@@ -349,10 +349,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         // 대기열에도 업데이트 반영
         if (existingIndex !== -1) {
           const newItems = [...items];
-          newItems[existingIndex] = { ...newItems[existingIndex], quantity: newItem.quantity, sale_price: formattedPrice, category: activeTab, discount_rate: newItem.discount_rate || '' };
+          newItems[existingIndex] = { ...newItems[existingIndex], quantity: newItem.quantity, sale_price: formattedPrice, category: activeTab, discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || '' };
           setItems(newItems);
         } else {
-          setItems([...items, { id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity, sale_price: formattedPrice, discount_rate: newItem.discount_rate || '', is_sold_out: false }]);
+          setItems([...items, { id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity, sale_price: formattedPrice, discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || '', is_sold_out: false }]);
         }
       } catch (err) {
         alert('이력 수정에 실패했습니다.');
@@ -368,7 +368,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           quantity: newItem.quantity,
           sale_price: formattedPrice,
           category: activeTab,
-          discount_rate: newItem.discount_rate || ''
+          discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || ''
         };
         setItems(newItems);
       } else {
@@ -378,7 +378,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           product_name: newItem.product_name, 
           quantity: newItem.quantity, 
           sale_price: formattedPrice,
-          discount_rate: newItem.discount_rate || '',
+          discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || '',
           is_sold_out: false
         };
         setItems([...items, insertData]);
@@ -386,7 +386,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       }
     }
 
-    setNewItem({ product_name: '', quantity: '', sale_price: '', discount_rate: '' });
+    setNewItem({ product_name: '', quantity: '', sale_price: '', discount_rate: '', grade: '', origin: '' });
     setNameIdx(-1);
     setQtyIdx(-1);
   };
@@ -397,7 +397,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       product_name: item.product_name, 
       quantity: item.quantity, 
       sale_price: item.sale_price.replace(/[^0-9]/g, ''),
-      discount_rate: item.discount_rate || ''
+      discount_rate: item.discount_rate || '', grade: item.grade || '', origin: item.origin || ''
     });
     setActiveTab(item.category);
     handleRemoveItem(item.id); // 폼으로 끌어올리면서 기존 리스트에서는 제거
@@ -447,7 +447,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       product_name: item.product_name, 
       quantity: item.quantity, 
       sale_price: item.sale_price.replace(/[^0-9]/g, ''),
-      discount_rate: item.discount_rate ? String(item.discount_rate) : ''
+      discount_rate: item.discount_rate ? String(item.discount_rate) : '', grade: item.grade || '', origin: item.origin || ''
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -553,7 +553,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         for (const item of validItems) {
           const dbMatch = existingItemsInDb.find((dbItem: any) => dbItem.product_name === item.product_name);
           if (dbMatch) {
-            toUpdate.push({ id: dbMatch.id, quantity: item.quantity, sale_price: item.sale_price, category: item.category });
+            toUpdate.push({ id: dbMatch.id, quantity: item.quantity, sale_price: item.sale_price, category: item.category, grade: item.grade, origin: item.origin });
           } else {
             toInsert.push(item);
           }
@@ -561,7 +561,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
         // Run updates for existing DB items
         for (const up of toUpdate) {
-           await supabase.from('nao3_sale_items').update({ quantity: up.quantity, sale_price: up.sale_price, category: up.category, discount_rate: up.discount_rate ? parseInt(up.discount_rate, 10) : null }).eq('id', up.id);
+           await supabase.from('nao3_sale_items').update({ quantity: up.quantity, sale_price: up.sale_price, category: up.category, discount_rate: up.discount_rate ? parseInt(up.discount_rate, 10) : null, grade: up.grade || null, origin: up.origin || null }).eq('id', up.id);
         }
         
         // Update the validItems array to only contain the items we need to insert
@@ -598,6 +598,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           quantity: item.quantity,
           sale_price: item.sale_price,
           discount_rate: item.discount_rate ? parseInt(item.discount_rate, 10) : null,
+          grade: item.grade || null,
+          origin: item.origin || null,
           is_sold_out: item.is_sold_out || false,
           push_id: pushId,
           store_id: storeId
@@ -1071,6 +1073,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                       {item.category}
                     </span>
                     <span className="text-[14px] font-bold text-gray-800 truncate">{item.product_name}</span>
+                    {item.grade && <span className="text-[11px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded flex-shrink-0">{item.grade}</span>}
+                    {item.origin && <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.origin}</span>}
+                    {item.grade && <span className="text-[11px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded flex-shrink-0">{item.grade}</span>}
+                    {item.origin && <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.origin}</span>}
                     <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
                   </div>
                   <span className={`text-[15px] font-black flex-shrink-0 text-[#5F0080]`}>
@@ -1181,6 +1187,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                                         <div className="flex items-center gap-2 flex-1 min-w-0 pr-2">
                                           <span className="text-[10px] text-[#5F0080] border border-[#5F0080]/20 bg-[#5F0080]/5 px-1 rounded flex-shrink-0">{item.category}</span>
                                           <h4 className={`text-[13px] font-bold truncate ${item.is_sold_out ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{item.product_name}</h4>
+                                          {item.grade && <span className="text-[10px] text-red-500 bg-red-50 border border-red-100 px-1 rounded flex-shrink-0">{item.grade}</span>}
+                                          {item.origin && <span className="text-[10px] text-gray-500 bg-gray-100 border border-gray-200 px-1 rounded flex-shrink-0">{item.origin}</span>}
                                           <span className="text-[11px] text-gray-500 bg-white border border-gray-200 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
                                         </div>
                                         <div className="text-right flex-shrink-0">
