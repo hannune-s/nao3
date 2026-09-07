@@ -149,6 +149,13 @@ export default function LandingPage() {
                     <p className="text-gray-600 leading-relaxed break-keep">버튼 클릭 한 번에 '품절' 도장이 쾅! 찍히며, 망설이는 고객의 구매 욕구를 미친듯이 자극합니다.</p>
                   </div>
                 </div>
+                                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-red-50 flex items-center justify-center text-2xl border border-red-100">⏰</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">오후 마감 떨이도 실시간 라이브로!</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">오늘 남은 재고, 폐기할까 걱정 마세요. "마감 30분 전 반짝 세일!" 알림을 즉시 보내 남은 재고를 싹 비우는 짜릿한 라이브 장사가 가능합니다.</p>
+                  </div>
+                </div>
                 <div className="flex items-start gap-5">
                   <div className="w-14 h-14 shrink-0 rounded-2xl bg-red-50 flex items-center justify-center text-2xl border border-red-100">🏷️</div>
                   <div>
