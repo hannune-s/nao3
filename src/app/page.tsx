@@ -168,12 +168,12 @@ export default function LandingPage() {
             
             {/* CSS UI Mockup - Customer Mobile */}
             <div className="relative max-w-[340px] mx-auto w-full lg:mr-0">
-              <div className="relative rounded-[2.5rem] bg-white p-2 shadow-[0_30px_80px_rgba(0,0,0,0.12)] border border-gray-100 transform hover:scale-[1.02] transition-all duration-500">
+              <div className="relative rounded-[2.5rem] bg-[#FAFAFA] shadow-[0_30px_80px_rgba(0,0,0,0.12)] border border-gray-200 transform hover:scale-[1.02] transition-all duration-500 overflow-hidden">
                 
-                <div className="bg-[#FAFAFA] rounded-[2.5rem] overflow-hidden h-[700px] relative flex flex-col no-scrollbar">
+                <div className="h-[700px] relative flex flex-col no-scrollbar">
                   
                   {/* Header */}
-                  <div className="bg-[#111] py-10 text-center">
+                  <div className="bg-[#5F0080] py-10 text-center">
                     <h1 className="text-[#E5D7B7] font-bold text-[10px] tracking-[0.3em] uppercase mb-2 border border-[#E5D7B7]/30 px-3 py-1 rounded-full inline-block">NAO3</h1>
                     <h2 className="text-white font-black text-3xl tracking-tight">나오삼마트</h2>
                     <div className="mt-5 inline-block bg-[#F8F0FF] text-[#5F0080] text-[13px] font-black px-4 py-2 rounded-full border border-[#E8D4FF] shadow-sm">
@@ -239,7 +239,7 @@ export default function LandingPage() {
             <div className="order-2 lg:order-1 relative flex justify-center">
               {/* CSS UI Mockup - Photo Upload Feature */}
               <div className="relative rounded-[2.5rem] bg-white p-5 shadow-[0_30px_80px_rgba(0,0,0,0.1)] border border-gray-200 transform -rotate-2 hover:rotate-0 transition-all duration-500 max-w-sm w-full">
-                <div className="bg-[#111] text-white rounded-2xl py-4 px-4 text-center font-black tracking-widest mb-5 shadow-inner">
+                <div className="bg-[#5F0080] text-white rounded-2xl py-4 px-4 text-center font-black tracking-widest mb-5 shadow-inner">
                   오늘의 추천 특가
                 </div>
                 <div className="relative rounded-2xl overflow-hidden mb-5 group shadow-md">
@@ -346,8 +346,8 @@ export default function LandingPage() {
                 <div className="text-center text-gray-300 text-2xl mb-6 animate-bounce">⬇</div>
 
                 {/* Customer Output */}
-                <div className="bg-[#111] rounded-[2rem] p-3 shadow-lg">
-                  <div className="bg-[#FAFAFA] rounded-3xl p-4">
+                <div className="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden">
+                  <div className="bg-[#FAFAFA] p-6">
                     <div className="text-xs font-bold text-gray-400 mb-3 tracking-wider text-center">고객 전단지 화면</div>
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden">
                       <div className="flex items-center gap-3">
