@@ -15,12 +15,21 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
     // Generate a random 6 char alphanumeric string
     const randomStr = Math.random().toString(36).substring(2, 8);
     const demoId = `demo-guest-${randomStr}`;
-    
+
+    // 동적 날짜 (오늘 ~ 이틀 후 23:59)
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const toLocalStr = (d: Date) =>
+      `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    const saleEnd = new Date(now);
+    saleEnd.setDate(saleEnd.getDate() + 2);
+    saleEnd.setHours(23, 59, 0, 0);
+
     // 1. 가게 설정 (상호명, 기간, 사장님 이야기)
     const demoSettings: any = {
       storeName: '나오삼마트',
-      saleStart: '2026-09-06T08:48',
-      saleEnd: '2026-09-08T23:59',
+      saleStart: toLocalStr(now),
+      saleEnd: toLocalStr(saleEnd),
       bossMessage: '어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~'
     };
     localStorage.setItem('nao3_staging_settings', JSON.stringify(demoSettings));
