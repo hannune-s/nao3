@@ -863,13 +863,17 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <input 
-                  type="text" 
-                  placeholder="등급 (예: 1++, 1등급)"
+                <select 
                   value={newItem.grade || ''}
                   onChange={e => setNewItem({...newItem, grade: e.target.value})}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
-                />
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
+                >
+                  <option value="">등급 선택 (선택안함)</option>
+                  <option value="1++">1++</option>
+                  <option value="1+">1+</option>
+                  <option value="1등급">1등급</option>
+                  <option value="2등급">2등급</option>
+                </select>
               </div>
               <div className="relative flex-1">
                 <select 
