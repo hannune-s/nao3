@@ -1,191 +1,290 @@
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900">
+    <div className="min-h-screen bg-[#FAFAFA] font-sans text-gray-900 selection:bg-[#5F0080] selection:text-white">
       {/* Navigation */}
-      <nav className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all">
+      <nav className="fixed w-full z-50 bg-white/70 backdrop-blur-xl border-b border-gray-100 transition-all">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
           <div className="flex items-center gap-2">
             <span className="text-2xl font-black text-[#5F0080] tracking-tight">NAO3</span>
-            <span className="hidden sm:block px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[10px] font-bold">사장님 필수앱</span>
+            <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-[#5F0080]/10 text-[#5F0080] text-[10px] font-bold">사장님 필수앱</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-sm font-semibold text-gray-600 hover:text-[#5F0080] transition-colors">
-              로그인
+              어드민 로그인
             </Link>
-            <Link href="/register" className="text-sm font-bold text-white bg-[#5F0080] hover:bg-purple-900 px-5 py-2 rounded-full shadow-sm transition-all">
-              무료로 시작하기
+            <Link href="/register" className="text-sm font-bold text-white bg-[#5F0080] hover:bg-purple-900 px-5 py-2.5 rounded-full shadow-lg shadow-purple-900/20 transition-all hover:scale-105">
+              무료 스토어 개설
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-[#5F0080]">
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-purple-500 rounded-full blur-[100px] opacity-40 pointer-events-none"></div>
-        <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-purple-800 rounded-full blur-[100px] opacity-40 pointer-events-none"></div>
+      <section className="relative pt-40 pb-32 overflow-hidden bg-white">
+        <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-gradient-to-br from-purple-200/50 to-[#5F0080]/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-yellow-100 to-purple-100/50 rounded-full blur-[100px] pointer-events-none"></div>
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-purple-100 text-xs font-bold uppercase tracking-widest mb-6">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-            매달 나가는 문자 비용 0원
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center flex flex-col items-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 shadow-sm text-[#5F0080] text-xs font-bold tracking-widest mb-8 animate-fade-in-up">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+            문자 발송 비용 평생 0원
           </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white tracking-tight mb-6 leading-tight break-keep drop-shadow-lg">
-            3초 만에 쏘는 단골 세일 알림, <br className="hidden md:block"/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-100">NAO3 라이브 푸시</span>
+          <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tight mb-8 leading-[1.1] break-keep animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            라이브 홈쇼핑을 내 매장으로.<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5F0080] to-purple-500">
+              매출이 폭발하는 1초 전단지
+            </span>
           </h1>
-          <p className="text-lg md:text-xl text-purple-100 mb-10 max-w-2xl mx-auto font-medium break-keep leading-relaxed drop-shadow-md">
-            마치 라이브 홈쇼핑처럼 도전적인 장사를 시작하세요!<br/>
-            어떤 업종이든, 복잡한 앱 설치 없이 1초만에 전단지를 완성하고<br className="hidden sm:block" /> 실시간으로 고객과 소통할 수 있습니다.
+          <p className="text-lg md:text-2xl text-gray-500 mb-12 max-w-3xl mx-auto font-medium break-keep leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            복잡한 앱 설치도, 값비싼 문자 비용도 필요 없습니다. 단 3초면 끝나는 상품 등록부터 고객의 지갑을 여는 실시간 품절 알림까지, NAO3가 동네 장사를 혁신합니다.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/register" className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-[#5F0080] font-black text-lg hover:scale-105 transition-transform shadow-[0_0_20px_rgba(255,255,255,0.3)]">
-              내 매장 10초만에 세팅하기
-            </Link>
-            <Link href="/login" className="w-full sm:w-auto px-8 py-4 rounded-full bg-purple-800/50 text-white font-bold text-lg hover:bg-purple-800 transition-colors border border-purple-400/30 backdrop-blur-sm">
-              어드민 로그인
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <Link href="/register" className="w-full sm:w-auto px-10 py-5 rounded-full bg-[#5F0080] text-white font-black text-lg hover:scale-105 transition-transform shadow-[0_10px_30px_rgba(95,0,128,0.3)]">
+              지금 바로 시작하기 (무료)
             </Link>
           </div>
         </div>
       </section>
 
       {/* Feature 1: Admin Speed */}
-      <section className="py-24 bg-gray-50 border-b border-gray-100">
+      <section className="py-32 bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1 relative rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-gray-200 transform hover:-translate-y-2 transition-transform duration-500">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent z-10 pointer-events-none"></div>
-              <Image src="/screenshots/admin.png" alt="어드민 압도적 입력" width={800} height={600} className="w-full h-auto object-cover" />
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <div className="order-2 lg:order-1">
+              {/* CSS UI Mockup - Admin */}
+              <div className="relative rounded-3xl bg-white shadow-[0_30px_60px_rgba(0,0,0,0.08)] border border-gray-100 p-6 sm:p-8 transform rotate-1 hover:rotate-0 transition-all duration-500 max-w-lg mx-auto">
+                <div className="flex items-center gap-2 mb-6 border-b border-gray-100 pb-4">
+                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                  <span className="ml-2 text-[10px] font-black text-gray-400 uppercase tracking-widest">사장님 초고속 어드민</span>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex gap-2">
+                    <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-400 flex items-center">
+                      <span className="w-4 h-4 mr-2 opacity-50">🔍</span> 상품명 (초성 'ㅎㅇ' 검색)
+                    </div>
+                  </div>
+                  <div className="flex gap-2 relative">
+                    <div className="flex-1 bg-white border border-purple-200 shadow-sm rounded-xl p-4 text-[15px] text-gray-800 font-bold border-l-4 border-l-[#5F0080]">
+                      한우 국거리 1++ (국산)
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-400">
+                      세일 가격 (숫자만)
+                    </div>
+                    <div className="w-24 bg-purple-50 border border-purple-200 rounded-xl p-4 text-sm text-purple-700 font-black text-center flex items-center justify-center">
+                      30%
+                    </div>
+                  </div>
+                  <div className="w-full bg-[#5F0080] rounded-xl p-4 text-white text-center font-black shadow-md mt-6 text-lg hover:bg-purple-900 cursor-pointer transition-colors">
+                    + 1초만에 전단지에 올리기
+                  </div>
+                </div>
+                
+                <div className="absolute -bottom-6 -right-6 bg-yellow-400 text-yellow-900 font-black text-sm px-6 py-3 rounded-full shadow-lg transform -rotate-12 animate-bounce">
+                  업무 시간 90% 단축! ⚡
+                </div>
+              </div>
             </div>
+            
             <div className="order-1 lg:order-2">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-sm border border-purple-200">⚡</div>
-              <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight leading-tight break-keep">
-                바쁜 매장 업무 중에도<br/><span className="text-[#5F0080]">압도적인 1초컷 입력</span>
-              </h2>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed break-keep">
-                스마트폰 하나로 충분합니다! 초성 검색, 원터치 등록으로 상품명부터 중량, 금액까지 단 1초 만에 툭툭! 바쁜 시간에도 누구나 손쉽게 할인 정보를 올릴 수 있습니다.
+              <h2 className="text-sm font-black text-[#5F0080] tracking-widest uppercase mb-3">Ultra-fast Input</h2>
+              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+                바쁜 매장 업무 중에도,<br />단 1초면 세일 등록 끝.
+              </h3>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
+                스마트폰 하나면 충분합니다. <strong>초성 검색 지원</strong>으로 긴 단어를 칠 필요조차 없으며, 상품 내용이 바뀌면 <strong>자동으로 덮어쓰기</strong>되어 고객 화면에 실시간으로 반영됩니다.
               </p>
-              <ul className="space-y-4">
-                <li className="flex items-center gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 rounded-full bg-[#5F0080] text-white flex items-center justify-center text-sm font-black">✓</span>
-                  스마트한 초성 검색 지원 (예: 'ㅎㅇ' ➔ 한우)
-                </li>
-                <li className="flex items-center gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 rounded-full bg-[#5F0080] text-white flex items-center justify-center text-sm font-black">✓</span>
-                  내용이 바뀌어도 자동 덮어쓰기로 실시간 업데이트
-                </li>
-                <li className="flex items-center gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 rounded-full bg-[#5F0080] text-white flex items-center justify-center text-sm font-black">✓</span>
-                  매번 전단을 새로 보낼 필요 없는 실시간 관리
-                </li>
-              </ul>
+              <div className="space-y-8 mt-10">
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-[#5F0080]/10 flex items-center justify-center text-2xl shadow-sm border border-purple-100">🎯</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">초성 검색 & 간편 입력</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">'ㅎㅇ'만 쳐도 한우가 자동 완성! 매대에 손님들이 밀려있어도 누구나 손쉽게 전단지를 만들 수 있습니다.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-[#5F0080]/10 flex items-center justify-center text-2xl shadow-sm border border-purple-100">🔄</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">중복 없는 스마트 덮어쓰기</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">가격을 잘못 올렸거나 재고가 변경되었나요? 똑같은 상품을 입력하면 스마트하게 덮어쓰기가 되어 전단을 매번 새로 보낼 필요가 없습니다.</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Feature 2: Customer View & Real-time */}
-      <section className="py-24 bg-white border-b border-gray-100 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
+      {/* Feature 2: Customer Live View */}
+      <section className="py-32 bg-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gray-50/50 -skew-x-12 origin-top transform translate-x-32 pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
             <div>
-              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-sm border border-red-200">🔥</div>
-              <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight leading-tight break-keep">
-                고객의 지갑을 여는<br/><span className="text-red-600">미친 라이브 홈쇼핑 효과</span>
-              </h2>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed break-keep">
-                '오늘의 사장님 이야기'로 사장님의 목소리를 곧바로 전달하고, 실시간 품절 처리로 긴박감을 줍니다. 방금 적용한 30% 할인이 고객 전단지에 강력하게 꽂힙니다.
+              <h2 className="text-sm font-black text-red-600 tracking-widest uppercase mb-3">Live Shopping Vibe</h2>
+              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+                고객의 지갑을 여는<br /><span className="text-red-600">미친 라이브 홈쇼핑 효과</span>
+              </h3>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
+                단순하고 지루한 종이 전단지가 아닙니다. 사장님의 목소리를 실시간으로 전하고, 눈앞에서 품절되는 생생한 경험으로 고객의 발걸음을 매장으로 강하게 이끕니다.
               </p>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 shrink-0 mt-0.5 rounded-full bg-red-600 text-white flex items-center justify-center text-sm font-black">✓</span>
-                  <span className="break-keep">실시간 소통과 즉시 반영 (사장님 이야기 패널)</span>
-                </li>
-                <li className="flex items-start gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 shrink-0 mt-0.5 rounded-full bg-red-600 text-white flex items-center justify-center text-sm font-black">✓</span>
-                  <span className="break-keep">원클릭 실시간 품절처리로 구매 욕구 및 긴박감 극대화</span>
-                </li>
-                <li className="flex items-start gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 shrink-0 mt-0.5 rounded-full bg-red-600 text-white flex items-center justify-center text-sm font-black">✓</span>
-                  <span className="break-keep">시선을 사로잡는 강력한 시각적 할인율 배지 시스템</span>
-                </li>
-                <li className="flex items-start gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 shrink-0 mt-0.5 rounded-full bg-red-600 text-white flex items-center justify-center text-sm font-black">✓</span>
-                  <span className="break-keep">오늘 들어온 신선한 제철 상품의 생생한 사진 실시간 전송</span>
-                </li>
-              </ul>
+              <div className="space-y-8 mt-10">
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-red-50 flex items-center justify-center text-2xl border border-red-100">✍️</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">오늘의 사장님 이야기</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">"어머님들! 방금 막 산지직송 배 들어왔습니다!" 고객 화면 최상단에 메시지를 띄워 동네 주민들과 생생하게 소통하세요.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-red-50 flex items-center justify-center text-2xl border border-red-100">🔥</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">실시간 품절로 긴박감 극대화</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">버튼 클릭 한 번에 '품절' 도장이 쾅! 찍히며, 망설이는 고객의 구매 욕구를 미친듯이 자극합니다.</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-red-50 flex items-center justify-center text-2xl border border-red-100">🏷️</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">시선을 뺏는 시각적 할인율</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">방금 적용한 30% 할인이 눈에 확 꽂히는 배지 형태로 즉시 표출됩니다. 오늘 들어온 신선한 제철 상품 사진도 실시간으로 노출하세요.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="relative rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.15)] overflow-hidden border-8 border-gray-100 transform hover:scale-[1.02] transition-transform duration-500 bg-gray-50 flex justify-center max-w-sm mx-auto lg:mx-0 lg:ml-auto">
-              <Image src="/screenshots/customer.png" alt="고객 화면 뷰" width={400} height={800} className="w-full h-auto object-contain" />
+            
+            {/* CSS UI Mockup - Customer Mobile */}
+            <div className="relative max-w-[340px] mx-auto w-full lg:mr-0">
+              <div className="relative rounded-[3rem] bg-gray-900 p-3 shadow-[0_40px_80px_rgba(0,0,0,0.2)] border-4 border-gray-800 transform hover:scale-[1.02] transition-all duration-500">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-900 rounded-b-2xl z-20"></div>
+                <div className="bg-[#FAFAFA] rounded-[2.5rem] overflow-hidden h-[700px] relative flex flex-col no-scrollbar">
+                  
+                  {/* Header */}
+                  <div className="bg-[#111] py-10 text-center">
+                    <h1 className="text-[#E5D7B7] font-bold text-[10px] tracking-[0.3em] uppercase mb-2 border border-[#E5D7B7]/30 px-3 py-1 rounded-full inline-block">NAO3</h1>
+                    <h2 className="text-white font-black text-3xl tracking-tight">나오삼마트</h2>
+                    <div className="mt-5 inline-block bg-[#F8F0FF] text-[#5F0080] text-[13px] font-black px-4 py-2 rounded-full border border-[#E8D4FF] shadow-sm">
+                      행사 기간 2026.9.6 ~ 2026.9.7
+                    </div>
+                  </div>
+                  
+                  {/* Boss Story */}
+                  <div className="p-4 mt-2">
+                    <div className="flex items-center gap-2 mb-2 px-1">
+                      <span className="text-[16px]">🖋️</span>
+                      <span className="font-black text-[14px] text-gray-900 uppercase tracking-widest">오늘의 사장님 이야기</span>
+                    </div>
+                    <div className="bg-[#F5F0E6] p-5 border border-[#E8DFD1] text-[14px] font-medium leading-[1.6] text-gray-800 shadow-sm">
+                      어머님들! 지금 바로 나오시면 한우 등급 2팩 만원! 선착순 2명!! 신발 짝짝이로 신고 뛰어나오세유~~~
+                    </div>
+                  </div>
+
+                  {/* Product List */}
+                  <div className="p-4 flex-1 space-y-3">
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <span className="text-[11px] bg-red-50 text-red-500 border border-red-100 px-1.5 py-0.5 rounded font-bold">1++</span>
+                          <span className="text-[11px] bg-gray-100 text-gray-500 border border-gray-200 px-1.5 py-0.5 rounded font-bold">국산</span>
+                        </div>
+                        <h4 className="font-black text-[15px] text-gray-800">한우 등심 200g</h4>
+                      </div>
+                      <div className="text-right flex items-center gap-3">
+                        <div className="bg-red-500 text-white font-black text-sm px-2 py-1 rounded">30%</div>
+                        <div>
+                          <div className="text-red-500 font-black text-xl">10,000원</div>
+                          <div className="text-xs text-gray-400 line-through text-right">15,000원</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Sold out item */}
+                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden opacity-50 grayscale-[0.5]">
+                      <div className="absolute inset-0 bg-white/40 backdrop-blur-[1.5px] z-10 flex items-center justify-center">
+                        <span className="text-3xl font-black text-red-600 border-4 border-red-600 px-4 py-1 transform -rotate-12 rounded-lg opacity-90 tracking-widest drop-shadow-md">품절</span>
+                      </div>
+                      <div>
+                        <h4 className="font-black text-[15px] text-gray-800 mt-2">샤인머스켓 1박스</h4>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-gray-500 font-black text-xl">18,000원</div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Feature 3: No barrier, any business */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1 relative rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden border border-gray-200 transform hover:-translate-y-2 transition-transform duration-500">
-              <Image src="/screenshots/register.png" alt="모든 업종 지원" width={800} height={600} className="w-full h-auto object-cover" />
+      {/* Feature 3: Flexibility & Zero Barrier */}
+      <section className="py-32 bg-gray-900 text-white relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
+            고객은 가입 NO, 사장님은 제약 NO.
+          </h2>
+          <p className="text-xl text-gray-400 mb-20 max-w-3xl mx-auto font-medium leading-relaxed break-keep">
+            슈퍼, 마트, 정육점, 청과야채 등 어떤 업종이든 사장님에게 찰떡같이 맞는 맞춤형 폼이 제공됩니다.<br />
+            고객은 귀찮은 앱 설치 없이 링크 하나로 모든 세일 정보를 실시간으로 받아봅니다.
+          </p>
+          
+          <div className="grid md:grid-cols-3 gap-8 text-left">
+            <div className="bg-gray-800/40 border border-gray-700/50 p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
+              <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-blue-500/30">🏪</div>
+              <h3 className="text-2xl font-bold mb-4 text-white">업종별 완벽 맞춤형 폼</h3>
+              <p className="text-gray-400 leading-relaxed break-keep">마트 전용, 정육점 등급별(1++, 1등급) 폼 등 내 매장에 꼭 맞는 맞춤형 어드민 환경을 자동으로 제공합니다.</p>
             </div>
-            <div className="order-1 lg:order-2">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl mb-6 shadow-sm border border-blue-200">🤝</div>
-              <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight leading-tight break-keep">
-                진입 장벽 제로,<br/><span className="text-blue-600">어떤 업종이든 완벽 호환</span>
-              </h2>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed break-keep">
-                고객은 복잡하게 회원가입을 하거나 앱을 설치할 필요가 없습니다! 전달된 링크 하나만 누르면 끝. 직원들을 손쉽게 추가해 알림 푸시를 함께 관리하고 공유하세요.
-              </p>
-              <ul className="space-y-4">
-                <li className="flex items-center gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-black">✓</span>
-                  회원가입 필요 없는 완벽한 웹앱(PWA) 접근성
-                </li>
-                <li className="flex items-center gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-black">✓</span>
-                  마트, 정육점, 청과야채 등 맞춤형 폼 자동 적용
-                </li>
-                <li className="flex items-center gap-3 text-gray-700 font-bold">
-                  <span className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-black">✓</span>
-                  직원 다중 접속 및 유기적인 협업 관리 기능
-                </li>
-              </ul>
+            <div className="bg-gray-800/40 border border-gray-700/50 p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
+              <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-green-500/30">🤝</div>
+              <h3 className="text-2xl font-bold mb-4 text-white">강력한 직원 다중 협업</h3>
+              <p className="text-gray-400 leading-relaxed break-keep">여러 명의 직원을 어드민에 초대하세요. 매장 어디서나 각자의 스마트폰으로 동시에 세일 푸시를 관리할 수 있습니다.</p>
+            </div>
+            <div className="bg-gray-800/40 border border-gray-700/50 p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
+              <div className="w-16 h-16 bg-yellow-500/20 text-yellow-400 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-yellow-500/30">🔗</div>
+              <h3 className="text-2xl font-bold mb-4 text-white">설치 제로 PWA 웹앱</h3>
+              <p className="text-gray-400 leading-relaxed break-keep">구글 플레이스토어에 갈 필요가 없습니다. 카톡으로 고객에게 링크 하나만 보내면 그곳이 바로 훌륭한 단골 전용 앱이 됩니다.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 bg-[#5F0080] text-center relative overflow-hidden">
+      <section className="py-40 bg-[#5F0080] text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500 rounded-full blur-[120px] opacity-30 pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[600px] bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-[150px] opacity-40 pointer-events-none"></div>
         
-        <div className="max-w-3xl mx-auto px-4 relative z-10">
-          <div className="text-6xl mb-6">🚀</div>
-          <h2 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight drop-shadow-md">
-            혁신적인 비용 절감,<br/>
-            매출 폭발을 경험하세요!
+        <div className="max-w-4xl mx-auto px-4 relative z-10">
+          <div className="text-7xl mb-10 animate-bounce">🚀</div>
+          <h2 className="text-5xl md:text-7xl font-black text-white mb-10 tracking-tight drop-shadow-lg leading-tight">
+            비용은 영원히 줄이고,<br/>매출은 지금 바로 터트리세요.
           </h2>
-          <p className="text-xl text-purple-100 mb-10 font-medium leading-relaxed drop-shadow-sm">
-            기존 문자 메시지 발송 대비 입력 속도 극단적 단축!<br/>
-            업무 시간 절약은 물론 <span className="font-bold text-yellow-300">문자 비용을 0원</span>으로 혁신적으로 줄였습니다.<br/>
-            마치 라이브 홈쇼핑을 운영하듯 도전적인 장사를 시작해보세요.
+          <p className="text-xl md:text-3xl text-purple-100 mb-16 font-medium leading-relaxed drop-shadow-md break-keep max-w-3xl mx-auto">
+            매달 수십만 원씩 나가는 문자 발송 비용, 이제 평생 0원입니다.<br className="hidden md:block"/>
+            지금 바로 무료로 가입하고 1초 모바일 전단지의 기적을 경험하세요.
           </p>
-          <Link href="/register" className="inline-block px-12 py-5 rounded-full bg-yellow-400 text-yellow-900 font-black text-xl hover:bg-yellow-300 hover:-translate-y-1 transition-all shadow-[0_10px_30px_rgba(250,204,21,0.4)]">
-            지금 무료로 스토어 개설하기
-          </Link>
+          <div className="flex flex-col sm:flex-row justify-center gap-6">
+            <Link href="/register" className="px-14 py-6 rounded-full bg-yellow-400 text-yellow-900 font-black text-2xl hover:bg-yellow-300 hover:scale-105 transition-all shadow-[0_15px_40px_rgba(250,204,21,0.5)]">
+              지금 당장 내 매장 등록하기 (무료)
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12 text-center text-sm">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="font-black text-3xl text-white mb-4 tracking-tight">NAO3</div>
-          <p className="mb-2">동네 사장님들을 위한 최고의 매출 파트너.</p>
+      <footer className="bg-black text-gray-500 py-16 text-center text-sm">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col items-center">
+          <div className="font-black text-4xl text-white mb-6 tracking-tight">NAO3</div>
+          <p className="mb-2 font-medium text-gray-400 text-lg">동네 사장님들을 위한 최고의 매출 파트너.</p>
+          <p className="mb-10 text-gray-600">라이브 홈쇼핑 부럽지 않은 미친 전단지 앱</p>
+          <div className="w-24 h-[1px] bg-gray-800 mb-10"></div>
           <p>© 2026 NAO3 All rights reserved.</p>
         </div>
       </footer>
