@@ -31,11 +31,22 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const [activeTab, setActiveTab] = useState('정육');
   
   // 특가 폼 상태
-  const [specialForm, setSpecialForm] = useState({
-    title: '',
-    price: '',
-    message: '',
-    media_url: ''
+  const [specialForm, setSpecialForm] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_staging_settings_${storeId}`);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return {
+            title: parsed.special_title || '',
+            price: parsed.special_price || '',
+            message: parsed.special_message || '',
+            media_url: parsed.special_image_url || ''
+          };
+        } catch (e) {}
+      }
+    }
+    return { title: '', price: '', message: '', media_url: '' };
   });
   const [specialFile, setSpecialFile] = useState<File | null>(null);
   const [specialPreview, setSpecialPreview] = useState<string>('');

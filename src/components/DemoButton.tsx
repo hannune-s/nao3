@@ -32,7 +32,7 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
       saleEnd: toLocalStr(saleEnd),
       bossMessage: '어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~'
     };
-    localStorage.setItem('nao3_staging_settings', JSON.stringify(demoSettings));
+    localStorage.setItem(ao3_staging_settings_\, JSON.stringify(demoSettings));
 
     // 개별 키들도 채워줌 (MartAdmin에서 개별 키로 로드할 수도 있으므로)
     localStorage.setItem(`nao3_draft_storeName_${demoId}`, demoSettings.storeName);
@@ -53,7 +53,7 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
     demoSettings.special_price = demoSpecial.price;
     demoSettings.special_message = demoSpecial.message;
     demoSettings.special_image_url = demoSpecial.media_url;
-    localStorage.setItem('nao3_staging_settings', JSON.stringify(demoSettings));
+    localStorage.setItem(ao3_staging_settings_\, JSON.stringify(demoSettings));
 
     // 3. 세일 상품 목록
     const demoItems = [
