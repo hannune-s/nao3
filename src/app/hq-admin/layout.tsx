@@ -27,9 +27,20 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               </Link>
             </li>
             <li>
-              <div className="flex items-center px-6 py-3 text-sm font-medium text-gray-500 cursor-not-allowed">
-                정산 및 결제 관리
-              </div>
+              <Link 
+                href="/hq-admin/revenue" 
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/revenue' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+              >
+                매출 관리
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/hq-admin/statistics" 
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/statistics' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+              >
+                통계
+              </Link>
             </li>
             <li>
               <Link 
