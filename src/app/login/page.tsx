@@ -58,7 +58,7 @@ export default function AdminRouterPage() {
           <span className="text-3xl">🔑</span>
         </div>
         <h2 className="text-2xl font-black text-[#5F0080] mb-2 tracking-tight">NAO3 어드민</h2>
-        <p className="text-sm text-gray-500 mb-8 text-center">동네 사장님들을 위한 1초 전단지</p>
+        <p className="text-sm text-gray-500 mb-8 text-center">매달 나가는 문자비 0원! 3초 만에 쏘는 단골 세일 알림</p>
         
         <input 
           type="email" required placeholder="이메일" 
