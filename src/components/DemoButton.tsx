@@ -57,12 +57,13 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
 
     // 3. 세일 상품 목록
     const demoItems = [
-      { id: '1', category: '청과', name: '꿀사과 1박스', price: 15000, discount_rate: 30, original_price: 21500, stock_status: 'in_stock' },
-      { id: '2', category: '청과', name: '성주 참외 1봉', price: 8900, discount_rate: 20, original_price: 11100, stock_status: 'in_stock' },
-      { id: '3', category: '정육', name: '한우 등심 200g', price: 10000, discount_rate: 30, original_price: 14300, stock_status: 'in_stock' },
-      { id: '4', category: '야채', name: '햇감자 1박스', price: 5000, discount_rate: 50, original_price: 10000, stock_status: 'in_stock' },
+      { id: '1', category: '청과', product_name: '꿀사과 1박스', sale_price: '15,000원', discount_rate: 30, is_sold_out: false },
+      { id: '2', category: '청과', product_name: '성주 참외 1봉', sale_price: '8,900원', discount_rate: 20, is_sold_out: false },
+      { id: '3', category: '정육', product_name: '한우 등심 200g', sale_price: '10,000원', discount_rate: 30, is_sold_out: false },
+      { id: '4', category: '야채', product_name: '햇감자 1박스', sale_price: '5,000원', discount_rate: 50, is_sold_out: false },
     ];
-    localStorage.setItem('nao3_staging_items', JSON.stringify(demoItems));
+    localStorage.setItem(`nao3_staging_items_${demoId}`, JSON.stringify(demoItems));
+    localStorage.setItem(`nao3_staging_settings_${demoId}`, JSON.stringify(demoSettings));
     
     router.push(`/store/${demoId}`);
   };

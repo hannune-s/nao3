@@ -42,7 +42,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const [isSavingSpecial, setIsSavingSpecial] = useState(false);
   const [items, setItems] = useState<any[]>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('nao3_staging_items');
+      const saved = localStorage.getItem(`nao3_staging_items_${storeId}`);
       if (saved) {
         try { return JSON.parse(saved); } catch (e) {}
       }
@@ -116,12 +116,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       // [체험 모드] demo-guest 계정은 Supabase 없이 localStorage에만 저장
       if (storeId.startsWith('demo-guest-')) {
         const saveToLocal = (imageDataUrl: string) => {
-          const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+          const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeId}`) || '{}');
           stagedSettings.special_title = specialForm.title;
           stagedSettings.special_price = specialForm.price;
           stagedSettings.special_message = specialForm.message;
           stagedSettings.special_image_url = imageDataUrl || finalUrl;
-          localStorage.setItem('nao3_staging_settings', JSON.stringify(stagedSettings));
+          localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
           alert('체험 모드: 특가 정보가 반영되었습니다! [고객 화면 보기] 버튼으로 확인해보세요.');
           setIsSavingSpecial(false);
         };
@@ -308,7 +308,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
   // 상태가 변경될 때마다 로컬 스토리지에 자동 임시 저장 (새로고침 방지)
   useEffect(() => {
-    localStorage.setItem('nao3_staging_items', JSON.stringify(items));
+    localStorage.setItem(`nao3_staging_items_${storeId}`, JSON.stringify(items));
   }, [items]);
 
   useEffect(() => {
@@ -515,12 +515,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     try {
       // [체험 모드] demo-guest 계정은 localStorage에만 저장
       if (storeId.startsWith('demo-guest-')) {
-        const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+        const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeId}`) || '{}');
         stagedSettings.storeName = storeName;
         stagedSettings.saleStart = saleStart;
         stagedSettings.saleEnd = saleEnd;
         stagedSettings.bossMessage = bossMessage;
-        localStorage.setItem('nao3_staging_settings', JSON.stringify(stagedSettings));
+        localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
         alert('체험 모드: 상호명, 기간, 멘트가 고객화면에 반영되었습니다! [고객 화면 보기]로 확인해보세요.');
         setLoading(false);
         return;
@@ -571,13 +571,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   };
   // 최종 전송 버튼
   const handlePreview = () => {
-    localStorage.setItem('nao3_staging_settings', JSON.stringify({
+    localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify({
       storeName,
       saleStart,
       saleEnd,
       bossMessage
     }));
-    localStorage.setItem('nao3_staging_items', JSON.stringify(items));
+    localStorage.setItem(`nao3_staging_items_${storeId}`, JSON.stringify(items));
     window.open(`/store/${storeSlug}/sale?preview=true`, '_blank');
   };
 
@@ -619,15 +619,15 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         localStorage.setItem('nao3_demo_histories', JSON.stringify(existing));
         
         // 고객화면에 아이템 반영 (staging_items 유지 - 절대 삭제하지 않음)
-        localStorage.setItem('nao3_staging_items', JSON.stringify(newPush.nao3_sale_items));
+        localStorage.setItem(`nao3_staging_items_${storeId}`, JSON.stringify(newPush.nao3_sale_items));
         
         // staging_settings에도 기간/멘트 최신화
-        const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+        const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeId}`) || '{}');
         stagedSettings.saleStart = saleStart;
         stagedSettings.saleEnd = saleEnd;
         stagedSettings.bossMessage = bossMessage;
         stagedSettings.storeName = storeName;
-        localStorage.setItem('nao3_staging_settings', JSON.stringify(stagedSettings));
+        localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
         
         setItems([]);
         setHistories(existing);
@@ -721,7 +721,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
       // 3. 성공 후 데이터 갱신
       setItems([]); // 대기열 초기화 (상품만 비움, 기간과 멘트는 유지하여 추가 등록 시 삭제 방지)
-      localStorage.removeItem('nao3_staging_items');
+      localStorage.removeItem(`nao3_staging_items_${storeId}`);
       await fetchHistories(); 
       setSubmitted(true);
       

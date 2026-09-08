@@ -118,7 +118,7 @@ export default function CustomerSalePage() {
 
         const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true' || storeSlug.startsWith('demo-guest-');
         if (isPreview) {
-          const stagedSettings = JSON.parse(localStorage.getItem('nao3_staging_settings') || '{}');
+          const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeSlug}`) || '{}');
           if (stagedSettings.storeName) setStoreName(stagedSettings.storeName);
           
           setStoreInfo((prev: any) => ({
@@ -140,7 +140,7 @@ export default function CustomerSalePage() {
           }
           setBossMessage(stagedSettings.bossMessage || '');
 
-          const stagedItems = JSON.parse(localStorage.getItem('nao3_staging_items') || '[]');
+          const stagedItems = JSON.parse(localStorage.getItem(`nao3_staging_items_${storeSlug}`) || '[]');
           setItems(stagedItems);
           setLoading(false);
           return;
