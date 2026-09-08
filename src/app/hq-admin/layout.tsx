@@ -47,6 +47,14 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
                 시스템 설정 (PG 연동)
               </Link>
             </li>
+            <li>
+              <Link 
+                href="/hq-admin/inquiries" 
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/inquiries' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+              >
+                1:1 문의 관리
+              </Link>
+            </li>
           </ul>
         </nav>
         <div className="p-4 text-xs text-gray-500 text-center border-t border-gray-800">

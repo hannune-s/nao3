@@ -542,6 +542,10 @@ export default function MyMenu({ storeData }: { storeData: any }) {
     );
   }
 
+  if (view === 'inquiry') {
+    return <InquiryView storeData={storeData} setView={setView} />;
+  }
+
   if (view === 'notices') {
     return (
       <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
@@ -666,11 +670,15 @@ export default function MyMenu({ storeData }: { storeData: any }) {
 
         {/* 고객 서비스 리스트 */}
         <div className="mt-2">
-          <h4 className="text-[12px] font-extrabold text-gray-400 mb-2.5 px-1 tracking-tight">고객 서비스</h4>
+          <h4 className="text-[16px] font-black text-black mb-3 px-1 tracking-tight">고객 서비스</h4>
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
             <button onClick={() => setView('guide')} className="w-full flex items-center justify-between p-5 border-b border-gray-50 text-left hover:bg-gray-50 transition-colors">
               <span className="text-[15px] font-bold text-gray-800">이용 가이드</span>
               <span className="text-gray-300"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg></span>
+            </button>
+            <button onClick={() => setView('inquiry')} className="w-full flex items-center justify-between p-5 border-b border-gray-50 text-left hover:bg-gray-50 transition-colors group">
+              <span className="text-[15px] font-bold text-gray-800 flex items-center gap-2 group-hover:text-blue-600 transition-colors">1:1 문의</span>
+              <span className="text-gray-300 group-hover:text-blue-600 transition-colors"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg></span>
             </button>
             <button onClick={() => setView('notices')} className="w-full flex items-center justify-between p-5 border-b border-gray-50 text-left hover:bg-gray-50 transition-colors group">
               <span className="text-[15px] font-bold text-gray-800 flex items-center gap-2 group-hover:text-blue-600 transition-colors">
@@ -700,6 +708,140 @@ export default function MyMenu({ storeData }: { storeData: any }) {
           </button>
         </div>
 
+      </div>
+    </div>
+  );
+}
+
+function InquiryView({ storeData, setView }: { storeData: any, setView: any }) {
+  const [content, setContent] = useState('');
+  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchInquiries();
+  }, []);
+
+  const fetchInquiries = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('nao3_inquiries')
+        .select('*')
+        .eq('store_id', storeData.id)
+        .order('created_at', { ascending: false });
+      
+      if (!error && data) {
+        setInquiries(data);
+      }
+    } catch (err) {
+      console.warn('1:1 문의 내역을 불러오지 못했습니다.', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    if (!content.trim()) return alert('문의 내용을 입력해주세요.');
+    setSubmitting(true);
+    
+    try {
+      const { error } = await supabase
+        .from('nao3_inquiries')
+        .insert([{
+          store_id: storeData.id,
+          store_name: storeData.store_name,
+          content: content.trim(),
+          status: '답변대기'
+        }]);
+
+      if (error) throw error;
+      
+      alert('성공적으로 접수되었습니다. 본사 확인 후 순차적으로 답변해 드립니다.');
+      setContent('');
+      fetchInquiries();
+    } catch (err) {
+      console.error(err);
+      alert('접수 실패: 데이터베이스(nao3_inquiries) 테이블을 확인해주세요.\n(임시로 화면에 추가됩니다.)');
+      setInquiries([{ id: Date.now(), content, status: '답변대기', created_at: new Date().toISOString() }, ...inquiries]);
+      setContent('');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
+      {/* Header */}
+      <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center gap-3 sticky top-0 z-10">
+        <button onClick={() => setView('main')} className="text-gray-400 hover:text-gray-800 transition-colors p-1 -ml-1">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">1:1 문의</h1>
+      </div>
+
+      <div className="p-5 space-y-6 max-w-lg mx-auto">
+        
+        {/* 새 문의 작성 */}
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+          <h2 className="text-lg font-black text-gray-900 mb-2">무엇을 도와드릴까요?</h2>
+          <p className="text-[13px] text-gray-500 mb-4 break-keep">
+            이용 중 불편한 점이나 건의사항, 궁금한 점을 남겨주시면 본사에서 빠르게 답변해 드립니다.
+          </p>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="문의 내용을 자유롭게 적어주세요..."
+              className="w-full h-32 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#5F0080] focus:ring-1 focus:ring-[#5F0080] text-[14px] resize-none"
+            />
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-[#1A1A1A] hover:bg-black text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50 text-[15px]"
+            >
+              {submitting ? '접수 중...' : '문의 등록하기'}
+            </button>
+          </form>
+        </div>
+
+        {/* 이전 문의 내역 */}
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+          <h2 className="text-lg font-black text-gray-900 mb-4">나의 문의 내역</h2>
+          
+          {loading ? (
+            <p className="text-sm text-gray-400 text-center py-4">불러오는 중...</p>
+          ) : inquiries.length === 0 ? (
+            <p className="text-[13px] text-gray-400 text-center py-8 bg-gray-50 rounded-2xl border border-gray-100 border-dashed">
+              이전 문의 내역이 없습니다.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {inquiries.map((inq: any) => (
+                <div key={inq.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${inq.status === '답변완료' ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'}`}>
+                      {inq.status || '답변대기'}
+                    </span>
+                    <span className="text-[11px] text-gray-400">{new Date(inq.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <p className="text-[14px] text-gray-800 break-keep leading-relaxed">{inq.content}</p>
+                  
+                  {inq.reply && (
+                    <div className="mt-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="text-blue-600 font-black text-[12px]">NAO3 본사 답변</span>
+                      </div>
+                      <p className="text-[13px] text-gray-700 break-keep leading-relaxed">{inq.reply}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
