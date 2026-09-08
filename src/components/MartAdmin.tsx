@@ -636,32 +636,65 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     try {
       // [체험 모드] demo-guest 계정은 localStorage에만 저장
       if (storeId.startsWith('demo-guest-')) {
-        const newPush = {
-          id: `demo-push-${Date.now()}`,
-          store_id: storeId,
-          sale_start: new Date(saleStart).toISOString(),
-          sale_end: new Date(saleEnd).toISOString(),
-          boss_message: bossMessage || '',
-          created_at: new Date().toISOString(),
-          nao3_sale_items: validItems.map((item, i) => ({
-            id: `demo-item-${Date.now()}-${i}`,
-            product_name: item.product_name,
-            quantity: item.quantity,
-            sale_price: item.sale_price,
-            discount_rate: item.discount_rate || null,
-            grade: item.grade || null,
-            origin: item.origin || null,
-            category: item.category,
-            is_sold_out: false,
-          }))
-        };
-        const existing = JSON.parse(localStorage.getItem('nao3_demo_histories') || '[]');
-        existing.unshift(newPush);
-        localStorage.setItem('nao3_demo_histories', JSON.stringify(existing));
-        
-        // 고객화면에 아이템 반영 (staging_items 유지 - 절대 삭제하지 않음)
-        localStorage.setItem(`nao3_staging_items_${storeId}`, JSON.stringify(newPush.nao3_sale_items));
-        
+        const newPushItems = validItems.map((item, i) => ({
+          id: `demo-item-${Date.now()}-${i}`,
+          product_name: item.product_name,
+          quantity: item.quantity,
+          sale_price: item.sale_price,
+          discount_rate: item.discount_rate || null,
+          grade: item.grade || null,
+          origin: item.origin || null,
+          category: item.category,
+          is_sold_out: false,
+        }));
+
+        const existing: any[] = JSON.parse(localStorage.getItem('nao3_demo_histories') || '[]');
+        const newStartMs = new Date(saleStart).getTime();
+        const newEndMs = new Date(saleEnd).getTime();
+
+        // 같은 기간의 이력이 있으면 병합(덮어쓰기), 없으면 새로 생성
+        const samePeriodIdx = existing.findIndex(h =>
+          Math.abs(new Date(h.sale_start).getTime() - newStartMs) < 60000 &&
+          Math.abs(new Date(h.sale_end).getTime() - newEndMs) < 60000
+        );
+
+        let updatedHistories: any[];
+        let finalItems: any[];
+
+        if (samePeriodIdx !== -1) {
+          // 병합: 같은 상품명이면 덮어쓰기, 없는 상품이면 추가
+          const existingItems: any[] = existing[samePeriodIdx].nao3_sale_items || [];
+          const mergedItems = [...existingItems];
+          newPushItems.forEach(newItem => {
+            const idx = mergedItems.findIndex(ei => ei.product_name === newItem.product_name);
+            if (idx !== -1) {
+              mergedItems[idx] = { ...mergedItems[idx], ...newItem };
+            } else {
+              mergedItems.push(newItem);
+            }
+          });
+          updatedHistories = existing.map((h, i) =>
+            i === samePeriodIdx ? { ...h, nao3_sale_items: mergedItems, boss_message: bossMessage } : h
+          );
+          finalItems = mergedItems;
+        } else {
+          // 새로운 기간 → 새 이력 생성
+          const newPush = {
+            id: `demo-push-${Date.now()}`,
+            store_id: storeId,
+            sale_start: new Date(saleStart).toISOString(),
+            sale_end: new Date(saleEnd).toISOString(),
+            boss_message: bossMessage || '',
+            created_at: new Date().toISOString(),
+            nao3_sale_items: newPushItems
+          };
+          updatedHistories = [newPush, ...existing];
+          finalItems = newPushItems;
+        }
+
+        localStorage.setItem('nao3_demo_histories', JSON.stringify(updatedHistories));
+        localStorage.setItem(`nao3_staging_items_${storeId}`, JSON.stringify(finalItems));
+
         // staging_settings에도 기간/멘트 최신화
         const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeId}`) || '{}');
         stagedSettings.saleStart = saleStart;
@@ -669,9 +702,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         stagedSettings.bossMessage = bossMessage;
         stagedSettings.storeName = storeName;
         localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
-        
+
         setItems([]);
-        setHistories(existing);
+        setHistories(updatedHistories);
         setSubmitted(true);
         setLoading(false);
         return;
