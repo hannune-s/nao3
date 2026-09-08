@@ -49,7 +49,18 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     return { title: '', price: '', message: '', media_url: '' };
   });
   const [specialFile, setSpecialFile] = useState<File | null>(null);
-  const [specialPreview, setSpecialPreview] = useState<string>('');
+  const [specialPreview, setSpecialPreview] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_staging_settings_${storeId}`);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          return parsed.special_image_url || '';
+        } catch (e) {}
+      }
+    }
+    return '';
+  });
   const [isSavingSpecial, setIsSavingSpecial] = useState(false);
   const [items, setItems] = useState<any[]>(() => {
     if (typeof window !== 'undefined') {
