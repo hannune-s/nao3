@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function MyMenu({ storeData }: { storeData: any }) {
   const router = useRouter();
 
-  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'notices'>('main');
+  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'notices' | 'guide'>('main');
 
   // Account form states
   const [ownerName, setOwnerName] = useState(storeData.owner_name || '');
@@ -261,6 +261,106 @@ export default function MyMenu({ storeData }: { storeData: any }) {
     );
   }
 
+  if (view === 'guide') {
+    return (
+      <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
+        {/* Header */}
+        <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center gap-3 sticky top-0 z-10">
+          <button onClick={() => setView('main')} className="text-gray-400 hover:text-gray-800 transition-colors p-1 -ml-1">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">1분 이용 가이드</h1>
+        </div>
+
+        <div className="p-5 space-y-6 max-w-lg mx-auto">
+          
+          {/* 1. 핵심 기능 요약 */}
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-purple-500 relative overflow-hidden">
+            <div className="absolute top-4 right-4 text-4xl opacity-20">💡</div>
+            <h2 className="text-lg font-black text-gray-900 mb-2 flex items-center gap-2">
+              <span className="text-purple-600">핵심 기능 요약</span>
+            </h2>
+            <p className="text-gray-600 text-[14px] leading-relaxed break-keep font-medium">
+              사장님! 복잡한 설정 다 필요 없습니다.<br/>
+              이 앱은 <strong>어드민에서 오늘 팔 물건을 입력하는 순간, 고객들의 스마트폰 전단지에 실시간으로 반영</strong>되는 마법 같은 앱입니다. 
+            </p>
+          </div>
+
+          {/* 2. 화면 캡처 위치 안내 */}
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-blue-500 relative overflow-hidden">
+            <div className="absolute top-4 right-4 text-4xl opacity-20">🗺️</div>
+            <h2 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+              <span className="text-blue-600">어디서 뭘 누르나요?</span>
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="bg-blue-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">상단</span>
+                  <strong className="text-gray-900 text-[15px]">특가 상품 등록</strong>
+                </div>
+                <p className="text-gray-500 text-[13px] break-keep leading-snug">
+                  제일 중요한 메인 화면입니다. 여기서 오늘 세일할 상품과 가격을 마음껏 추가하세요.
+                </p>
+              </div>
+              
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="bg-gray-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">하단</span>
+                  <strong className="text-gray-900 text-[15px]">지난 세일 내역</strong>
+                </div>
+                <p className="text-gray-500 text-[13px] break-keep leading-snug">
+                  어제 보냈던 상품을 오늘 또 판다고요? 여기서 <strong>그대로 불러와서 가격만 바꿔</strong> 다시 보낼 수 있습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. 1분 만에 따라 하는 3단계 실전 팁 */}
+          <div className="bg-gradient-to-b from-gray-900 to-gray-800 rounded-3xl p-6 shadow-md border border-gray-700 relative overflow-hidden">
+            <div className="absolute top-4 right-4 text-4xl opacity-20">🚀</div>
+            <h2 className="text-lg font-black text-white mb-6 flex items-center gap-2">
+              <span className="text-yellow-400">1분 컷! 실전 3단계</span>
+            </h2>
+            
+            <div className="space-y-5">
+              <div className="flex gap-4">
+                <div className="w-8 h-8 shrink-0 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center font-black text-sm">1</div>
+                <div>
+                  <h3 className="text-white font-bold text-[15px] mb-1">초성으로 1초 검색</h3>
+                  <p className="text-gray-400 text-[13px] leading-relaxed break-keep">
+                    바쁜데 언제 다 치나요! 상품명에 <strong>'ㅎㅇ'</strong>만 쳐도 '한우'가 쏙 나옵니다. 가격만 탁탁 치고 추가하세요.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex gap-4">
+                <div className="w-8 h-8 shrink-0 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center font-black text-sm">2</div>
+                <div>
+                  <h3 className="text-white font-bold text-[15px] mb-1">품절 처리도 터치 한방</h3>
+                  <p className="text-gray-400 text-[13px] leading-relaxed break-keep">
+                    물건이 다 팔렸나요? 상품 목록에서 <strong>품절</strong> 버튼만 누르면 고객 전단지에도 즉시 품절로 뜹니다. 전화받을 일이 확 줄어들어요!
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <div className="w-8 h-8 shrink-0 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center font-black text-sm">3</div>
+                <div>
+                  <h3 className="text-white font-bold text-[15px] mb-1">마지막 전송 버튼 꾹!</h3>
+                  <p className="text-gray-400 text-[13px] leading-relaxed break-keep">
+                    다 올렸다면 맨 밑에 있는 <strong>[전단지에 올리기]</strong> 버튼을 누르세요. 그 즉시 수천 명의 단골들 폰으로 짜잔! 하고 날아갑니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    );
+  }
+
 
   if (view === 'notices') {
     return (
@@ -374,7 +474,7 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         <div className="mt-2">
           <h4 className="text-[12px] font-extrabold text-gray-400 mb-2.5 px-1 tracking-tight">고객 서비스</h4>
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-            <button className="w-full flex items-center justify-between p-5 border-b border-gray-50 text-left hover:bg-gray-50 transition-colors">
+            <button onClick={() => setView('guide')} className="w-full flex items-center justify-between p-5 border-b border-gray-50 text-left hover:bg-gray-50 transition-colors">
               <span className="text-[15px] font-bold text-gray-800">이용 가이드</span>
               <span className="text-gray-300"><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg></span>
             </button>
