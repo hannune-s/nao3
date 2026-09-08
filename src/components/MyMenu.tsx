@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function MyMenu({ storeData }: { storeData: any }) {
   const router = useRouter();
 
-  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'notices' | 'guide' | 'qr'>('main');
+  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'notices' | 'guide' | 'qr' | 'inquiry'>('main');
 
   // Account form states
   const [ownerName, setOwnerName] = useState(storeData.owner_name || '');
