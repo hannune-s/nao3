@@ -32,7 +32,7 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
       saleEnd: toLocalStr(saleEnd),
       bossMessage: '어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~'
     };
-    localStorage.setItem(ao3_staging_settings_\, JSON.stringify(demoSettings));
+    localStorage.setItem(`nao3_staging_settings_${demoId}`, JSON.stringify(demoSettings));
 
     // 개별 키들도 채워줌 (MartAdmin에서 개별 키로 로드할 수도 있으므로)
     localStorage.setItem(`nao3_draft_storeName_${demoId}`, demoSettings.storeName);
@@ -45,7 +45,7 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
       title: '상큼한 샤인머스캣',
       price: '9,900',
       message: '상큼하게 번지는 달콤함 가득~',
-      media_url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Shine_Muscat_1.jpg/800px-Shine_Muscat_1.jpg' // 샤인머스캣 대체 이미지 (청포도)
+      media_url: '/shine_muscat.jpg'
     };
     localStorage.setItem(`nao3_draft_special_${demoId}`, JSON.stringify(demoSpecial));
     // 고객화면에서 읽을 수 있도록 staging_settings 에도 병합
@@ -53,14 +53,17 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
     demoSettings.special_price = demoSpecial.price;
     demoSettings.special_message = demoSpecial.message;
     demoSettings.special_image_url = demoSpecial.media_url;
-    localStorage.setItem(ao3_staging_settings_\, JSON.stringify(demoSettings));
+    localStorage.setItem(`nao3_staging_settings_${demoId}`, JSON.stringify(demoSettings));
 
-    // 3. 세일 상품 목록
+    // 3. 세일 상품 목록 (품절 예시 포함)
     const demoItems = [
       { id: '1', category: '청과', product_name: '꿀사과 1박스', sale_price: '15,000원', discount_rate: 30, is_sold_out: false },
       { id: '2', category: '청과', product_name: '성주 참외 1봉', sale_price: '8,900원', discount_rate: 20, is_sold_out: false },
-      { id: '3', category: '정육', product_name: '한우 등심 200g', sale_price: '10,000원', discount_rate: 30, is_sold_out: false },
-      { id: '4', category: '야채', product_name: '햇감자 1박스', sale_price: '5,000원', discount_rate: 50, is_sold_out: false },
+      { id: '3', category: '청과', product_name: '블루베리 1팩', sale_price: '6,900원', discount_rate: 30, is_sold_out: true },
+      { id: '4', category: '정육', product_name: '한우 등심 200g', sale_price: '10,000원', discount_rate: 30, is_sold_out: false },
+      { id: '5', category: '정육', product_name: '국내산 생삼겹살 300g', sale_price: '5,500원', discount_rate: 20, is_sold_out: true },
+      { id: '6', category: '야채', product_name: '햇감자 1박스', sale_price: '5,000원', discount_rate: 50, is_sold_out: false },
+      { id: '7', category: '야채', product_name: '대파 1단', sale_price: '1,500원', discount_rate: 40, is_sold_out: false },
     ];
     localStorage.setItem(`nao3_staging_items_${demoId}`, JSON.stringify(demoItems));
     localStorage.setItem(`nao3_staging_settings_${demoId}`, JSON.stringify(demoSettings));
