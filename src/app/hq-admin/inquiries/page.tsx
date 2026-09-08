@@ -7,6 +7,7 @@ export default function HqInquiriesPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState<{ [key: string]: string }>({});
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInquiries();
@@ -55,6 +56,10 @@ export default function HqInquiriesPage() {
     }
   };
 
+  const toggleExpand = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
   if (loading) return <div className="p-8 text-gray-500">문의 내역을 불러오는 중...</div>;
 
   return (
@@ -71,48 +76,72 @@ export default function HqInquiriesPage() {
           </div>
         ) : (
           <ul className="divide-y divide-gray-100">
-            {inquiries.map((inq) => (
-              <li key={inq.id} className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xs font-bold px-2 py-1 rounded-md ${inq.status === '답변완료' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
-                      {inq.status || '답변대기'}
-                    </span>
-                    <span className="font-bold text-gray-900">{inq.store_name}</span>
-                    <span className="text-xs text-gray-400">ID: {inq.store_id}</span>
-                  </div>
-                  <span className="text-xs text-gray-400">{new Date(inq.created_at).toLocaleString()}</span>
-                </div>
-                
-                <div className="bg-gray-50 p-4 rounded-xl text-gray-800 text-sm mb-4 leading-relaxed whitespace-pre-wrap">
-                  {inq.content}
-                </div>
-
-                {inq.status === '답변완료' ? (
-                  <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl">
-                    <div className="text-xs font-bold text-blue-600 mb-2">본사 답변</div>
-                    <div className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">{inq.reply}</div>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    <textarea 
-                      value={replyText[inq.id] || ''}
-                      onChange={(e) => handleReplyChange(inq.id, e.target.value)}
-                      placeholder="답변 내용을 작성해주세요..."
-                      className="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-24 resize-none"
-                    />
-                    <div className="flex justify-end">
-                      <button 
-                        onClick={() => submitReply(inq.id)}
-                        className="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded-lg text-sm font-bold transition-colors"
-                      >
-                        답변 등록하기
-                      </button>
+            {inquiries.map((inq) => {
+              const isExpanded = expandedId === inq.id;
+              
+              return (
+                <li key={inq.id} className="flex flex-col">
+                  {/* 게시판 제목 영역 (클릭 시 펼침) */}
+                  <button 
+                    onClick={() => toggleExpand(inq.id)}
+                    className={`flex items-center justify-between p-5 transition-colors text-left ${isExpanded ? 'bg-gray-50' : 'hover:bg-gray-50'}`}
+                  >
+                    <div className="flex items-center gap-4 flex-1 min-w-0 pr-4">
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-md whitespace-nowrap ${inq.status === '답변완료' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
+                        {inq.status || '답변대기'}
+                      </span>
+                      <span className="font-bold text-gray-900 shrink-0">{inq.store_name}</span>
+                      <span className="text-sm text-gray-600 truncate">{inq.content}</span>
                     </div>
-                  </div>
-                )}
-              </li>
-            ))}
+                    <div className="flex items-center gap-4 shrink-0 text-gray-400">
+                      <span className="text-xs">{new Date(inq.created_at).toLocaleDateString()}</span>
+                      <svg className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                  </button>
+
+                  {/* 상세 내용 영역 */}
+                  {isExpanded && (
+                    <div className="p-6 bg-white border-t border-gray-50">
+                      <div className="mb-6">
+                        <div className="text-sm font-bold text-gray-800 mb-2">문의 내용</div>
+                        <div className="bg-gray-50 p-4 rounded-xl text-gray-700 text-sm leading-relaxed whitespace-pre-wrap border border-gray-100">
+                          {inq.content}
+                        </div>
+                      </div>
+
+                      {inq.status === '답변완료' ? (
+                        <div>
+                          <div className="text-sm font-bold text-blue-600 mb-2">본사 답변</div>
+                          <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                            {inq.reply}
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="text-sm font-bold text-gray-800 mb-2">답변 작성</div>
+                          <div className="flex flex-col gap-2">
+                            <textarea 
+                              value={replyText[inq.id] || ''}
+                              onChange={(e) => handleReplyChange(inq.id, e.target.value)}
+                              placeholder="사장님께 보내드릴 답변 내용을 작성해주세요..."
+                              className="w-full border border-gray-200 rounded-xl p-4 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 h-28 resize-none bg-gray-50"
+                            />
+                            <div className="flex justify-end mt-2">
+                              <button 
+                                onClick={() => submitReply(inq.id)}
+                                className="bg-black hover:bg-gray-800 text-white px-8 py-2.5 rounded-xl text-sm font-bold transition-colors"
+                              >
+                                답변 등록하기
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
