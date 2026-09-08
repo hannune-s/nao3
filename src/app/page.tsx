@@ -26,7 +26,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-40 pb-32 overflow-hidden bg-white">
+      <section className="relative pt-32 md:pt-40 pb-20 md:pb-32 overflow-hidden bg-white">
         <div className="absolute top-[-20%] right-[-10%] w-[800px] h-[800px] bg-gradient-to-br from-purple-200/50 to-[#5F0080]/10 rounded-full blur-[120px] pointer-events-none"></div>
         <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-gradient-to-tr from-yellow-100 to-purple-100/50 rounded-full blur-[100px] pointer-events-none"></div>
         
@@ -35,7 +35,7 @@ export default function LandingPage() {
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
             문자 발송 비용 평생 0원
           </div>
-          <h1 className="text-5xl md:text-7xl font-black text-gray-900 tracking-tight mb-8 leading-[1.1] break-keep animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <h1 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl lg:text-7xl font-black text-gray-900 tracking-tight mb-8 leading-[1.1] break-keep animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             라이브 홈쇼핑을 내 매장으로.<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5F0080] to-purple-500">
               매출이 폭발하는 1초 전단지
@@ -56,14 +56,14 @@ export default function LandingPage() {
       </section>
 
       {/* Value Proposition - 핵심 가치 */}
-      <section className="py-28 bg-gradient-to-b from-gray-900 to-gray-800 text-white relative overflow-hidden">
+      <section className="py-16 md:py-28 bg-gradient-to-b from-gray-900 to-gray-800 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 rounded-full blur-[120px]"></div>
+          <div className="absolute top-6 md:p-10 left-10 w-72 h-72 bg-purple-500 rounded-full blur-[120px]"></div>
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-yellow-500 rounded-full blur-[150px]"></div>
         </div>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-20">
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] break-keep mb-6">
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] break-keep mb-6">
               손님이 오길 기다리지 마세요.<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400">
                 손님의 스마트폰으로 직접 찾아가세요.
@@ -139,7 +139,7 @@ export default function LandingPage() {
       </section>
 
       {/* Feature 1: Admin Speed */}
-      <section className="py-32 bg-gray-50/50">
+      <section className="py-20 md:py-32 bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             <div className="order-2 lg:order-1">
@@ -184,7 +184,7 @@ export default function LandingPage() {
             
             <div className="order-1 lg:order-2">
               <h2 className="text-sm font-black text-[#5F0080] tracking-widest uppercase mb-3">Ultra-fast Input</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
                 바쁜 매장 업무 중에도,<br />단 1초면 세일 등록 끝.
               </h3>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
@@ -212,13 +212,13 @@ export default function LandingPage() {
       </section>
 
       {/* Feature 2: Customer Live View */}
-      <section className="py-32 bg-white overflow-hidden relative">
+      <section className="py-20 md:py-32 bg-white overflow-hidden relative">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gray-50/50 -skew-x-12 origin-top transform translate-x-32 pointer-events-none"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             <div>
               <h2 className="text-sm font-black text-red-600 tracking-widest uppercase mb-3">Live Shopping Vibe</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
                 고객의 지갑을 여는<br /><span className="text-red-600">미친 라이브 홈쇼핑 효과</span>
               </h3>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
@@ -323,7 +323,7 @@ export default function LandingPage() {
       </section>
 
       {/* Feature 3: Live Photo & Special Deals */}
-      <section className="py-32 bg-gray-50/50 border-t border-gray-100">
+      <section className="py-20 md:py-32 bg-gray-50/50 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             <div className="order-2 lg:order-1 relative flex justify-center">
@@ -357,7 +357,7 @@ export default function LandingPage() {
             
             <div className="order-1 lg:order-2">
               <h2 className="text-sm font-black text-[#5F0080] tracking-widest uppercase mb-3">Vivid Real-time Photo</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
                 방금 들어온 제철 상품,<br /><span className="text-[#5F0080]">사진 한 장으로 시선 집중.</span>
               </h3>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
@@ -385,13 +385,13 @@ export default function LandingPage() {
       </section>
 
             {/* Feature 4: Smart Icons & Bakery */}
-      <section className="py-32 bg-white overflow-hidden relative border-t border-gray-100">
+      <section className="py-20 md:py-32 bg-white overflow-hidden relative border-t border-gray-100">
         <div className="absolute top-0 left-0 w-full h-1/2 bg-yellow-50/30 transform -skew-y-3 origin-bottom-left pointer-events-none"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             <div>
               <h2 className="text-sm font-black text-yellow-600 tracking-widest uppercase mb-3">Smart Auto Icons</h2>
-              <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+              <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
                 제품에 찰떡인 귀여운 아이콘,<br /><span className="text-yellow-500">어떤 업종이든 생동감 200%.</span>
               </h3>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
@@ -462,10 +462,10 @@ export default function LandingPage() {
       </section>
 
             {/* Feature 5: Industry Previews (NEW) */}
-      <section className="py-32 bg-gray-50 border-t border-gray-100 overflow-hidden">
+      <section className="py-20 md:py-32 bg-gray-50 border-t border-gray-100 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
           <h2 className="text-sm font-black text-[#5F0080] tracking-widest uppercase mb-3">Custom For Every Store</h2>
-          <h3 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2]">
+          <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2]">
             내 가게는 어떻게 보일까요?<br />업종별 찰떡 맞춤 화면
           </h3>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium break-keep">
@@ -475,7 +475,7 @@ export default function LandingPage() {
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-10">
+          <div className="grid md:grid-cols-3 gap-6 md:p-10">
             {/* Mockup 1: Butcher */}
             <div className="relative rounded-[2.5rem] bg-[#FAFAFA] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-gray-200 overflow-hidden flex flex-col transform hover:-translate-y-2 transition-transform duration-500 hover:shadow-[0_30px_60px_rgba(95,0,128,0.15)]">
               <div className="bg-[#5F0080] py-8 text-center relative shadow-inner">
@@ -568,9 +568,9 @@ export default function LandingPage() {
       </section>
 
       {/* Feature 6: Flexibility & Zero Barrier */}
-      <section className="py-32 bg-gray-900 text-white relative">
+      <section className="py-20 md:py-32 bg-gray-900 text-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="text-4xl md:text-5xl font-black mb-6 tracking-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black mb-6 tracking-tight">
             고객은 가입 NO, 사장님은 제약 NO.
           </h2>
           <p className="text-xl text-gray-400 mb-20 max-w-3xl mx-auto font-medium leading-relaxed break-keep">
@@ -579,17 +579,17 @@ export default function LandingPage() {
           </p>
           
           <div className="grid md:grid-cols-3 gap-8 text-left">
-            <div className="bg-gray-800/40 border border-gray-700/50 p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
+            <div className="bg-gray-800/40 border border-gray-700/50 p-6 md:p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
               <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-blue-500/30">🏪</div>
               <h3 className="text-2xl font-bold mb-4 text-white">업종별 완벽 맞춤형 폼</h3>
               <p className="text-gray-400 leading-relaxed break-keep">마트 전용, 정육점 등급별(1++, 1등급) 폼 등 내 매장에 꼭 맞는 맞춤형 어드민 환경을 자동으로 제공합니다.</p>
             </div>
-            <div className="bg-gray-800/40 border border-gray-700/50 p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
+            <div className="bg-gray-800/40 border border-gray-700/50 p-6 md:p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
               <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-green-500/30">🤝</div>
               <h3 className="text-2xl font-bold mb-4 text-white">강력한 직원 다중 협업</h3>
               <p className="text-gray-400 leading-relaxed break-keep">여러 명의 직원을 어드민에 초대하세요. 매장 어디서나 각자의 스마트폰으로 동시에 세일 푸시를 관리할 수 있습니다.</p>
             </div>
-            <div className="bg-gray-800/40 border border-gray-700/50 p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
+            <div className="bg-gray-800/40 border border-gray-700/50 p-6 md:p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
               <div className="w-16 h-16 bg-yellow-500/20 text-yellow-400 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-yellow-500/30">🔗</div>
               <h3 className="text-2xl font-bold mb-4 text-white">설치 제로 PWA 웹앱</h3>
               <p className="text-gray-400 leading-relaxed break-keep">구글 플레이스토어에 갈 필요가 없습니다. 카톡으로 고객에게 링크 하나만 보내면 그곳이 바로 훌륭한 단골 전용 앱이 됩니다.</p>
@@ -599,14 +599,14 @@ export default function LandingPage() {
       </section>
 
       {/* Developer's Note / Mission Statement */}
-      <section className="py-32 bg-white relative">
+      <section className="py-20 md:py-32 bg-white relative">
         <div className="absolute inset-0 bg-gray-50/50 skew-y-3 transform origin-bottom-left -z-10"></div>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="bg-white rounded-3xl p-10 md:p-16 shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-gray-100 relative overflow-hidden">
+          <div className="bg-white rounded-3xl p-6 md:p-10 md:p-16 shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-gray-100 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-[#5F0080] to-purple-400"></div>
-            <div className="absolute -top-10 -right-10 text-9xl text-gray-50 font-serif opacity-50 select-none">"</div>
+            <div className="absolute -top-6 md:p-10 -right-10 text-9xl text-gray-50 font-serif opacity-50 select-none">"</div>
             
-            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-8 leading-tight break-keep">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-gray-900 mb-8 leading-tight break-keep">
               "대기업 수수료에 지치고, 날씨 탓에 한숨 쉬는 자영업자 사장님들을 위해 만들었습니다."
             </h2>
             
@@ -636,13 +636,13 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-40 bg-[#5F0080] text-center relative overflow-hidden">
+      <section className="py-24 md:py-40 bg-[#5F0080] text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[600px] bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-[150px] opacity-40 pointer-events-none"></div>
         
         <div className="max-w-4xl mx-auto px-4 relative z-10">
           <div className="text-7xl mb-10 animate-bounce">🚀</div>
-          <h2 className="text-5xl md:text-7xl font-black text-white mb-10 tracking-tight drop-shadow-lg leading-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl lg:text-7xl font-black text-white mb-10 tracking-tight drop-shadow-lg leading-tight">
             비용은 영원히 줄이고,<br/>매출은 지금 바로 터트리세요.
           </h2>
           <p className="text-xl md:text-3xl text-purple-100 mb-16 font-medium leading-relaxed drop-shadow-md break-keep max-w-3xl mx-auto">
@@ -650,7 +650,7 @@ export default function LandingPage() {
             지금 바로 무료로 가입하고 1초 모바일 전단지의 기적을 경험하세요.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <Link href="/register" className="px-14 py-6 rounded-full bg-yellow-400 text-yellow-900 font-black text-2xl hover:bg-yellow-300 hover:scale-105 transition-all shadow-[0_15px_40px_rgba(250,204,21,0.5)]">
+            <Link href="/register" className="px-8 py-4 md:px-14 md:py-6 rounded-full bg-yellow-400 text-yellow-900 font-black text-xl md:text-2xl w-full sm:w-auto inline-block hover:bg-yellow-300 hover:scale-105 transition-all shadow-[0_15px_40px_rgba(250,204,21,0.5)]">
               지금 당장 내 매장 등록하기 (무료)
             </Link>
           </div>
