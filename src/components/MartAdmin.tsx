@@ -373,20 +373,22 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             .map((i: any) => i.id);
         }
 
-        const { error } = await supabase.from('nao3_sale_items')
-          .update({ 
-            product_name: newItem.product_name, 
-            quantity: newItem.quantity, 
-            sale_price: formattedPrice,
-            category: activeTab,
-            discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null, grade: newItem.grade || null, origin: newItem.origin || null
-          })
-          .in('id', updateIds);
-          
-        if (error) throw error;
+        if (!storeId.startsWith('demo-guest-')) {
+          const { error } = await supabase.from('nao3_sale_items')
+            .update({ 
+              product_name: newItem.product_name, 
+              quantity: newItem.quantity, 
+              sale_price: formattedPrice,
+              category: activeTab,
+              discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null, grade: newItem.grade || null, origin: newItem.origin || null
+            })
+            .in('id', updateIds);
+            
+          if (error) throw error;
+        }
         
         // 로컬 상태 즉시 갱신
-        setHistories(prev => prev.map(h => h.id === targetHistoryItemId.pushId ? {
+        const newHistories = histories.map(h => h.id === targetHistoryItemId.pushId ? {
           ...h,
           nao3_sale_items: h.nao3_sale_items.map((i: any) => updateIds.includes(i.id) ? {
             ...i,
@@ -396,7 +398,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             sale_price: formattedPrice,
             discount_rate: newItem.discount_rate ? parseInt(newItem.discount_rate, 10) : null, grade: newItem.grade || null, origin: newItem.origin || null
           } : i)
-        } : h));
+        } : h);
+        
+        setHistories(newHistories);
+        if (storeId.startsWith('demo-guest-')) {
+          localStorage.setItem('nao3_demo_histories', JSON.stringify(newHistories));
+        }
         
         setEditingHistoryItemId(null);
         // 대기열에도 업데이트 반영
@@ -465,12 +472,18 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   // 이력 품절 처리/해제 (즉시 반영)
   const handleHistoryToggleSoldOut = async (pushId: string, itemId: string, currentSoldOut: boolean) => {
     try {
-      const { error } = await supabase.from('nao3_sale_items').update({ is_sold_out: !currentSoldOut }).eq('id', itemId);
-      if (error) throw error;
-      setHistories(prev => prev.map(h => h.id === pushId ? {
+      if (!storeId.startsWith('demo-guest-')) {
+        const { error } = await supabase.from('nao3_sale_items').update({ is_sold_out: !currentSoldOut }).eq('id', itemId);
+        if (error) throw error;
+      }
+      const newHistories = histories.map(h => h.id === pushId ? {
         ...h,
         nao3_sale_items: h.nao3_sale_items.map((i: any) => i.id === itemId ? { ...i, is_sold_out: !currentSoldOut } : i)
-      } : h));
+      } : h);
+      setHistories(newHistories);
+      if (storeId.startsWith('demo-guest-')) {
+        localStorage.setItem('nao3_demo_histories', JSON.stringify(newHistories));
+      }
     } catch (err) {
       alert('품절 상태 업데이트에 실패했습니다.');
     }
@@ -480,13 +493,19 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const handleHistoryDeleteItem = async (pushId: string, itemId: string) => {
     if (!confirm('정말 삭제하시겠습니까? 즉시 반영됩니다.')) return;
     try {
-      const { error } = await supabase.from('nao3_sale_items').delete().eq('id', itemId);
-      if (error) throw error;
-      setHistories(prev => prev.map(h => h.id === pushId ? {
+      if (!storeId.startsWith('demo-guest-')) {
+        const { error } = await supabase.from('nao3_sale_items').delete().eq('id', itemId);
+        if (error) throw error;
+      }
+      const newHistories = histories.map(h => h.id === pushId ? {
         ...h,
         item_count: h.item_count - 1,
         nao3_sale_items: h.nao3_sale_items.filter((i: any) => i.id !== itemId)
-      } : h));
+      } : h);
+      setHistories(newHistories);
+      if (storeId.startsWith('demo-guest-')) {
+        localStorage.setItem('nao3_demo_histories', JSON.stringify(newHistories));
+      }
     } catch (err) {
       alert('삭제에 실패했습니다.');
     }
