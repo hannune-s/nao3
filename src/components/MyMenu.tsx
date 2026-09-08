@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function MyMenu({ storeData }: { storeData: any }) {
   const router = useRouter();
 
-  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'notices' | 'guide'>('main');
+  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'notices' | 'guide' | 'qr'>('main');
 
   // Account form states
   const [ownerName, setOwnerName] = useState(storeData.owner_name || '');
@@ -419,6 +419,92 @@ export default function MyMenu({ storeData }: { storeData: any }) {
     );
   }
 
+  if (view === 'qr') {
+    const customerLink = typeof window !== 'undefined' ? `${window.location.origin}/store/${storeData.slug}/sale` : '';
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=1024x1024&data=${encodeURIComponent(customerLink)}`;
+
+    const copyLink = () => {
+      navigator.clipboard.writeText(customerLink).then(() => {
+        alert('링크가 복사되었습니다!\n문자메시지나 카카오톡에 붙여넣어 홍보하세요.');
+      }).catch(() => {
+        alert('링크 복사에 실패했습니다.');
+      });
+    };
+
+    const downloadQR = async () => {
+      try {
+        const response = await fetch(qrImageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${storeData.store_name}_QR코드.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        alert('QR코드 다운로드에 실패했습니다. 이미지를 길게 눌러 저장해주세요.');
+      }
+    };
+
+    return (
+      <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
+        {/* Header */}
+        <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center gap-3 sticky top-0 z-10">
+          <button onClick={() => setView('main')} className="text-gray-400 hover:text-gray-800 transition-colors p-1 -ml-1">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">고객 홍보 (링크 & QR)</h1>
+        </div>
+
+        <div className="p-5 space-y-6 max-w-lg mx-auto">
+          
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-black text-gray-900 mb-2">우리 매장 전용 링크</h2>
+            <p className="text-[13px] text-gray-500 mb-4 break-keep">
+              고객들에게 문자로 발송할 수 있는 우리 매장만의 고유 주소입니다.
+            </p>
+            
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                readOnly 
+                value={customerLink} 
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 outline-none"
+              />
+              <button 
+                onClick={copyLink}
+                className="shrink-0 bg-gray-900 text-white font-bold px-4 rounded-xl hover:bg-black transition-colors"
+              >
+                링크 복사
+              </button>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 text-center">
+            <h2 className="text-lg font-black text-gray-900 mb-2">홍보용 QR 코드</h2>
+            <p className="text-[13px] text-gray-500 mb-6 break-keep">
+              계산대나 매장 입구에 붙여두세요! 고객들이 카메라로 찍으면 1초 만에 스마트 전단지로 연결됩니다.
+            </p>
+            
+            <div className="inline-block p-4 border-4 border-gray-100 rounded-3xl bg-white mb-6">
+              <img src={qrImageUrl} alt="Store QR Code" className="w-48 h-48 mx-auto" />
+            </div>
+
+            <button 
+              onClick={downloadQR}
+              className="w-full bg-[#5F0080] text-white font-black py-4 rounded-xl shadow-md hover:bg-purple-900 transition-colors text-[16px] flex items-center justify-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              QR 이미지 다운로드
+            </button>
+          </div>
+
+        </div>
+      </div>
+    );
+  }
 
   if (view === 'notices') {
     return (
@@ -522,6 +608,20 @@ export default function MyMenu({ storeData }: { storeData: any }) {
           <div>
             <h3 className="font-extrabold text-gray-900 text-[16px] mb-1">설정</h3>
             <p className="text-[13px] text-gray-500 font-medium">가게 정보(영업시간, 주소 등) 관리</p>
+          </div>
+          <span className="text-gray-300">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+          </span>
+        </button>
+
+        {/* QR 홍보 카드 */}
+        <button 
+          onClick={() => setView('qr')}
+          className="w-full bg-white rounded-2xl p-5 flex items-center justify-between shadow-sm border border-gray-100 border-l-4 border-l-pink-500 text-left hover:bg-pink-50/50 transition-colors"
+        >
+          <div>
+            <h3 className="font-extrabold text-gray-900 text-[16px] mb-1">고객 홍보 (링크 & QR)</h3>
+            <p className="text-[13px] text-gray-500 font-medium">우리 매장 전용 링크 및 QR코드 다운로드</p>
           </div>
           <span className="text-gray-300">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
