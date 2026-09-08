@@ -108,9 +108,65 @@ export default function MyMenu({ storeData }: { storeData: any }) {
     }
   };
 
+  const loadTossPayments = () => {
+    return new Promise((resolve) => {
+      if ((window as any).TossPayments) {
+        resolve((window as any).TossPayments);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://js.tosspayments.com/v1/payment';
+      script.onload = () => resolve((window as any).TossPayments);
+      document.head.appendChild(script);
+    });
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      // 1. Fetch Client Key from HQ Settings (or fallback to default test key)
+      let clientKey = 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq'; // Default test key
+      try {
+        const { data } = await supabase.from('nao3_system_settings').select('*');
+        if (data) {
+          const keyRow = data.find((r: any) => r.setting_key === 'pg_client_key');
+          if (keyRow && keyRow.setting_value) clientKey = keyRow.setting_value;
+        }
+      } catch (err) {
+        console.warn('DB settings not found, using default test key.');
+      }
+
+      // 2. Load SDK and Initialize
+      const TossPayments = await loadTossPayments() as any;
+      const tossPayments = TossPayments(clientKey);
+
+      // 3. Request Payment
+      const price = subscriptionPlan === 'annual' ? 390000 : 39000;
+      const orderName = subscriptionPlan === 'annual' ? 'NAO3 연간 결제' : 'NAO3 월간 결제';
+      const orderId = 'order_' + Math.random().toString(36).substring(2, 10);
+      
+      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+      tossPayments.requestPayment('카드', {
+        amount: price,
+        orderId: orderId,
+        orderName: orderName,
+        customerName: ownerName || storeData.owner_name || '테스트 고객',
+        successUrl: origin + `/store/${storeData.slug}/success`,
+        failUrl: origin + `/store/${storeData.slug}/fail`,
+      }).catch((err: any) => {
+        if (err.code === 'USER_CANCEL') {
+          console.log('User cancelled payment');
+        } else {
+          alert('결제창 호출에 실패했습니다: ' + err.message);
+        }
+      });
+    } catch (err: any) {
+      alert('결제 준비 중 오류가 발생했습니다: ' + err.message);
+    }
+  };
+
   const handleRegisterCard = () => {
-    alert('카드 결제 연동(PG사) 모듈이 실행될 자리입니다.\n(추후 간편결제 연동 필요)');
-    setHasCard(true); // 모의 처리
+    alert('카드 등록 기능은 빌링키 발급 연동이 필요합니다. 현재는 즉시 구독 결제만 가능합니다.');
   };
 
   if (view === 'account') {
@@ -252,7 +308,7 @@ export default function MyMenu({ storeData }: { storeData: any }) {
               </label>
             </div>
 
-            <button onClick={() => alert('PG사 결제 시스템 연동을 준비 중입니다. 곧 오픈 예정입니다!')} className="w-full bg-[#5F0080] text-white font-black py-4 rounded-xl shadow-md hover:bg-purple-900 transition-colors text-[16px]">
+            <button onClick={handleSubscribe} className="w-full bg-[#5F0080] text-white font-black py-4 rounded-xl shadow-md hover:bg-purple-900 transition-colors text-[16px]">
               구독하기
             </button>
           </div>
