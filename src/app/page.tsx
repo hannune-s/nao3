@@ -598,6 +598,43 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Developer's Note / Mission Statement */}
+      <section className="py-32 bg-white relative">
+        <div className="absolute inset-0 bg-gray-50/50 skew-y-3 transform origin-bottom-left -z-10"></div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="bg-white rounded-3xl p-10 md:p-16 shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-gray-100 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-[#5F0080] to-purple-400"></div>
+            <div className="absolute -top-10 -right-10 text-9xl text-gray-50 font-serif opacity-50 select-none">"</div>
+            
+            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-8 leading-tight break-keep">
+              "대기업 수수료에 지치고, 날씨 탓에 한숨 쉬는 자영업자 사장님들을 위해 만들었습니다."
+            </h2>
+            
+            <div className="space-y-6 text-lg text-gray-600 leading-relaxed font-medium break-keep">
+              <p>
+                이 앱은 단순한 프로그램이 아닙니다. 매일 숨이 턱턱 막히는 폭염과 불황 속에서, 가게 문을 열어놓고도 손님이 오기만을 피가 마르게 기다리던 전국의 모든 마트·정육점 사장님들을 진짜로 돕기 위해 뼛속까지 고민해 만든 어플입니다.
+              </p>
+              <p>
+                비싼 광고비에 휘둘리고 플랫폼에 수수료를 다 뜯기며 지쳐가는 자영업자들이, 이제는 오직 내 힘으로 단골손님들과 직거래하고 장사의 주도권을 되찾기를 바랍니다. 남들이 불황이라 한숨 쉴 때, 사장님들이 다시금 신나게 장사판을 뒤흔들 수 있도록 만드는 것—그것이 바로 이 앱을 만든 단 하나의 이유입니다.
+              </p>
+              <p className="text-[#5F0080] font-bold text-xl pt-4">
+                우리는 앞으로도 겉만 번지르르한 플랫폼이 아니라, 오직 현장에서 땀 흘려 장사하는 자영업자 사장님들의 실질적인 매출을 끌어올리고 든든하게 뒤를 받쳐줄 수 있는 진짜 실전 어플들을 계속해서 만들어 나갈 것입니다.
+              </p>
+            </div>
+            
+            <div className="mt-12 flex items-center gap-4">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-xl shadow-inner border border-gray-200">
+                👨‍🍳
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">NAO3 팀 일동</p>
+                <p className="text-sm text-gray-500">사장님들의 성공을 진심으로 응원합니다</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-40 bg-[#5F0080] text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
