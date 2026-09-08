@@ -436,15 +436,51 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         const response = await fetch(qrImageUrl);
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${storeData.store_name}_QR코드.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return;
+          
+          const size = 1024;
+          const padding = 120;
+          const textHeight = 200;
+          
+          canvas.width = size + (padding * 2);
+          canvas.height = size + (padding * 2) + textHeight;
+          
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          ctx.drawImage(img, padding, padding, size, size);
+          
+          ctx.fillStyle = '#1A1A1A';
+          ctx.font = '900 100px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(storeData.store_name || '스마트 전단지', canvas.width / 2, canvas.height - (padding + textHeight / 2) + 50);
+          
+          ctx.fillStyle = '#5F0080';
+          ctx.font = 'bold 50px sans-serif';
+          ctx.fillText('스마트폰 카메라로 스캔해 보세요!', canvas.width / 2, padding / 2 + 20);
+
+          canvas.toBlob((outBlob) => {
+            if (!outBlob) return;
+            const finalUrl = window.URL.createObjectURL(outBlob);
+            const link = document.createElement('a');
+            link.href = finalUrl;
+            link.download = `${storeData.store_name || '매장'}_홍보용_QR.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(finalUrl);
+            window.URL.revokeObjectURL(url);
+          }, 'image/png');
+        };
+        img.src = url;
       } catch (err) {
-        alert('QR코드 다운로드에 실패했습니다. 이미지를 길게 눌러 저장해주세요.');
+        alert('QR코드 생성에 실패했습니다. 이미지를 길게 눌러 저장해주세요.');
       }
     };
 
@@ -650,8 +686,18 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         </div>
         
         {/* App Version Info */}
-        <div className="text-center mt-6">
+        <div className="text-center mt-6 flex flex-col items-center gap-3">
           <span className="text-[11px] text-gray-400 font-medium tracking-widest">NAO3 v1.0.0</span>
+          <button 
+            onClick={() => {
+              if (confirm('정말로 회원 탈퇴를 진행하시겠습니까?\n탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.')) {
+                alert('탈퇴 요청이 접수되었습니다. 본사 확인 후 순차적으로 처리됩니다.');
+              }
+            }}
+            className="text-[11px] text-gray-300 hover:text-gray-500 underline underline-offset-2 transition-colors"
+          >
+            서비스 탈퇴하기
+          </button>
         </div>
 
       </div>
