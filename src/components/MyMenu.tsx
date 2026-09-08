@@ -718,6 +718,11 @@ function InquiryView({ storeData, setView }: { storeData: any, setView: any }) {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
 
   useEffect(() => {
     fetchInquiries();
@@ -818,27 +823,45 @@ function InquiryView({ storeData, setView }: { storeData: any, setView: any }) {
               이전 문의 내역이 없습니다.
             </p>
           ) : (
-            <div className="space-y-4">
-              {inquiries.map((inq: any) => (
-                <div key={inq.id} className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${inq.status === '답변완료' ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'}`}>
-                      {inq.status || '답변대기'}
-                    </span>
-                    <span className="text-[11px] text-gray-400">{new Date(inq.created_at).toLocaleDateString()}</span>
-                  </div>
-                  <p className="text-[14px] text-gray-800 break-keep leading-relaxed">{inq.content}</p>
-                  
-                  {inq.reply && (
-                    <div className="mt-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="text-blue-600 font-black text-[12px]">NAO3 본사 답변</span>
+            <div className="space-y-3">
+              {inquiries.map((inq: any) => {
+                const isExpanded = expandedId === inq.id;
+                
+                return (
+                  <div key={inq.id} className="bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
+                    <button 
+                      onClick={() => toggleExpand(inq.id)}
+                      className={`w-full flex items-center justify-between p-4 text-left transition-colors ${isExpanded ? 'bg-gray-100/50' : 'hover:bg-gray-100/50'}`}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ${inq.status === '답변완료' ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'}`}>
+                          {inq.status || '답변대기'}
+                        </span>
+                        <span className="text-[14px] text-gray-800 font-medium truncate">{inq.content}</span>
                       </div>
-                      <p className="text-[13px] text-gray-700 break-keep leading-relaxed">{inq.reply}</p>
-                    </div>
-                  )}
-                </div>
-              ))}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[11px] text-gray-400">{new Date(inq.created_at).toLocaleDateString()}</span>
+                        <svg className={`w-4 h-4 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                      </div>
+                    </button>
+                    
+                    {isExpanded && (
+                      <div className="p-4 border-t border-gray-100 bg-white">
+                        <p className="text-[14px] text-gray-800 break-keep leading-relaxed whitespace-pre-wrap">{inq.content}</p>
+                        
+                        {inq.reply && (
+                          <div className="mt-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className="text-blue-600 font-black text-[12px]">NAO3 본사 답변</span>
+                            </div>
+                            <p className="text-[13px] text-gray-700 break-keep leading-relaxed whitespace-pre-wrap">{inq.reply}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
