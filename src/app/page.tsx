@@ -55,6 +55,89 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Value Proposition - 핵심 가치 */}
+      <section className="py-28 bg-gradient-to-b from-gray-900 to-gray-800 text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-72 h-72 bg-purple-500 rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-yellow-500 rounded-full blur-[150px]"></div>
+        </div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-20">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] break-keep mb-6">
+              손님이 오길 기다리지 마세요.<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400">
+                손님의 스마트폰으로 직접 찾아가세요.
+              </span>
+            </h2>
+            <div className="w-20 h-1.5 bg-gradient-to-r from-[#5F0080] to-purple-400 mx-auto rounded-full mt-8"></div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            <div className="group relative">
+              <div className="absolute -inset-1 bg-gradient-to-br from-purple-600 to-purple-900 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+              <div className="relative bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-3xl p-8 h-full hover:border-purple-500/50 transition-all duration-500">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center text-3xl mb-6 shadow-lg shadow-purple-900/30">📱</div>
+                <h3 className="text-2xl font-black text-white mb-4 tracking-tight break-keep">디지털 상권 장악</h3>
+                <p className="text-gray-300 leading-relaxed text-[15px] break-keep">
+                  손님들의 스마트폰 바탕화면에 우리 가게 앱을 심어, 매 순간 단골들의 손 안에서 <strong className="text-white font-bold">살아 숨 쉬는 직거래 상권</strong>을 만듭니다.
+                </p>
+                <div className="mt-6 pt-6 border-t border-gray-700/50">
+                  <div className="flex items-center gap-3">
+                    <div className="flex -space-x-2">
+                      <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-xs">👩</div>
+                      <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-xs">👨</div>
+                      <div className="w-8 h-8 rounded-full bg-purple-400 flex items-center justify-center text-xs">👵</div>
+                    </div>
+                    <span className="text-xs text-gray-400 font-bold">단골 고객이 내 손 안에</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="group relative">
+              <div className="absolute -inset-1 bg-gradient-to-br from-orange-500 to-red-600 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+              <div className="relative bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-3xl p-8 h-full hover:border-orange-500/50 transition-all duration-500">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-3xl mb-6 shadow-lg shadow-orange-900/30">🔔</div>
+                <h3 className="text-2xl font-black text-white mb-4 tracking-tight break-keep">폭염·불황 돌파구</h3>
+                <p className="text-gray-300 leading-relaxed text-[15px] break-keep">
+                  밖으로 한 걸음도 나오지 않는 손님들의 스마트폰 화면을 <strong className="text-white font-bold">푸시 알림으로 번쩍 울려</strong>, 지금 당장 가게 문을 열고 들이닥치게 만듭니다.
+                </p>
+                <div className="mt-6 pt-6 border-t border-gray-700/50">
+                  <div className="flex items-center gap-3 bg-gray-900/50 rounded-xl p-3">
+                    <span className="text-xl">🔥</span>
+                    <div>
+                      <p className="text-[11px] text-gray-500 font-bold">방금 도착한 알림</p>
+                      <p className="text-[13px] text-white font-bold break-keep">나오삼마트: 사과 한 박스 천원! 선착순!</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="group relative">
+              <div className="absolute -inset-1 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm"></div>
+              <div className="relative bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-3xl p-8 h-full hover:border-yellow-500/50 transition-all duration-500">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-3xl mb-6 shadow-lg shadow-yellow-900/30">👊</div>
+                <h3 className="text-2xl font-black text-white mb-4 tracking-tight break-keep">장사의 주도권 회복</h3>
+                <p className="text-gray-300 leading-relaxed text-[15px] break-keep">
+                  플랫폼에 수수료를 뜯기는 구조가 아니라, <strong className="text-white font-bold">사장이 직접 단골과 소통하며 매출을 끄집어내는</strong> 진짜 장사의 맛을 경험하세요.
+                </p>
+                <div className="mt-6 pt-6 border-t border-gray-700/50">
+                  <div className="flex items-center justify-between">
+                    <div className="text-center">
+                      <p className="text-2xl font-black text-red-400 line-through opacity-60">15~30%</p>
+                      <p className="text-[10px] text-gray-500 font-bold">플랫폼 수수료</p>
+                    </div>
+                    <span className="text-2xl">→</span>
+                    <div className="text-center">
+                      <p className="text-2xl font-black text-yellow-400">0%</p>
+                      <p className="text-[10px] text-gray-500 font-bold">NAO3 수수료</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Feature 1: Admin Speed */}
       <section className="py-32 bg-gray-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
