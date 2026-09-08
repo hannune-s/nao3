@@ -11,15 +11,15 @@ export default function LandingPage() {
             <span className="text-2xl font-black text-[#5F0080] tracking-tight">NAO3</span>
             <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-[#5F0080]/10 text-[#5F0080] text-[10px] font-bold">사장님 필수앱</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-sm font-semibold text-gray-600 hover:text-[#5F0080] transition-colors">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link href="/login" className="hidden md:block text-sm font-semibold text-gray-600 hover:text-[#5F0080] transition-colors">
               어드민 로그인
             </Link>
-            <DemoButton className="text-sm font-bold text-[#5F0080] bg-purple-50 hover:bg-purple-100 border border-purple-200 px-4 py-2.5 rounded-full transition-all">
-              가입 없이 체험하기
+            <DemoButton className="hidden sm:block text-sm font-bold text-[#5F0080] bg-purple-50 hover:bg-purple-100 border border-purple-200 px-4 py-2.5 rounded-full transition-all">
+              체험하기
             </DemoButton>
-            <Link href="/register" className="text-sm font-bold text-white bg-[#5F0080] hover:bg-purple-900 px-4 py-2.5 rounded-full shadow-lg shadow-purple-900/20 transition-all hover:scale-105">
-              무료 스토어 개설
+            <Link href="/register" className="text-xs sm:text-sm font-bold text-white bg-[#5F0080] hover:bg-purple-900 px-3 py-2 sm:px-4 sm:py-2.5 rounded-full shadow-lg shadow-purple-900/20 transition-all hover:scale-105 whitespace-nowrap">
+              스토어 개설
             </Link>
           </div>
         </div>
