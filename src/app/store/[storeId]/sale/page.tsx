@@ -90,7 +90,37 @@ export default function CustomerSalePage() {
   const [bossMessage, setBossMessage] = useState('');
   const [storeName, setStoreName] = useState('우리동네 마트');
   const [storeInfo, setStoreInfo] = useState<any>(null);
-  const [isStoreInfoOpen, setIsStoreInfoOpen] = useState(false); // 가게 이름 상태 추가
+  const [isStoreInfoOpen, setIsStoreInfoOpen] = useState(false);
+
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showInstallBanner, setShowInstallBanner] = useState(true);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstallBanner(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstallAndPush = async () => {
+    if ('Notification' in window && Notification.permission !== 'granted') {
+      await Notification.requestPermission();
+    }
+    
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setShowInstallBanner(false);
+      }
+      setDeferredPrompt(null);
+    } else {
+      alert('아이폰(Safari)의 경우 하단 [공유] ➔ [홈 화면에 추가]를 눌러주세요!\n안드로이드의 경우 브라우저 메뉴 [⋮] ➔ [홈 화면에 추가]를 선택해주세요.');
+    }
+  };
 
   useEffect(() => {
     if (!storeSlug) return;
@@ -242,7 +272,23 @@ export default function CustomerSalePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F1F2F4] pb-24 font-sans">
+    <main className="min-h-screen bg-[#F1F2F4] pb-24 font-sans pt-12">
+      {/* 최상단 PWA 설치 및 푸시 유도 배너 */}
+      {showInstallBanner && (
+        <div className="fixed top-0 left-0 right-0 h-12 bg-gray-900 z-50 flex items-center justify-between px-4 shadow-md animate-fade-in-down">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🎁</span>
+            <span className="text-white text-[12px] font-bold tracking-tight">터치 한 번으로 세일 소식 받기!</span>
+          </div>
+          <button 
+            onClick={handleInstallAndPush}
+            className="bg-yellow-400 text-yellow-900 font-black text-[11px] px-3 py-1.5 rounded-full hover:bg-yellow-300 transition-colors shadow-sm"
+          >
+            홈 화면에 추가
+          </button>
+        </div>
+      )}
+
       {/* 헤더 영역 (투톤 분리 - 직선형) */}
       <div className="flex flex-col">
         
