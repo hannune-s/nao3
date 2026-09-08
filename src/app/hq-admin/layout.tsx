@@ -40,9 +40,12 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               </Link>
             </li>
             <li>
-              <div className="flex items-center px-6 py-3 text-sm font-medium text-gray-500 cursor-not-allowed">
-                시스템 설정
-              </div>
+              <Link 
+                href="/hq-admin/settings" 
+                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/settings' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+              >
+                시스템 설정 (PG 연동)
+              </Link>
             </li>
           </ul>
         </nav>
