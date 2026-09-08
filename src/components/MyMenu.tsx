@@ -277,79 +277,81 @@ export default function MyMenu({ storeData }: { storeData: any }) {
           {/* 1. 핵심 기능 요약 */}
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-purple-500 relative overflow-hidden">
             <div className="absolute top-4 right-4 text-4xl opacity-20">💡</div>
-            <h2 className="text-lg font-black text-gray-900 mb-2 flex items-center gap-2">
+            <h2 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
               <span className="text-purple-600">핵심 기능 요약</span>
             </h2>
-            <p className="text-gray-600 text-[14px] leading-relaxed break-keep font-medium">
-              사장님! 복잡한 설정 다 필요 없습니다.<br/>
-              이 앱은 <strong>어드민에서 오늘 팔 물건을 입력하는 순간, 고객들의 스마트폰 전단지에 실시간으로 반영</strong>되는 마법 같은 앱입니다. 
-            </p>
-          </div>
-
-          {/* 2. 화면 캡처 위치 안내 */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-blue-500 relative overflow-hidden">
-            <div className="absolute top-4 right-4 text-4xl opacity-20">🗺️</div>
-            <h2 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
-              <span className="text-blue-600">어디서 뭘 누르나요?</span>
-            </h2>
-            
             <div className="space-y-4">
-              <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="bg-blue-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">상단</span>
-                  <strong className="text-gray-900 text-[15px]">특가 상품 등록</strong>
-                </div>
-                <p className="text-gray-500 text-[13px] break-keep leading-snug">
-                  제일 중요한 메인 화면입니다. 여기서 오늘 세일할 상품과 가격을 마음껏 추가하세요.
+              <div className="flex gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0"></div>
+                <p className="text-gray-700 text-[14px] leading-relaxed break-keep font-medium">
+                  <strong>오늘의 사장님 이야기</strong><br/>
+                  사장님의 생생한 멘트를 단독으로 즉시 반영할 수 있습니다!
                 </p>
               </div>
-              
-              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="bg-gray-600 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">하단</span>
-                  <strong className="text-gray-900 text-[15px]">지난 세일 내역</strong>
-                </div>
-                <p className="text-gray-500 text-[13px] break-keep leading-snug">
-                  어제 보냈던 상품을 오늘 또 판다고요? 여기서 <strong>그대로 불러와서 가격만 바꿔</strong> 다시 보낼 수 있습니다.
+              <div className="flex gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-2 shrink-0"></div>
+                <p className="text-gray-700 text-[14px] leading-relaxed break-keep font-medium">
+                  <strong>오늘의 특가</strong><br/>
+                  모바일에서 찍은 신선한 제철 상품 사진을 바로 업로드하여 고객들 시선을 확 사로잡으세요!
                 </p>
               </div>
             </div>
           </div>
 
-          {/* 3. 1분 만에 따라 하는 3단계 실전 팁 */}
+          {/* 2. 1초 컷 등록 팁 */}
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-blue-500 relative overflow-hidden">
+            <div className="absolute top-4 right-4 text-4xl opacity-20">⚡</div>
+            <h2 className="text-lg font-black text-gray-900 mb-4 flex items-center gap-2">
+              <span className="text-blue-600">1초 컷! 초스피드 등록 팁</span>
+            </h2>
+            
+            <div className="space-y-4">
+              <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
+                <strong className="text-gray-900 text-[15px] flex items-center gap-2 mb-1">
+                  🔍 초성 검색 (업무시간 단축!)
+                </strong>
+                <p className="text-gray-500 text-[13px] break-keep leading-snug">
+                  바쁜데 언제 다 치나요? 'ㅎㅇ'만 쳐도 '한우'가 쏙 나옵니다.<br/>
+                  <strong>등급, 원산지, 중량까지</strong> 전부 자동으로 세팅되니 일일이 손으로 칠 필요가 없습니다!
+                </p>
+              </div>
+              
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <strong className="text-gray-900 text-[15px] flex items-center gap-2 mb-1">
+                  🏷️ 할인율 뱃지
+                </strong>
+                <p className="text-gray-500 text-[13px] break-keep leading-snug">
+                  할인율 칸에 적은 숫자는 가격에 자동 계산되는 게 아닙니다. 고객 시선을 확 끄는 <strong>매력적인 '할인 뱃지'</strong>로 예쁘게 활용하세요!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. 스마트 전단지 실전 관리 */}
           <div className="bg-gradient-to-b from-gray-900 to-gray-800 rounded-3xl p-6 shadow-md border border-gray-700 relative overflow-hidden">
             <div className="absolute top-4 right-4 text-4xl opacity-20">🚀</div>
             <h2 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-              <span className="text-yellow-400">1분 컷! 실전 3단계</span>
+              <span className="text-yellow-400">스마트 전단지 실전 관리</span>
             </h2>
             
             <div className="space-y-5">
               <div className="flex gap-4">
-                <div className="w-8 h-8 shrink-0 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center font-black text-sm">1</div>
+                <div className="w-8 h-8 shrink-0 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center font-black text-sm">🔄</div>
                 <div>
-                  <h3 className="text-white font-bold text-[15px] mb-1">초성으로 1초 검색</h3>
+                  <h3 className="text-white font-bold text-[15px] mb-1">스마트 덮어쓰기 & 추가</h3>
                   <p className="text-gray-400 text-[13px] leading-relaxed break-keep">
-                    바쁜데 언제 다 치나요! 상품명에 <strong>'ㅎㅇ'</strong>만 쳐도 '한우'가 쏙 나옵니다. 가격만 탁탁 치고 추가하세요.
+                    이미 전단지에 올렸는데, 수정하고 싶다면?<br/>
+                    같은 날짜에 <strong>'같은 상품'</strong>을 추가하면 똑똑하게 <strong>'덮어쓰기'</strong>가 됩니다. 만약 <strong>'다른 상품'</strong>을 추가하면 기존 목록 밑에 자연스럽게 <strong>'추가'</strong>됩니다.
                   </p>
                 </div>
               </div>
               
               <div className="flex gap-4">
-                <div className="w-8 h-8 shrink-0 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center font-black text-sm">2</div>
+                <div className="w-8 h-8 shrink-0 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center font-black text-sm">🚫</div>
                 <div>
-                  <h3 className="text-white font-bold text-[15px] mb-1">품절 처리도 터치 한방</h3>
+                  <h3 className="text-white font-bold text-[15px] mb-1">실시간 품절 처리</h3>
                   <p className="text-gray-400 text-[13px] leading-relaxed break-keep">
-                    물건이 다 팔렸나요? 상품 목록에서 <strong>품절</strong> 버튼만 누르면 고객 전단지에도 즉시 품절로 뜹니다. 전화받을 일이 확 줄어들어요!
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="w-8 h-8 shrink-0 bg-yellow-400 text-yellow-900 rounded-full flex items-center justify-center font-black text-sm">3</div>
-                <div>
-                  <h3 className="text-white font-bold text-[15px] mb-1">마지막 전송 버튼 꾹!</h3>
-                  <p className="text-gray-400 text-[13px] leading-relaxed break-keep">
-                    다 올렸다면 맨 밑에 있는 <strong>[전단지에 올리기]</strong> 버튼을 누르세요. 그 즉시 수천 명의 단골들 폰으로 짜잔! 하고 날아갑니다.
+                    물건이 다 팔렸나요? 상품 목록에서 <strong>품절</strong> 버튼만 누르면 언제든 고객 전단지에도 즉시! 품절로 뜹니다. 전화받을 일이 확 줄어들어요!
                   </p>
                 </div>
               </div>
