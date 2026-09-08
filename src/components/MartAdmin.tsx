@@ -515,15 +515,28 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   const handleHistoryDeleteItem = async (pushId: string, itemId: string) => {
     if (!confirm('정말 삭제하시겠습니까? 즉시 반영됩니다.')) return;
     try {
+      const targetPush = histories.find(h => h.id === pushId);
+      const remainingItems = (targetPush?.nao3_sale_items || []).filter((i: any) => i.id !== itemId);
+      const isLastItem = remainingItems.length === 0;
+
       if (!storeId.startsWith('demo-guest-')) {
         const { error } = await supabase.from('nao3_sale_items').delete().eq('id', itemId);
         if (error) throw error;
+        // 마지막 품목이었으면 발송이력 자체도 삭제
+        if (isLastItem) {
+          await supabase.from('nao3_push_history').delete().eq('id', pushId);
+        }
       }
-      const newHistories = histories.map(h => h.id === pushId ? {
-        ...h,
-        item_count: h.item_count - 1,
-        nao3_sale_items: h.nao3_sale_items.filter((i: any) => i.id !== itemId)
-      } : h);
+
+      // 마지막 품목이었으면 이력 엔트리 자체를 제거, 아니면 업데이트
+      const newHistories = isLastItem
+        ? histories.filter(h => h.id !== pushId)
+        : histories.map(h => h.id === pushId ? {
+            ...h,
+            item_count: h.item_count - 1,
+            nao3_sale_items: remainingItems
+          } : h);
+
       setHistories(newHistories);
       if (storeId.startsWith('demo-guest-')) {
         localStorage.setItem('nao3_demo_histories', JSON.stringify(newHistories));
@@ -1392,7 +1405,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             const HISTORIES_PER_PAGE = 5;
             const totalHistoryPages = Math.ceil(histories.length / HISTORIES_PER_PAGE);
             const currentHistoryStart = (historyPage - 1) * HISTORIES_PER_PAGE;
-            const paginatedHistories = histories.slice(currentHistoryStart, currentHistoryStart + HISTORIES_PER_PAGE);
+            const nonEmptyHistories = histories.filter(h => h.nao3_sale_items && h.nao3_sale_items.length > 0);
+    const paginatedHistories = nonEmptyHistories.slice(currentHistoryStart, currentHistoryStart + HISTORIES_PER_PAGE);
             
             return (
               <>
