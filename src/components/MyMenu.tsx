@@ -275,12 +275,12 @@ export default function MyMenu({ storeData }: { storeData: any }) {
                   <input type="radio" name="plan" value="annual" checked={subscriptionPlan === 'annual'} onChange={() => setSubscriptionPlan('annual')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4 mt-0.5 shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                      <span className="font-black text-gray-900 text-[15px]">연간 결제</span>
+                      <span className="font-black text-gray-900 text-[16px]">연간 결제</span>
                       <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">⭐ BEST</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[12px] text-gray-400 line-through">490,000원</span>
-                      <span className="font-black text-[#5F0080] text-[16px]">연 390,000원</span>
+                      <span className="text-[14px] text-gray-500 font-semibold line-through">490,000원</span>
+                      <span className="font-black text-[#5F0080] text-[18px]">연 390,000원</span>
                     </div>
                   </div>
                 </div>
@@ -295,10 +295,10 @@ export default function MyMenu({ storeData }: { storeData: any }) {
                 <div className="flex items-start gap-3 mb-2">
                   <input type="radio" name="plan" value="monthly" checked={subscriptionPlan === 'monthly'} onChange={() => setSubscriptionPlan('monthly')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4 mt-0.5 shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-gray-800 text-[15px] mb-1">월간 결제</p>
+                    <p className="font-bold text-gray-800 text-[16px] mb-1">월간 결제</p>
                     <div className="flex items-center gap-2">
-                      <span className="text-[12px] text-gray-400 line-through">49,000원</span>
-                      <span className="font-bold text-gray-900 text-[16px]">월 39,000원</span>
+                      <span className="text-[14px] text-gray-500 font-semibold line-through">49,000원</span>
+                      <span className="font-bold text-gray-900 text-[18px]">월 39,000원</span>
                     </div>
                   </div>
                 </div>
