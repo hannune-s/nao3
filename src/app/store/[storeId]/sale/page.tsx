@@ -140,7 +140,16 @@ export default function CustomerSalePage() {
           }
           setBossMessage(stagedSettings.bossMessage || '');
 
-          const stagedItems = JSON.parse(localStorage.getItem(`nao3_staging_items_${storeSlug}`) || '[]');
+          let stagedItems = JSON.parse(localStorage.getItem(`nao3_staging_items_${storeSlug}`) || '[]');
+          
+          if (stagedItems.length === 0 && storeSlug.startsWith('demo-guest-')) {
+            const histories = JSON.parse(localStorage.getItem('nao3_demo_histories') || '[]');
+            const latest = histories.find((h: any) => h.store_id === storeSlug);
+            if (latest && latest.nao3_sale_items) {
+              stagedItems = latest.nao3_sale_items;
+            }
+          }
+
           setItems(stagedItems);
           setLoading(false);
           return;
