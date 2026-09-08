@@ -598,6 +598,40 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Feature 7: Zero Cost & Brand Image */}
+      <section className="py-20 md:py-32 bg-gray-50 border-t border-gray-100 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-purple-50/50 transform skew-x-12 translate-x-20 pointer-events-none"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
+            {/* Cost Freedom */}
+            <div className="bg-white rounded-[2.5rem] p-10 md:p-14 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-2 transition-transform duration-500 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-100 to-transparent rounded-bl-full opacity-50"></div>
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm">💸</div>
+              <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 tracking-tight break-keep">
+                문자비·홍보비 0원, 비용의 압박에서 완벽한 해방
+              </h2>
+              <h3 className="text-lg font-bold text-blue-600 mb-6 tracking-tight">"보낼 때마다 돈 나가는 문자, 이제 그만 쓰세요."</h3>
+              <p className="text-lg text-gray-600 leading-relaxed font-medium break-keep">
+                건당 비용 걱정 없이, 전하고 싶은 소식을 언제든 횟수 제한 없이 무제한으로 쏘세요. 쌓이는 단골손님만큼 마케팅 효율은 극대화되고 고정 지출은 획기적으로 줄어듭니다.
+              </p>
+            </div>
+            
+            {/* Brand Image */}
+            <div className="bg-white rounded-[2.5rem] p-10 md:p-14 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-gray-100 hover:-translate-y-2 transition-transform duration-500 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-purple-100 to-transparent rounded-bl-full opacity-50"></div>
+              <div className="w-16 h-16 bg-purple-100 text-[#5F0080] rounded-2xl flex items-center justify-center text-3xl mb-8 shadow-sm">✨</div>
+              <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 tracking-tight break-keep">
+                평범한 동네 가게가 아닌, '브랜드 매장'으로의 도약
+              </h2>
+              <h3 className="text-lg font-bold text-[#5F0080] mb-6 tracking-tight">"우리 가게만의 세련된 모바일 홍보 채널"</h3>
+              <p className="text-lg text-gray-600 leading-relaxed font-medium break-keep">
+                꼬깃꼬깃 돌리던 전단지나 텍스트만 덜렁 오는 문자 대신, 마치 대형 브랜드 매장처럼 시각적으로 세련되고 고급스러운 알림 화면을 손님들께 선사합니다.<br/><br/>
+                손님들이 느끼는 가게의 이미지와 신뢰도가 눈에 띄게 격상됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* Developer's Note / Mission Statement */}
       <section className="py-20 md:py-32 bg-white relative">
         <div className="absolute inset-0 bg-gray-50/50 skew-y-3 transform origin-bottom-left -z-10"></div>
