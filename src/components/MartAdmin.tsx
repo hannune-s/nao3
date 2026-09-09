@@ -1394,9 +1394,27 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
           <div className="pt-2 mt-1 border-t border-purple-200/50">
             <button 
               type="button"
-              onClick={() => {
+              onClick={async () => {
                 if (window.confirm("정말로 알림을 발송하시겠습니까?\n\n(※ 현재 저장된 최신 세일 정보로 단골손님들의 폰에 띠링- 하고 앱 알림이 발송됩니다.)")) {
-                  alert("🚀 알림 발송이 시작되었습니다!\n(※ 현재는 서버 구축 전이므로 실제 발송은 되지 않는 시뮬레이션입니다.)");
+                  try {
+                    const res = await fetch('/api/push', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        storeId: storeId,
+                        title: `${storeInfo?.store_name || '우리동네 마트'} 특가 알림!`,
+                        body: '단골 고객님을 위한 오늘의 특가가 막 시작되었습니다! 지금 바로 확인해보세요.'
+                      })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                      alert(`🚀 실제 알림 발송 완료!\n(총 ${data.count}명의 단골 고객 폰에 띠링- 알림이 전송되었습니다.)`);
+                    } else {
+                      alert('발송 실패: ' + data.error);
+                    }
+                  } catch (e) {
+                    alert('발송 중 오류가 발생했습니다.');
+                  }
                 }
               }}
               className="w-full py-4 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black rounded-xl transition-all shadow-md text-[15px] flex items-center justify-center gap-2"

@@ -106,7 +106,6 @@ export default function CustomerSalePage() {
   }, []);
 
   const handleInstallAndPush = async () => {
-    // 1. PWA 설치 프롬프트와 알림 권한을 동시에(동기적으로) 요청하여 사용자 제스처 유실 방지
     let installPrompted = false;
     
     if (deferredPrompt) {
@@ -114,8 +113,30 @@ export default function CustomerSalePage() {
       installPrompted = true;
     }
 
-    if ('Notification' in window && Notification.permission !== 'granted') {
-      Notification.requestPermission();
+    if ('Notification' in window) {
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted' && 'serviceWorker' in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.ready;
+          let sub = await reg.pushManager.getSubscription();
+          if (!sub) {
+            sub = await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: 'BPjk-7gccGn9cI7r_mWhS2bRC_-FbApH8Tg8YhIPBDL6s1WIybDbDUT0E6u0IfrDNR_rR7sUzVXPboyKqL6-KTU'
+            });
+          }
+          if (storeInfo?.id) {
+            await supabase.from('nao3_inquiries').insert({
+              store_id: storeInfo.id,
+              author_name: 'PUSH_SUB',
+              password: 'none',
+              content: JSON.stringify(sub)
+            });
+          }
+        } catch (e) {
+          console.error('Push sub error', e);
+        }
+      }
     }
     
     if (installPrompted) {
@@ -125,9 +146,7 @@ export default function CustomerSalePage() {
       }
       setDeferredPrompt(null);
     } else {
-      if (window.confirm("단골 특가 알림을 받으시겠습니까?")) {
-        setShowInstallBanner(false);
-      }
+      setShowInstallBanner(false);
     }
   };
 
