@@ -1387,7 +1387,21 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               disabled={loading}
               className="flex-1 py-3.5 bg-[#5F0080] hover:bg-[#4a0066] disabled:bg-gray-300 text-white font-bold rounded-xl transition-all shadow-sm disabled:shadow-none text-[14px]"
             >
-              {loading ? '저장 중...' : '푸시 등록'}
+              {loading ? '저장 중...' : '전단지 저장'}
+            </button>
+          </div>
+          
+          <div className="pt-2 mt-1 border-t border-purple-200/50">
+            <button 
+              type="button"
+              onClick={() => {
+                if (window.confirm("정말로 알림을 발송하시겠습니까?\n\n(※ 현재 저장된 최신 세일 정보로 단골손님들의 폰에 띠링- 하고 앱 알림이 발송됩니다.)")) {
+                  alert("🚀 알림 발송이 시작되었습니다!\n(※ 현재는 서버 구축 전이므로 실제 발송은 되지 않는 시뮬레이션입니다.)");
+                }
+              }}
+              className="w-full py-4 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-black rounded-xl transition-all shadow-md text-[15px] flex items-center justify-center gap-2"
+            >
+              <span className="text-xl">🔔</span> 단골 폰으로 띠링- 알림 수동 발송
             </button>
           </div>
         </div>
