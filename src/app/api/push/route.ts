@@ -37,10 +37,9 @@ export async function POST(request: Request) {
 
     // PUSH_SUB 로 저장된 토큰들 가져오기
     const { data: subs, error } = await supabase
-      .from('nao3_inquiries')
-      .select('content')
-      .eq('store_id', actualStoreId)
-      .eq('author_name', 'PUSH_SUB');
+      .from('nao3_system_settings')
+      .select('setting_value')
+      .like('setting_key', `PUSH_SUB_${actualStoreId}_%`);
 
     if (error || !subs || subs.length === 0) {
       return NextResponse.json({ 
@@ -65,7 +64,7 @@ export async function POST(request: Request) {
     let successCount = 0;
     const promises = subs.map(async (subRow) => {
       try {
-        const pushSubscription = JSON.parse(subRow.content);
+        const pushSubscription = JSON.parse(subRow.setting_value);
         await webpush.sendNotification(pushSubscription, payload);
         successCount++;
       } catch (err) {
