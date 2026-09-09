@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -232,6 +233,15 @@ export default function RegisterPage() {
           >
             {loading ? '가입 처리 중...' : 'NAO3 시작하기'}
           </button>
+          
+          <div className="mt-7 text-center">
+            <p className="text-[14px] text-gray-500 font-medium">
+              이미 계정이 있으신가요?{' '}
+              <Link href="/login" className="text-[#5F0080] font-extrabold hover:underline ml-1">
+                로그인
+              </Link>
+            </p>
+          </div>
           
         </form>
       </div>
