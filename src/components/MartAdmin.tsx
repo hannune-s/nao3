@@ -1402,7 +1402,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
                         storeId: storeId,
-                        title: `${storeInfo?.store_name || '우리동네 마트'} 특가 알림!`,
+                        title: `${storeName || '우리동네 마트'} 특가 알림!`,
                         body: '단골 고객님을 위한 오늘의 특가가 막 시작되었습니다! 지금 바로 확인해보세요.'
                       })
                     });
