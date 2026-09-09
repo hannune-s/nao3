@@ -1,7 +1,6 @@
 {
   "name": "NAO3 특가 알림",
   "short_name": "NAO3",
-  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#5F0080",
