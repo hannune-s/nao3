@@ -137,12 +137,15 @@ export default function CustomerSalePage() {
             });
           }
           if (storeInfo?.id) {
-            await supabase.from('nao3_inquiries').insert({
+            const { error: dbError } = await supabase.from('nao3_inquiries').insert({
               store_id: storeInfo.id,
               author_name: 'PUSH_SUB',
               password: 'none',
               content: JSON.stringify(sub)
             });
+            if (dbError) {
+              alert('알림 등록 오류: ' + dbError.message);
+            }
           }
         } catch (e) {
           console.error('Push sub error', e);

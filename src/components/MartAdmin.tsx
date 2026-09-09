@@ -1408,7 +1408,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
                     });
                     const data = await res.json();
                     if (data.success) {
-                      alert(`🚀 실제 알림 발송 완료!\n(총 ${data.count}명의 단골 고객 폰에 띠링- 알림이 전송되었습니다.)`);
+                      if (data.count === 0) {
+                        alert(`알림 발송 대상이 0명입니다.\n(디버그: ${JSON.stringify(data.debug)})`);
+                      } else {
+                        alert(`🚀 실제 알림 발송 완료!\n(총 ${data.count}명의 단골 고객 폰에 띠링- 알림이 전송되었습니다.)`);
+                      }
                     } else {
                       alert('발송 실패: ' + data.error);
                     }

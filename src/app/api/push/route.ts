@@ -43,7 +43,17 @@ export async function POST(request: Request) {
       .eq('author_name', 'PUSH_SUB');
 
     if (error || !subs || subs.length === 0) {
-      return NextResponse.json({ success: true, count: 0, message: 'No subscriptions found' });
+      return NextResponse.json({ 
+        success: true, 
+        count: 0, 
+        message: 'No subscriptions found',
+        debug: {
+          providedStoreId: storeId,
+          resolvedActualStoreId: actualStoreId,
+          dbError: error ? error.message : null,
+          subsLength: subs ? subs.length : 0
+        }
+      });
     }
 
     const payload = JSON.stringify({
