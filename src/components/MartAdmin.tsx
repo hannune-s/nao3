@@ -872,64 +872,66 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         </div>
 
         {/* 상단 1단/2단 고정 영역: 상호명, 세일 기간 & 사장님 이야기 */}
-        <div className="max-w-2xl mx-auto w-full p-5 sm:p-6 bg-white border-b border-gray-100 shadow-sm flex flex-col gap-7">
+        <div className="max-w-2xl mx-auto w-full p-4 sm:p-6 bg-transparent flex flex-col gap-6">
           
           {/* 상호명 설정 */}
-          <div className="flex flex-col gap-2.5">
-            <h3 className="text-[15px] font-extrabold text-gray-900 tracking-tight">
-              우리 매장 상호명
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+              <span className="text-2xl drop-shadow-sm">🏪</span> 우리 매장 상호명
             </h3>
             <input 
               type="text" 
               value={storeName} 
               onChange={e => setStoreName(e.target.value)} 
               placeholder="예: 우리동네 할인마트"
-              className="w-full text-[15px] font-bold text-[#5F0080] border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
+              className="w-full text-[15px] font-bold text-[#5F0080] border border-gray-200 px-4 py-3.5 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
             />
           </div>
 
           {/* 1단: 세일 진행 기간 */}
-          <div className="flex flex-col gap-2.5">
-            <h3 className="text-[15px] font-extrabold text-gray-900 tracking-tight">
-              이번 세일 진행 기간
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2 flex-wrap">
+              <span className="text-2xl drop-shadow-sm">🗓️</span> 이번 세일 진행 기간
+              <span className="text-[13px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-1 tracking-normal leading-tight">(기간이 자동 계산되어 고객 화면에 예쁘게 노출됩니다)</span>
             </h3>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-3 mt-1">
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-black text-gray-400 pointer-events-none">시작</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-400 pointer-events-none">시작</span>
                 <input 
                   type="datetime-local" 
                   value={saleStart} 
                   onChange={e => setSaleStart(e.target.value)} 
-                  className="w-full text-[14px] font-bold text-[#5F0080] border border-gray-200 pl-12 pr-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
+                  className="w-full text-[15px] font-bold text-[#5F0080] border border-gray-200 pl-14 pr-4 py-3.5 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
                 />
               </div>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[12px] font-black text-gray-400 pointer-events-none">종료</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-400 pointer-events-none">종료</span>
                 <input 
                   type="datetime-local" 
                   value={saleEnd} 
                   onChange={e => setSaleEnd(e.target.value)} 
-                  className="w-full text-[14px] font-bold text-[#5F0080] border border-gray-200 pl-12 pr-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
+                  className="w-full text-[15px] font-bold text-[#5F0080] border border-gray-200 pl-14 pr-4 py-3.5 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
                 />
               </div>
             </div>
           </div>
           
           {/* 2단: 사장님 이야기 */}
-          <div className="flex flex-col gap-3">
-            <h3 className="text-[15px] font-extrabold text-gray-900 tracking-tight flex items-center gap-1.5">
-              <span className="text-[16px] drop-shadow-sm">🌸</span> 오늘의 사장님 이야기
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-purple-100 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5F0080] to-[#E8D4FF]"></div>
+            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+              <span className="text-2xl drop-shadow-sm">🌸</span> 오늘의 사장님 이야기
             </h3>
             <textarea
               value={bossMessage}
               onChange={e => setBossMessage(e.target.value)}
               placeholder="예: 어머님들~ 오늘 들어온 한우 너무 좋습니다! 언능 나오세요~"
-              className="w-full bg-purple-50/50 border border-purple-100 rounded-xl px-4 py-3.5 text-[14px] text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 min-h-[90px] resize-y placeholder:text-gray-400 transition-all"
+              className="w-full bg-purple-50/30 border border-purple-100 rounded-xl px-4 py-4 text-[15px] text-gray-800 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 min-h-[100px] resize-y placeholder:text-gray-400 transition-all mt-1"
             />
             <button
               onClick={handleQuickSaveSettings}
               disabled={loading}
-              className="w-full py-3.5 mt-2 bg-[#5F0080] text-white hover:bg-purple-900 font-extrabold rounded-xl shadow-[0_4px_14px_rgba(95,0,128,0.25)] transition-all text-[15px] tracking-tight"
+              className="w-full py-4 mt-3 bg-[#5F0080] text-white hover:bg-purple-900 font-extrabold rounded-xl shadow-[0_4px_14px_rgba(95,0,128,0.25)] transition-all text-[16px] tracking-tight"
             >
               상호명 · 기간 · 멘트 즉시 반영하기
             </button>
