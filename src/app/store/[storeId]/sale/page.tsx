@@ -87,6 +87,7 @@ export default function CustomerSalePage() {
   const [loading, setLoading] = useState(true);
   const [isEnded, setIsEnded] = useState(false);
   const [periodText, setPeriodText] = useState('');
+  const [durationBadge, setDurationBadge] = useState('');
   const [bossMessage, setBossMessage] = useState('');
   const [storeName, setStoreName] = useState('우리동네 마트');
   const [storeInfo, setStoreInfo] = useState<any>(null);
@@ -207,6 +208,11 @@ export default function CustomerSalePage() {
             const formattedStart = start.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
             const formattedEnd = end.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
             setPeriodText(formattedStart + ' ~ ' + formattedEnd);
+            
+            const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+            const diffDays = Math.ceil((endDay.getTime() - startDay.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            setDurationBadge(diffDays > 0 ? `단 ${diffDays}일간` : '단 하루');
           }
           setBossMessage(stagedSettings.bossMessage || '');
 
@@ -246,6 +252,11 @@ export default function CustomerSalePage() {
             
             const format = (d: Date) => `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}.`;
             setPeriodText(`행사 기간 ${format(start)} ~ ${format(end)}`);
+            
+            const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+            const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+            const diffDays = Math.ceil((endDay.getTime() - startDay.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            setDurationBadge(diffDays > 0 ? `단 ${diffDays}일간` : '단 하루');
           }
 
           if (latestPush.boss_message) {
@@ -359,10 +370,19 @@ export default function CustomerSalePage() {
             </p>
             
             {periodText && (
-              <div className="mt-3 inline-flex bg-[#F8F0FF] text-[#5F0080] font-bold text-[14px] sm:text-[16px] px-5 py-3.5 rounded-full shadow-[0_4px_12px_rgba(95,0,128,0.08)] border border-[#E8D4FF] items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
-                <div className="flex items-center gap-1.5 tracking-tighter whitespace-nowrap">
-                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  <span className="leading-tight">{periodText}</span>
+              <div className="mt-3 flex flex-col items-center justify-center w-full">
+                {durationBadge && (
+                  <div className="bg-[#FF3B30] text-white font-black text-[15px] sm:text-[17px] px-5 py-1.5 rounded-full shadow-lg border-2 border-white flex items-center justify-center gap-1 ring-2 ring-[#FF3B30]/30 z-10 relative -mb-3 animate-pulse">
+                    <span>🔥</span>
+                    <span>{durationBadge}</span>
+                    <span>폭탄세일</span>
+                  </div>
+                )}
+                <div className="inline-flex bg-[#F8F0FF] text-[#5F0080] font-bold text-[14px] sm:text-[16px] px-5 pb-3.5 pt-5 rounded-full shadow-[0_4px_12px_rgba(95,0,128,0.08)] border border-[#E8D4FF] items-center justify-center w-auto max-w-[96%] mx-auto transition-all relative">
+                  <div className="flex items-center gap-1.5 tracking-tighter whitespace-nowrap">
+                    <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span className="leading-tight">{periodText}</span>
+                  </div>
                 </div>
               </div>
             )}
