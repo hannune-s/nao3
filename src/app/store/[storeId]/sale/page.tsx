@@ -362,6 +362,15 @@ export default function CustomerSalePage() {
           
           {/* 2. 특가 배너 영역 */}
           <div className="py-6 px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            {durationBadge && (
+              <div className="mb-3">
+                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#5F0080] to-[#7A00A3] text-white font-extrabold text-[13px] sm:text-[14px] shadow-[0_4px_12px_rgba(95,0,128,0.25)] animate-pulse tracking-wide ring-2 ring-[#5F0080]/20">
+                  <svg className="w-4 h-4 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span>{durationBadge}</span>
+                  <span className="text-[#E8D4FF] font-medium">단독 특가</span>
+                </span>
+              </div>
+            )}
             <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-1.5 tracking-tight">
               🎉 오늘의 특가 찬스!
             </h3>
@@ -370,19 +379,9 @@ export default function CustomerSalePage() {
             </p>
             
             {periodText && (
-              <div className="mt-3 flex flex-col items-center justify-center w-full">
-                {durationBadge && (
-                  <div className="bg-[#111111] text-[#FFDF00] font-black text-[14px] sm:text-[16px] px-6 py-2 rounded-full shadow-xl border border-[#333] flex items-center justify-center gap-1.5 z-10 relative -mb-3.5 animate-pulse ring-4 ring-[#FFDF00]/10 tracking-tight">
-                    <span className="text-[16px]">⚡</span>
-                    <span className="text-white">{durationBadge}</span>
-                    <span className="text-[#FFDF00]">폭탄세일</span>
-                  </div>
-                )}
-                <div className="inline-flex bg-[#F8F0FF] text-[#5F0080] font-bold text-[14px] sm:text-[15px] px-6 pb-3.5 pt-5 rounded-full shadow-[0_4px_12px_rgba(95,0,128,0.06)] border border-[#E8D4FF] items-center justify-center w-auto max-w-[96%] mx-auto transition-all relative">
-                  <div className="flex items-center gap-1.5 tracking-tighter whitespace-nowrap opacity-90">
-                    <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span className="leading-tight">{periodText}</span>
-                  </div>
+              <div className="mt-2 inline-flex bg-[#F8F0FF] text-[#5F0080] font-bold text-[13px] sm:text-[14px] px-6 py-2.5 rounded-full shadow-[0_2px_8px_rgba(95,0,128,0.05)] border border-[#E8D4FF] items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
+                <div className="flex items-center tracking-tighter whitespace-nowrap opacity-90">
+                  <span className="leading-tight">{periodText}</span>
                 </div>
               </div>
             )}
