@@ -118,7 +118,14 @@ export default function CustomerSalePage() {
       }
       setDeferredPrompt(null);
     } else {
-      alert("단골 혜택 알림을 받으시려면 브라우저 메뉴에서 '홈 화면에 추가' 및 '알림 허용'을 선택해주세요.");
+      if (window.confirm("단골 특가 알림을 받으시겠습니까?")) {
+        // 이미 설치되었거나 자동 설치 팝업을 지원하지 않는 기기(아이폰 등)일 경우, 
+        // 권한 요청이라도 진행하여 최소한의 푸시 수신 환경을 세팅합니다.
+        if ('Notification' in window && Notification.permission !== 'granted') {
+          Notification.requestPermission();
+        }
+        setShowInstallBanner(false);
+      }
     }
   };
 
