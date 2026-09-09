@@ -21,11 +21,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Store ID is required' }, { status: 400 });
     }
 
+    // 1. storeId가 slug인지 확인하고 UUID로 변환
+    let actualStoreId = storeId;
+    if (!storeId.includes('-')) {
+      const { data: store } = await supabase
+        .from('nao3_stores')
+        .select('id')
+        .eq('slug', storeId)
+        .single();
+        
+      if (store) {
+        actualStoreId = store.id;
+      }
+    }
+
     // PUSH_SUB 로 저장된 토큰들 가져오기
     const { data: subs, error } = await supabase
       .from('nao3_inquiries')
       .select('content')
-      .eq('store_id', storeId)
+      .eq('store_id', actualStoreId)
       .eq('author_name', 'PUSH_SUB');
 
     if (error || !subs || subs.length === 0) {
