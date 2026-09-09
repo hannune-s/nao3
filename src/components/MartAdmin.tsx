@@ -244,11 +244,25 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
       manifestLink.setAttribute('href', '/manifest-admin.json');
     }
 
-    // 2. Intercept beforeinstallprompt so native banner doesn't show
+    // 2. 앱으로 이미 실행 중인지 확인
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
+    
+    // 이미 설치된 상태이거나, 사용자가 닫기를 누른 경우 배너 숨김
+    if (isStandalone || localStorage.getItem('hideAdminInstallBanner') === 'true') {
+      setShowAdminInstallBanner(false);
+    } else {
+      // 카카오/네이버 인앱 브라우저나 아이폰에서도 무조건 배너는 띄움
+      setShowAdminInstallBanner(true);
+    }
+
+    // 3. 네이티브 프롬프트 가로채기 (안드로이드 크롬 등)
     const handler = (e: any) => {
       e.preventDefault();
       setAdminDeferredPrompt(e);
-      setShowAdminInstallBanner(true);
+      // 이벤트가 발생해도, 사용자가 닫았으면 띄우지 않음
+      if (localStorage.getItem('hideAdminInstallBanner') !== 'true') {
+        setShowAdminInstallBanner(true);
+      }
     };
     window.addEventListener('beforeinstallprompt', handler);
 
@@ -890,7 +904,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
             </div>
             <div className="flex gap-2">
               <button 
-                onClick={() => setShowAdminInstallBanner(false)}
+                onClick={() => {
+                  localStorage.setItem('hideAdminInstallBanner', 'true');
+                  setShowAdminInstallBanner(false);
+                }}
                 className="text-gray-400 hover:text-white px-2 py-1 text-sm font-bold"
               >
                 닫기
@@ -898,12 +915,23 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
               <button 
                 onClick={async () => {
                   if (adminDeferredPrompt) {
+                    // Chrome 등 네이티브 프롬프트가 지원되는 브라우저
                     adminDeferredPrompt.prompt();
                     const { outcome } = await adminDeferredPrompt.userChoice;
                     if (outcome === 'accepted') {
                       setShowAdminInstallBanner(false);
                     }
                     setAdminDeferredPrompt(null);
+                  } else {
+                    // 카카오, 네이버 등 인앱 브라우저나 사파리(iOS)
+                    const ua = navigator.userAgent.toLowerCase();
+                    if (ua.includes('kakaotalk') || ua.includes('naver')) {
+                      alert('현재 브라우저(카카오/네이버)에서는 앱 설치가 지원되지 않습니다.\n\n화면 우측 하단(또는 상단)의 메뉴[⋮]를 눌러 "다른 브라우저로 열기"를 선택하신 후 설치해주세요.');
+                    } else if (/iphone|ipad|ipod/.test(ua)) {
+                      alert('아이폰(iOS) 설치 방법:\n\n화면 하단의 [공유] 버튼(네모 안 화살표)을 누른 후, [홈 화면에 추가]를 선택해주세요.');
+                    } else {
+                      alert('현재 브라우저에서는 자동 설치가 지원되지 않습니다.\n브라우저 메뉴에서 [홈 화면에 추가] 또는 [앱 설치]를 선택해주세요.');
+                    }
                   }
                 }}
                 className="bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold text-xs px-3 py-1.5 rounded-lg whitespace-nowrap"
