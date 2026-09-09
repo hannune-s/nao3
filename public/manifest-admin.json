@@ -1,0 +1,16 @@
+{
+  "name": "사장님 NAO3",
+  "short_name": "사장님 NAO3",
+  "description": "NAO3 사장님 전용 어드민",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "icons": [
+    {
+      "src": "/icon-admin.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

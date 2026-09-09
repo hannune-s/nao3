@@ -73,6 +73,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [adminDeferredPrompt, setAdminDeferredPrompt] = useState<any>(null);
+  const [showAdminInstallBanner, setShowAdminInstallBanner] = useState(false);
   
   const [newItem, setNewItem] = useState({ product_name: '', quantity: '', sale_price: '', discount_rate: '', grade: '', origin: '' });
 
@@ -233,6 +235,29 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
 
 
   // 방향키 스크롤 포커스 처리
+  useEffect(() => {
+    // 1. Change manifest to admin version
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    let oldHref = '/manifest.json';
+    if (manifestLink) {
+      oldHref = manifestLink.getAttribute('href') || '/manifest.json';
+      manifestLink.setAttribute('href', '/manifest-admin.json');
+    }
+
+    // 2. Intercept beforeinstallprompt so native banner doesn't show
+    const handler = (e: any) => {
+      e.preventDefault();
+      setAdminDeferredPrompt(e);
+      setShowAdminInstallBanner(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      if (manifestLink) manifestLink.setAttribute('href', oldHref);
+    };
+  }, []);
+
   useEffect(() => {
     if (nameIdx >= 0) {
       document.getElementById('name-item-' + nameIdx)?.scrollIntoView({ block: 'nearest' });
@@ -850,6 +875,44 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     <main className="bg-[#F9F9F9] min-h-screen pb-32">
       {/* 상단 영역: 헤더 + 탭 + 입력폼 (스크롤 시 자연스럽게 올라가도록 sticky 제거) */}
       <div className="bg-white shadow-sm flex flex-col border-b border-gray-200">
+        
+        {/* 어드민 앱 설치 배너 */}
+        {showAdminInstallBanner && (
+          <div className="bg-gray-900 text-white p-3 flex items-center justify-between shadow-md z-50">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-black border border-gray-700 rounded-xl flex items-center justify-center font-black text-yellow-400 text-xs text-center leading-tight">
+                사장님<br/>NAO3
+              </div>
+              <div className="flex flex-col">
+                <span className="font-extrabold text-sm">사장님 NAO3 어드민 설치</span>
+                <span className="text-[11px] text-gray-400">바탕화면에서 1초 만에 바로 관리하세요</span>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setShowAdminInstallBanner(false)}
+                className="text-gray-400 hover:text-white px-2 py-1 text-sm font-bold"
+              >
+                닫기
+              </button>
+              <button 
+                onClick={async () => {
+                  if (adminDeferredPrompt) {
+                    adminDeferredPrompt.prompt();
+                    const { outcome } = await adminDeferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                      setShowAdminInstallBanner(false);
+                    }
+                    setAdminDeferredPrompt(null);
+                  }
+                }}
+                className="bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold text-xs px-3 py-1.5 rounded-lg whitespace-nowrap"
+              >
+                설치
+              </button>
+            </div>
+          </div>
+        )}
         
         {/* 헤더 */}
         <div className="bg-[#5F0080] p-4 border-b border-purple-900 flex items-center justify-between shadow-md sticky top-0 z-50 relative overflow-hidden">
