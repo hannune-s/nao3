@@ -118,7 +118,7 @@ export default function CustomerSalePage() {
       }
       setDeferredPrompt(null);
     } else {
-      alert('아이폰(Safari)의 경우 하단 [공유] ➔ [홈 화면에 추가]를 눌러주세요!\n안드로이드의 경우 브라우저 메뉴 [⋮] ➔ [홈 화면에 추가]를 선택해주세요.');
+      alert("단골 혜택 알림을 받으시려면 브라우저 메뉴에서 '홈 화면에 추가' 및 '알림 허용'을 선택해주세요.");
     }
   };
 
