@@ -74,6 +74,10 @@ export default function RegisterPage() {
       if (authError) throw new Error(`회원가입 실패: ${authError.message}`);
 
       // 3. nao3_stores 테이블에 가입 정보 저장 (회원가입된 User ID 매핑)
+      // 1개월 무료 체험 만료일 계산
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+      
       const { error: dbError } = await supabase.from('nao3_stores').insert({
         id: authData.user?.id, // 1사장님 = 1스토어 격리 (Tenant ID)
         email,
@@ -84,6 +88,7 @@ export default function RegisterPage() {
         business_number: businessNumber, // 사업자등록번호 저장
         business_type: businessType === '기타' ? customBusinessType : businessType,
         business_license_url: licenseUrl,
+        expires_at: expiresAt.toISOString(),
       });
 
       if (dbError) throw new Error(`스토어 정보 저장 실패: ${dbError.message}`);

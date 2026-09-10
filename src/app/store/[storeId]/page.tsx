@@ -13,6 +13,7 @@ export default function StoreAdminPage() {
   const storeSlug = params.storeId as string;
   const [loading, setLoading] = useState(true);
   const [storeData, setStoreData] = useState<any>(null);
+  const [isExpired, setIsExpired] = useState(false);
   
   // Navigation State
   const [activeTab, setActiveTab] = useState<'home' | 'mymenu'>('home');
@@ -57,6 +58,13 @@ export default function StoreAdminPage() {
         return;
       }
       setStoreData(store);
+
+      if (store.expires_at) {
+        const expiresAt = new Date(store.expires_at);
+        if (new Date() > expiresAt) {
+          setIsExpired(true);
+        }
+      }
     } else {
       console.error('Store 데이터를 찾을 수 없습니다.', error);
     }
@@ -67,6 +75,30 @@ export default function StoreAdminPage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-[#5F0080] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (isExpired) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-6 text-center text-white">
+        <div className="text-5xl mb-4">⚠️</div>
+        <h2 className="text-2xl font-black mb-3">1개월 무료 체험 기간이 종료되었습니다.</h2>
+        <p className="text-gray-300 mb-8 leading-relaxed">
+          구독을 진행하시면 앱의 핵심 기능 및<br/>알림 전송 기능을 다시 정상적으로 이용하실 수 있습니다.
+        </p>
+        <button 
+          onClick={() => alert('구독 결제 시스템 연동 준비 중입니다.')}
+          className="w-full max-w-sm py-4 bg-yellow-400 text-black font-extrabold text-lg rounded-xl shadow-lg hover:bg-yellow-300 transition-colors"
+        >
+          구독 연장하기
+        </button>
+        <button 
+          onClick={() => supabase.auth.signOut().then(() => router.push('/'))} 
+          className="mt-6 text-gray-400 underline text-sm"
+        >
+          로그아웃
+        </button>
       </div>
     );
   }
