@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useParams } from 'next/navigation';
 import MartAdmin from '@/components/MartAdmin';
-import ButcherAdmin from '@/components/ButcherAdmin';
 import MyMenu from '@/components/MyMenu';
 
 export default function StoreAdminPage() {
@@ -119,11 +118,7 @@ export default function StoreAdminPage() {
       {/* 탭 내용 영역 */}
       <div className="w-full pb-16">
         {activeTab === 'home' ? (
-          storeData.business_type === 'mart' ? (
-            <MartAdmin storeId={storeData.id} initialStoreName={storeData.store_name} storeSlug={storeData.slug} />
-          ) : (
-            <ButcherAdmin storeId={storeData.id} storeName={storeData.store_name} />
-          )
+          <MartAdmin storeId={storeData.id} initialStoreName={storeData.store_name} storeSlug={storeData.slug} />
         ) : (
           <MyMenu storeData={storeData} />
         )}
