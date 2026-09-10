@@ -919,16 +919,16 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       );
     } else {
       statusBadge = (
-        <div className="bg-[#5F0080]/5 text-[#5F0080] border border-[#5F0080]/20 px-4 py-3 rounded-2xl text-[15px] font-bold flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-3">
+        <div className="bg-amber-50 text-amber-900 border border-amber-200/70 px-4 py-3 rounded-2xl text-[15px] font-bold flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xl drop-shadow-sm">🎁</span>
-            <span>1개월 무료 체험 중입니다</span>
+            <span className="tracking-tight">1개월 무료 체험 중입니다</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[13px] bg-[#5F0080]/10 px-2.5 py-1.5 rounded-lg text-[#5F0080] font-black">
+            <span className="text-[13px] bg-amber-200/50 px-2.5 py-1.5 rounded-lg text-amber-900 font-black">
               남은 기간: {diffDays}일
             </span>
-            <button className="text-[13px] font-black bg-[#5F0080] text-white px-3 py-1.5 rounded-xl shadow-sm hover:bg-[#4A0065] transition-colors whitespace-nowrap">
+            <button className="text-[13px] font-black bg-gradient-to-r from-amber-400 to-orange-400 text-white px-3 py-1.5 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap">
               정식 구독 신청
             </button>
           </div>
