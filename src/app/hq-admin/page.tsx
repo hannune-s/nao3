@@ -145,6 +145,17 @@ export default function HqDashboardPage() {
                     if (store.is_suspended) {
                       statusLabel = '정지됨';
                       statusColor = 'bg-red-100 text-red-800 border-red-200';
+                    } else if (store.expires_at && new Date(store.expires_at) < new Date()) {
+                      statusLabel = '만료 (구독 필요)';
+                      statusColor = 'bg-red-100 text-red-800 border-red-200';
+                    } else if (store.expires_at && new Date(store.expires_at) >= new Date()) {
+                      if (store.subscription_paid) {
+                        statusLabel = '구독 중 (정상)';
+                        statusColor = 'bg-green-100 text-green-800 border-green-200';
+                      } else {
+                        statusLabel = '무료 체험 중';
+                        statusColor = 'bg-blue-100 text-blue-800 border-blue-200';
+                      }
                     } else if (store.subscription_paid === false) {
                       statusLabel = '만료 임박 (미납)';
                       statusColor = 'bg-orange-100 text-orange-800 border-orange-200';
