@@ -118,7 +118,13 @@ export default function StoreAdminPage() {
       {/* 탭 내용 영역 */}
       <div className="w-full pb-16">
         {activeTab === 'home' ? (
-          <MartAdmin storeId={storeData.id} initialStoreName={storeData.store_name} storeSlug={storeData.slug} />
+          <MartAdmin 
+            storeId={storeData.id} 
+            initialStoreName={storeData.store_name} 
+            storeSlug={storeData.slug} 
+            expiresAt={storeData.expires_at}
+            subscriptionPaid={storeData.subscription_paid}
+          />
         ) : (
           <MyMenu storeData={storeData} />
         )}

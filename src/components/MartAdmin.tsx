@@ -25,9 +25,11 @@ interface MartAdminProps {
   storeId: string;
   initialStoreName: string;
   storeSlug?: string;
+  expiresAt?: string;
+  subscriptionPaid?: boolean;
 }
 
-export default function MartAdmin({ storeId, initialStoreName, storeSlug }: MartAdminProps) {
+export default function MartAdmin({ storeId, initialStoreName, storeSlug, expiresAt, subscriptionPaid }: MartAdminProps) {
   const [activeTab, setActiveTab] = useState('정육');
   
   // 특가 폼 상태
@@ -885,6 +887,57 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
     );
   }
 
+  let statusBadge = null;
+  if (expiresAt) {
+    const expiresDate = new Date(expiresAt);
+    const now = new Date();
+    // 자정 기준으로 날짜 차이 계산
+    const diffTime = expiresDate.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+      statusBadge = (
+        <div className="bg-red-50 text-red-700 border border-red-200 px-4 py-3 rounded-2xl text-[15px] font-bold flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xl drop-shadow-sm">⚠️</span>
+            <span>이용 기간이 만료되었습니다</span>
+          </div>
+          <button className="text-sm font-black bg-red-600 text-white px-3 py-2 rounded-xl shadow-sm hover:bg-red-700 transition-colors whitespace-nowrap">
+            구독 연장하기
+          </button>
+        </div>
+      );
+    } else if (subscriptionPaid) {
+      statusBadge = (
+        <div className="bg-green-50 text-green-700 border border-green-200 px-4 py-3 rounded-2xl text-[15px] font-bold flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-xl drop-shadow-sm">✅</span>
+            <span>정식 구독 이용 중</span>
+          </div>
+          <span className="text-[13px] font-medium opacity-70">다음 결제일: {expiresDate.toLocaleDateString('ko-KR')}</span>
+        </div>
+      );
+    } else {
+      statusBadge = (
+        <div className="bg-[#5F0080]/5 text-[#5F0080] border border-[#5F0080]/20 px-4 py-3 rounded-2xl text-[15px] font-bold flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xl drop-shadow-sm">🎁</span>
+            <span>1개월 무료 체험 중입니다</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-[13px] bg-[#5F0080]/10 px-2.5 py-1.5 rounded-lg text-[#5F0080] font-black">
+              남은 기간: {diffDays}일
+            </span>
+            <button className="text-[13px] font-black bg-[#5F0080] text-white px-3 py-1.5 rounded-xl shadow-sm hover:bg-[#4A0065] transition-colors whitespace-nowrap">
+              정식 구독 신청
+            </button>
+          </div>
+        </div>
+      );
+    }
+  }
+
+
   return (
     <main className="bg-[#F9F9F9] min-h-screen pb-32">
       {/* 상단 영역: 헤더 + 탭 + 입력폼 (스크롤 시 자연스럽게 올라가도록 sticky 제거) */}
@@ -965,6 +1018,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug }: Mart
         {/* 상단 1단/2단 고정 영역: 상호명, 세일 기간 & 사장님 이야기 */}
         <div className="max-w-2xl mx-auto w-full p-4 sm:p-6 bg-transparent flex flex-col gap-6">
           
+          {/* 구독 상태 배지 */}
+          {statusBadge}
+
           {/* 상호명 설정 */}
           <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
