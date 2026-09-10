@@ -105,7 +105,9 @@ export default function HqDashboardPage() {
     <div>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">전체 가맹점 대시보드</h2>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+            전체 가맹점 대시보드 <span className="text-sm font-normal text-gray-400">⚡</span>
+          </h1>
           <p className="text-sm text-gray-500 mt-1">총 {stores.length}개의 가맹점이 등록되어 있습니다.</p>
         </div>
       </div>
