@@ -50,7 +50,7 @@ export default function RegisterPage() {
       // 1. 사업자등록증 Storage 업로드
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${businessType}/${fileName}`; // 폴더별로 정리
+      const filePath = `${slug || 'unnamed'}/${fileName}`; // 스토어 ID(slug) 폴더로 정리
 
       const { error: uploadError } = await supabase.storage
         .from('business_licenses') // 스토리지 버킷명
