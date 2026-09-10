@@ -71,6 +71,9 @@ export default function RegisterPage() {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`,
+        }
       });
 
       if (authError) throw new Error(`회원가입 실패: ${authError.message}`);
