@@ -80,6 +80,14 @@ export default function RegisterPage() {
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
       
+      const typeMap: Record<string, string> = {
+        '마트/슈퍼': 'mart',
+        '정육점': 'butcher',
+        '청과야채': 'produce',
+        '기타': 'other',
+      };
+      const dbBusinessType = typeMap[businessType] || 'other';
+      
       const { error: dbError } = await supabase.from('nao3_stores').insert({
         id: authData.user?.id, // 1사장님 = 1스토어 격리 (Tenant ID)
         email,
@@ -88,7 +96,7 @@ export default function RegisterPage() {
         owner_name: ownerName,
         address,
         business_number: businessNumber, // 사업자등록번호 저장
-        business_type: businessType === '기타' ? customBusinessType : businessType,
+        business_type: dbBusinessType,
         business_license_url: licenseUrl,
         expires_at: expiresAt.toISOString(),
       });
