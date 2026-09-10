@@ -655,7 +655,15 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         }
         alert('진행 중인 세일에 기간과 사장님 이야기가 즉시 반영되었습니다!');
       } else {
-        alert('아직 등록된 세일 내역이 없습니다. 먼저 상품과 함께 하단 버튼으로 등록해주세요.');
+        const { error } = await supabase.from('nao3_push_history').insert([{
+          store_id: storeId,
+          item_count: 0,
+          sale_start: newStart,
+          sale_end: newEnd,
+          boss_message: bossMessage.trim() || null
+        }]);
+        if (error) throw error;
+        alert('새로운 세일 기본 정보(기간, 멘트)가 성공적으로 저장되었습니다!');
       }
     } catch (err: any) {
       console.error(err);
