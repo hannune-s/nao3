@@ -16,6 +16,7 @@ type Store = {
   subscription_paid?: boolean;
   business_license_url?: string;
   business_type?: string;
+  expires_at?: string;
 };
 
 export default function HqDashboardPage() {
