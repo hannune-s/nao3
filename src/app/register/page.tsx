@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -18,6 +18,8 @@ export default function RegisterPage() {
   const [businessNumber, setBusinessNumber] = useState(''); // 사업자등록번호 추가
   const [businessType, setBusinessType] = useState('마트/슈퍼');
   const [customBusinessType, setCustomBusinessType] = useState('');
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   
   const [loading, setLoading] = useState(false);
@@ -214,11 +216,28 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-xs font-bold text-gray-600 mb-2">사업자등록증 첨부</label>
-              <input 
-                type="file" accept="image/*,.pdf" required
-                onChange={e => setFile(e.target.files ? e.target.files[0] : null)}
-                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-white file:text-[#5F0080] file:shadow-sm hover:file:bg-gray-50 cursor-pointer"
-              />
+              <div className="flex items-center gap-2">
+                <input 
+                  type="file" accept="image/*,.pdf" required={!file}
+                  ref={fileInputRef}
+                  onChange={e => setFile(e.target.files ? e.target.files[0] : null)}
+                  className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-white file:text-[#5F0080] file:shadow-sm hover:file:bg-gray-50 cursor-pointer"
+                />
+                {file && (
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setFile(null);
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                      }
+                    }}
+                    className="shrink-0 bg-red-50 text-red-600 px-3 py-2 rounded-xl text-xs font-black border border-red-200 hover:bg-red-100 transition-colors shadow-sm"
+                  >
+                    삭제
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
