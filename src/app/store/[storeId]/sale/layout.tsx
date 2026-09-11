@@ -15,6 +15,10 @@ export async function generateMetadata({ params }: { params: Promise<{ storeId: 
         title: appTitle,
         statusBarStyle: 'default',
       },
+      icons: {
+        icon: '/icon.jpg',
+        apple: '/icon.jpg',
+      },
       manifest: `/api/manifest?storeName=${encodeURIComponent('demo')}`,
     };
   }
@@ -35,6 +39,10 @@ export async function generateMetadata({ params }: { params: Promise<{ storeId: 
       capable: true,
       title: appTitle,
       statusBarStyle: 'default',
+    },
+    icons: {
+      icon: '/icon.jpg',
+      apple: '/icon.jpg',
     },
     manifest: `/api/manifest?storeName=${encodeURIComponent(storeName)}`,
   };

@@ -5,6 +5,10 @@ export const metadata: Metadata = {
   title: "NAO3 Sale Push Admin",
   description: "마켓컬리 스타일 세일 푸시 어드민",
   manifest: "/manifest.json",
+  icons: {
+    icon: '/icon.jpg',
+    apple: '/icon.jpg',
+  },
 };
 
 export default function RootLayout({
