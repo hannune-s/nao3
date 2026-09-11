@@ -2,11 +2,11 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const storeName = searchParams.get('storeName') || '마트/슈퍼';
+  const storeName = searchParams.get('storeName') || 'mart';
   
   return NextResponse.json({
-    name: NAO3 - \,
-    short_name: NAO3 - \,
+    name: `NAO3 - ${storeName}`,
+    short_name: `NAO3 - ${storeName}`,
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#5F0080',
