@@ -8,7 +8,7 @@ const supabase = createClient(
 );
 
 webpush.setVapidDetails(
-  'mailto:test@example.com',
+  'mailto:admin@nao3.vercel.app',
   'BPjk-7gccGn9cI7r_mWhS2bRC_-FbApH8Tg8YhIPBDL6s1WIybDbDUT0E6u0IfrDNR_rR7sUzVXPboyKqL6-KTU',
   'kIEDQchW0Q8nnvGmZ3P0gRdz9NQ6ZSAXrpYB2chVS5M'
 );
