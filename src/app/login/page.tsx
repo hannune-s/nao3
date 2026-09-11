@@ -10,9 +10,16 @@ export default function AdminRouterPage() {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [autoLogin, setAutoLogin] = useState(true);
 
   useEffect(() => {
     checkUser();
+    
+    // Check if there was a saved preference
+    const savedAuto = localStorage.getItem('nao3_auto_login');
+    if (savedAuto !== null) {
+      setAutoLogin(savedAuto === 'true');
+    }
   }, []);
 
   const checkUser = async () => {
@@ -29,6 +36,10 @@ export default function AdminRouterPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
+    // Save the auto login preference so the custom storage adapter knows where to put the session
+    localStorage.setItem('nao3_auto_login', String(autoLogin));
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -68,8 +79,28 @@ export default function AdminRouterPage() {
         <input 
           type="password" required placeholder="비밀번호" 
           value={password} onChange={e => setPassword(e.target.value)}
-          className="w-full mb-6 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
+          className="w-full mb-4 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
         />
+        
+        <div className="w-full flex items-center mb-6 pl-1">
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <div className="relative flex items-center justify-center">
+              <input 
+                type="checkbox" 
+                checked={autoLogin}
+                onChange={(e) => setAutoLogin(e.target.checked)}
+                className="peer appearance-none w-5 h-5 border-2 border-gray-300 rounded cursor-pointer checked:bg-[#5F0080] checked:border-[#5F0080] transition-colors"
+              />
+              <svg 
+                className="absolute w-3.5 h-3.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" 
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <span className="text-sm font-bold text-gray-500 group-hover:text-gray-800 transition-colors">자동 로그인</span>
+          </label>
+        </div>
         
         <button type="submit" className="w-full py-4 bg-[#5F0080] hover:bg-purple-900 text-white font-bold rounded-xl transition-colors shadow-md">
           로그인
