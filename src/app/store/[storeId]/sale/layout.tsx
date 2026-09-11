@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
 
-export async function generateMetadata({ params }: { params: { storeId: string } }): Promise<Metadata> {
-  const storeSlug = params.storeId;
+export async function generateMetadata({ params }: { params: Promise<{ storeId: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const storeSlug = resolvedParams.storeId;
   
   // demo-guest
   if (storeSlug?.startsWith('demo-guest')) {
