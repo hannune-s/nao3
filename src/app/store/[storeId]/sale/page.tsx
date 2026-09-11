@@ -109,14 +109,6 @@ export default function CustomerSalePage() {
   const handleInstallAndPush = async () => {
     let installPrompted = false;
     
-    // iOS Safari에서 PWA가 아닌 상태로 접근한 경우 안내
-    const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
-    if (isIos && !isStandalone) {
-      alert('아이폰(iOS)은 앱을 먼저 설치해야 알림을 받을 수 있습니다!\n\n화면 하단의 [공유] 버튼(네모 안 화살표)을 누르고 [홈 화면에 추가]를 선택해 주세요.');
-      return;
-    }
-
     if (deferredPrompt) {
       deferredPrompt.prompt();
       installPrompted = true;
@@ -129,7 +121,6 @@ export default function CustomerSalePage() {
           const reg = await navigator.serviceWorker.ready;
           let sub = await reg.pushManager.getSubscription();
           
-          // iOS 재설치 시 발생할 수 있는 '좀비 구독' 문제를 해결하기 위해 기존 구독 해지 후 재구독
           if (sub) {
             await sub.unsubscribe();
           }
@@ -169,7 +160,12 @@ export default function CustomerSalePage() {
         alert('알림이 차단되어 있습니다. 기기 설정에서 알림을 허용해 주세요.');
       }
     } else {
-      alert('이 브라우저는 푸시 알림을 지원하지 않습니다.');
+      const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      if (isIos) {
+        alert('아이폰(iOS)은 앱을 먼저 설치해야 알림을 받을 수 있습니다!\n\n화면 하단의 [공유] 버튼(네모 안 화살표)을 누르고 [홈 화면에 추가]를 선택해 주세요.');
+      } else {
+        alert('이 브라우저는 푸시 알림을 지원하지 않습니다.');
+      }
     }
     
     if (installPrompted) {
