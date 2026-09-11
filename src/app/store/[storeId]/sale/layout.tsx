@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ storeId: 
         icon: '/icon.jpg',
         apple: '/icon.jpg',
       },
-      manifest: `/api/manifest/manifest.json?storeName=${encodeURIComponent('demo')}&v=1.2`,
+      manifest: `/manifest.json`,
     };
   }
 
@@ -42,7 +42,7 @@ export async function generateMetadata({ params }: { params: Promise<{ storeId: 
       icon: '/icon.jpg',
       apple: '/icon.jpg',
     },
-    manifest: `/api/manifest/manifest.json?storeName=${encodeURIComponent(storeName)}&v=1.2`,
+    manifest: `/manifest.json`,
   };
 }
 
