@@ -118,12 +118,8 @@ export default function CustomerSalePage() {
       const perm = await Notification.requestPermission();
       if (perm === 'granted' && 'serviceWorker' in navigator) {
         try {
-          const reg = await navigator.serviceWorker.ready;
+          let reg = await navigator.serviceWorker.ready;
           let sub = await reg.pushManager.getSubscription();
-          
-          if (sub) {
-            await sub.unsubscribe();
-          }
 
           const urlBase64ToUint8Array = (base64String: string) => {
             const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -136,9 +132,19 @@ export default function CustomerSalePage() {
             return outputArray;
           };
           
+          const vapidKey = urlBase64ToUint8Array('BPjk-7gccGn9cI7r_mWhS2bRC_-FbApH8Tg8YhIPBDL6s1WIybDbDUT0E6u0IfrDNR_rR7sUzVXPboyKqL6-KTU');
+
+          if (sub) {
+            await sub.unsubscribe();
+            // iOS Safari의 고질적인 캐시 버그(삭제 후 재설치 시 예전 토큰을 반환하는 현상)를 강제 초기화
+            await reg.unregister();
+            reg = await navigator.serviceWorker.register('/sw.js');
+            await navigator.serviceWorker.ready;
+          }
+
           sub = await reg.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array('BPjk-7gccGn9cI7r_mWhS2bRC_-FbApH8Tg8YhIPBDL6s1WIybDbDUT0E6u0IfrDNR_rR7sUzVXPboyKqL6-KTU')
+            applicationServerKey: vapidKey
           });
           
           if (storeInfo?.id) {

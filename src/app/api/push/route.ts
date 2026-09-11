@@ -62,19 +62,21 @@ export async function POST(request: Request) {
     });
 
     let successCount = 0;
+    const errors: string[] = [];
     const promises = subs.map(async (subRow) => {
       try {
         const pushSubscription = JSON.parse(subRow.setting_value);
         await webpush.sendNotification(pushSubscription, payload);
         successCount++;
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to send to one sub', err);
+        errors.push(err?.body || err?.message || String(err));
       }
     });
 
     await Promise.all(promises);
 
-    return NextResponse.json({ success: true, count: successCount });
+    return NextResponse.json({ success: true, count: successCount, errors });
 
   } catch (error) {
     console.error('Push error:', error);

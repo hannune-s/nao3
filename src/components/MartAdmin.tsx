@@ -1566,9 +1566,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                     const data = await res.json();
                     if (data.success) {
                       if (data.count === 0) {
-                        alert(`알림 발송 대상이 0명입니다.\n(디버그: ${JSON.stringify(data.debug)})`);
+                        alert(`알림 발송 대상이 0명입니다.\n(에러 로그: ${JSON.stringify(data.errors || [])})`);
                       } else {
-                        alert(`🚀 실제 알림 발송 완료!\n(총 ${data.count}명의 단골 고객 폰에 띠링- 알림이 전송되었습니다.)`);
+                        alert(`🚀 실제 알림 발송 완료!\n(총 ${data.count}명의 단골 고객 폰에 띠링- 알림이 전송되었습니다.)\n\n실패한 기기: ${data.errors?.length || 0}건`);
                       }
                     } else {
                       alert('발송 실패: ' + data.error);
