@@ -106,6 +106,22 @@ export default function CustomerSalePage() {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
+  // 동적 매니페스트 업데이트 (PWA 홈화면 추가 시 상호명 적용)
+  useEffect(() => {
+    if (storeName && storeName !== '우리동네 마트') {
+      const manifestUrl = `/api/manifest?storeName=${encodeURIComponent(storeName)}`;
+      let link = document.querySelector('link[rel="manifest"]');
+      if (link) {
+        link.setAttribute('href', manifestUrl);
+      } else {
+        link = document.createElement('link');
+        link.setAttribute('rel', 'manifest');
+        link.setAttribute('href', manifestUrl);
+        document.head.appendChild(link);
+      }
+    }
+  }, [storeName]);
+
   const handleInstallAndPush = async () => {
     let installPrompted = false;
     
