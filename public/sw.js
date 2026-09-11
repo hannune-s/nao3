@@ -20,12 +20,7 @@ self.addEventListener('push', function (event) {
   const options = {
     body: data.body,
     icon: '/icon.jpg',
-    badge: '/icon.jpg',
-    vibrate: [300, 100, 300, 100, 300],
-    data: { url: data.url || '/' },
-    requireInteraction: true,
-    tag: 'nao3-push',
-    renotify: true
+    data: { url: data.url || '/' }
   };
 
   event.waitUntil(
