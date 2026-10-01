@@ -106,9 +106,15 @@ export default function AdminRouterPage() {
           로그인
         </button>
 
-        <Link href="/register" className="mt-6 text-sm text-gray-500 underline hover:text-[#5F0080]">
-          NAO3가 처음이신가요? 가입하기
-        </Link>
+        <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500">
+          <Link href="/register" className="hover:text-[#5F0080] hover:underline">
+            회원가입
+          </Link>
+          <span className="text-gray-300">|</span>
+          <Link href="/reset-password" className="hover:text-[#5F0080] hover:underline">
+            비밀번호 찾기
+          </Link>
+        </div>
       </form>
     </div>
   );
