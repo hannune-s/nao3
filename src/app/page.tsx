@@ -632,6 +632,86 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      {/* Pricing Section */}
+      <section className="py-20 md:py-32 bg-gray-50 overflow-hidden" id="pricing">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-sm font-black text-[#5F0080] tracking-widest uppercase mb-3">Pricing</h2>
+            <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2]">
+              합리적인 요금으로<br />무제한 문자 발송의 자유를
+            </h3>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium break-keep">
+              복잡한 요금제는 없습니다. 매월 나가는 수십만 원의 문자 발송 비용을<br className="hidden sm:block"/>
+              단돈 3만 원대로 완벽하게 대체하세요.
+            </p>
+          </div>
+
+          <div className="flex flex-col md:flex-row justify-center items-center gap-8 md:gap-12 max-w-4xl mx-auto">
+            
+            {/* Monthly Plan */}
+            <div className="w-full md:w-1/2 bg-white rounded-3xl p-8 shadow-[0_10px_30px_rgba(0,0,0,0.05)] border border-gray-100 relative hover:-translate-y-2 transition-transform duration-300">
+              <h4 className="text-xl font-bold text-gray-800 mb-2">월간 결제</h4>
+              <p className="text-gray-500 text-sm font-medium mb-6">부담 없이 매월 결제하고 싶으신 분</p>
+              <div className="flex items-baseline gap-1 mb-8">
+                <span className="text-4xl font-black text-gray-900">39,000</span>
+                <span className="text-lg font-bold text-gray-500">원 / 월</span>
+              </div>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 font-bold mt-0.5">✓</span>
+                  <span className="text-gray-600 font-medium break-keep">푸시 알림 평생 무제한 발송</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 font-bold mt-0.5">✓</span>
+                  <span className="text-gray-600 font-medium break-keep">모든 업종별 맞춤 화면 자동 제공</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-500 font-bold mt-0.5">✓</span>
+                  <span className="text-gray-600 font-medium break-keep">언제든지 위약금 없이 해지 가능</span>
+                </li>
+              </ul>
+              <Link href="/register" className="block w-full py-4 text-center rounded-xl font-black text-white bg-gray-800 hover:bg-gray-900 transition-colors">
+                1개월 무료로 시작하기
+              </Link>
+            </div>
+
+            {/* Annual Plan */}
+            <div className="w-full md:w-1/2 bg-white rounded-3xl p-8 shadow-[0_20px_50px_rgba(95,0,128,0.15)] border-2 border-[#5F0080] relative transform md:scale-105 hover:-translate-y-2 transition-transform duration-300">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white font-black px-4 py-1.5 rounded-full text-xs tracking-widest shadow-lg">
+                BEST 추천 (2개월 무료)
+              </div>
+              <h4 className="text-xl font-bold text-[#5F0080] mb-2">연간 결제</h4>
+              <p className="text-gray-500 text-sm font-medium mb-6">가장 합리적인 가격으로 이용하고 싶으신 분</p>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="text-4xl font-black text-[#5F0080]">390,000</span>
+                <span className="text-lg font-bold text-gray-500">원 / 연</span>
+              </div>
+              <p className="text-sm font-bold text-red-500 mb-8 bg-red-50 inline-block px-3 py-1 rounded-md">
+                월 32,500원 꼴 (일시불 결제)
+              </p>
+              <ul className="space-y-4 mb-8">
+                <li className="flex items-start gap-3">
+                  <span className="text-[#5F0080] font-bold mt-0.5">✓</span>
+                  <span className="text-gray-600 font-medium break-keep">푸시 알림 평생 무제한 발송</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#5F0080] font-bold mt-0.5">✓</span>
+                  <span className="text-gray-600 font-medium break-keep">모든 업종별 맞춤 화면 자동 제공</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <span className="text-[#5F0080] font-bold mt-0.5">✓</span>
+                  <span className="text-gray-900 font-bold break-keep">2개월 요금 완전 무료 혜택 (78,000원 할인)</span>
+                </li>
+              </ul>
+              <Link href="/register" className="block w-full py-4 text-center rounded-xl font-black text-white bg-[#5F0080] hover:bg-purple-900 transition-colors shadow-lg">
+                1개월 무료로 시작하기
+              </Link>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* Developer's Note / Mission Statement */}
       <section className="py-20 md:py-32 bg-white relative">
         <div className="absolute inset-0 bg-gray-50/50 skew-y-3 transform origin-bottom-left -z-10"></div>
