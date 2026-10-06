@@ -47,22 +47,36 @@ export default function PrivacyPage() {
             <h3 className="text-lg font-bold text-gray-900">6. 정보주체와 법정대리인의 권리·의무 및 그 행사방법</h3>
             <p>이용자는 개인정보주체로서 언제든지 개인정보 열람, 정정, 삭제, 처리정지 요구 등의 권리를 행사할 수 있습니다.</p>
 
-            <h3 className="text-lg font-bold text-gray-900">7. 개인정보의 파기</h3>
+            <h3 className="text-lg font-bold text-gray-900 mt-6">7. 개인정보의 파기</h3>
             <p>회사는 원칙적으로 개인정보 처리목적이 달성된 경우에는 지체없이 해당 개인정보를 파기합니다. 파기의 절차, 기한 및 방법은 다음과 같습니다.</p>
             <ul className="list-disc pl-5 mt-2">
               <li>파기절차: 이용자가 입력한 정보는 목적 달성 후 별도의 DB에 옮겨져(종이의 경우 별도의 서류) 내부 방침 및 기타 관련 법령에 따라 일정기간 저장된 후 혹은 즉시 파기됩니다.</li>
               <li>파기방법: 전자적 파일 형태의 정보는 기록을 재생할 수 없는 기술적 방법을 사용합니다.</li>
             </ul>
 
-            <h3 className="text-lg font-bold text-gray-900">8. 개인정보 보호책임자</h3>
+            <h3 className="text-lg font-bold text-gray-900 mt-6">8. 개인정보의 안전성 확보 조치</h3>
+            <p>회사는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다.</p>
+            <ul className="list-disc pl-5 mt-2">
+              <li>관리적 조치 : 내부관리계획 수립 및 시행, 정기적 직원 교육 등</li>
+              <li>기술적 조치 : 개인정보처리시스템 등의 접근권한 관리, 접근통제시스템 설치, 고유식별정보 등의 암호화, 보안프로그램 설치</li>
+              <li>물리적 조치 : 전산실, 자료보관실 등의 접근통제</li>
+            </ul>
+
+            <h3 className="text-lg font-bold text-gray-900 mt-6">9. 개인정보 보호책임자</h3>
             <p>회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
             <ul className="list-disc pl-5 mt-2">
               <li>성명 : 홍길동</li>
               <li>직책 : 대표이사</li>
               <li>연락처 : 02-123-4567, support@nao3.com</li>
             </ul>
+
+            <h3 className="text-lg font-bold text-gray-900 mt-6">10. 권익침해 구제방법</h3>
+            <p>정보주체는 개인정보침해로 인한 구제를 받기 위하여 개인정보분쟁조정위원회, 한국인터넷진흥원 개인정보침해신고센터 등에 분쟁해결이나 상담 등을 신청할 수 있습니다.</p>
+
+            <h3 className="text-lg font-bold text-gray-900 mt-6">11. 개인정보 처리방침의 변경</h3>
+            <p>이 개인정보 처리방침은 시행일로부터 적용되며, 법령 및 방침에 따른 변경내용의 추가, 삭제 및 정정이 있는 경우에는 변경사항의 시행 7일 전부터 공지사항을 통하여 고지할 것입니다.</p>
             
-            <p className="mt-6 text-sm text-gray-500 text-right">이 개인정보처리방침은 2026년 10월 1일부터 적용됩니다.</p>
+            <p className="mt-8 text-sm text-gray-500 text-right font-bold">부칙: 이 개인정보처리방침은 2026년 10월 1일부터 적용됩니다.</p>
           </div>
         </div>
       </div>
