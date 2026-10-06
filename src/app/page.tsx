@@ -666,7 +666,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-green-500 font-bold mt-0.5">✓</span>
-                  <span className="text-gray-600 font-medium break-keep">모든 업종별 맞춤 화면 자동 제공</span>
+                  <span className="text-gray-600 font-medium break-keep">상품명에 맞는 스마트 아이콘 자동 매칭</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-green-500 font-bold mt-0.5">✓</span>
@@ -702,7 +702,7 @@ export default function LandingPage() {
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-[#5F0080] font-bold mt-0.5">✓</span>
-                  <span className="text-gray-600 font-medium break-keep">모든 업종별 맞춤 화면 자동 제공</span>
+                  <span className="text-gray-600 font-medium break-keep">상품명에 맞는 스마트 아이콘 자동 매칭</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-[#5F0080] font-bold mt-0.5">✓</span>
