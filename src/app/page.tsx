@@ -806,6 +806,11 @@ export default function LandingPage() {
             </div>
           </details>
 
+          <div className="flex items-center gap-6 mb-6 text-sm">
+            <Link href="/terms" className="hover:text-gray-300 transition-colors font-medium">이용약관</Link>
+            <Link href="/privacy" className="hover:text-gray-300 transition-colors font-bold text-gray-400">개인정보 취급방침</Link>
+          </div>
+
           <p>© 2026 NAO3 All rights reserved.</p>
         </div>
       </footer>
