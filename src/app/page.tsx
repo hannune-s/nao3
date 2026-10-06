@@ -652,9 +652,12 @@ export default function LandingPage() {
             <div className="w-full md:w-1/2 bg-white rounded-3xl p-8 shadow-[0_10px_30px_rgba(0,0,0,0.05)] border border-gray-100 relative hover:-translate-y-2 transition-transform duration-300">
               <h4 className="text-xl font-bold text-gray-800 mb-2">월간 결제</h4>
               <p className="text-gray-500 text-sm font-medium mb-6">부담 없이 매월 결제하고 싶으신 분</p>
-              <div className="flex items-baseline gap-1 mb-8">
-                <span className="text-4xl font-black text-gray-900">39,000</span>
-                <span className="text-lg font-bold text-gray-500">원 / 월</span>
+              <div className="flex flex-col mb-8">
+                <span className="text-lg text-gray-400 font-bold line-through mb-1">49,000원</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-black text-gray-900">39,000</span>
+                  <span className="text-lg font-bold text-gray-500">원 / 월</span>
+                </div>
               </div>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
@@ -682,9 +685,12 @@ export default function LandingPage() {
               </div>
               <h4 className="text-xl font-bold text-[#5F0080] mb-2">연간 결제</h4>
               <p className="text-gray-500 text-sm font-medium mb-6">가장 합리적인 가격으로 이용하고 싶으신 분</p>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-4xl font-black text-[#5F0080]">390,000</span>
-                <span className="text-lg font-bold text-gray-500">원 / 연</span>
+              <div className="flex flex-col mb-2">
+                <span className="text-lg text-gray-400 font-bold line-through mb-1">490,000원</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-black text-[#5F0080]">390,000</span>
+                  <span className="text-lg font-bold text-gray-500">원 / 연</span>
+                </div>
               </div>
               <p className="text-sm font-bold text-red-500 mb-8 bg-red-50 inline-block px-3 py-1 rounded-md">
                 월 32,500원 꼴 (일시불 결제)
