@@ -783,7 +783,29 @@ export default function LandingPage() {
           <div className="font-black text-4xl text-white mb-6 tracking-tight">NAO3</div>
           <p className="mb-2 font-medium text-gray-400 text-lg">동네 사장님들을 위한 최고의 매출 파트너.</p>
           <p className="mb-10 text-gray-600">라이브 홈쇼핑 부럽지 않은 미친 전단지 앱</p>
-          <div className="w-24 h-[1px] bg-gray-800 mb-10"></div>
+          <div className="w-24 h-[1px] bg-gray-800 mb-8"></div>
+          
+          {/* Collapsible Business Info (HTML5 details/summary) */}
+          <details className="w-full max-w-3xl mx-auto mb-10 text-xs text-gray-500 cursor-pointer group select-none">
+            <summary className="font-bold hover:text-gray-300 transition-colors list-none flex justify-center items-center gap-1.5 outline-none">
+              사업자 정보 확인하기
+              <svg className="w-3 h-3 group-open:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            <div className="mt-6 p-6 bg-gray-900/60 rounded-2xl leading-relaxed text-center sm:text-left border border-gray-800 shadow-inner cursor-text">
+              <div className="grid sm:grid-cols-2 gap-y-2 gap-x-8">
+                <p><span className="font-bold text-gray-400 mr-2">상호명</span> (주)한누네</p>
+                <p><span className="font-bold text-gray-400 mr-2">대표자</span> OOO</p>
+                <p><span className="font-bold text-gray-400 mr-2">사업자등록번호</span> 123-45-67890</p>
+                <p><span className="font-bold text-gray-400 mr-2">통신판매업신고</span> 제2026-서울ㅇㅇ-1234호</p>
+                <p className="sm:col-span-2"><span className="font-bold text-gray-400 mr-2">주소</span> 서울특별시 OOO OOO OOO</p>
+                <p className="sm:col-span-2"><span className="font-bold text-gray-400 mr-2">이메일</span> support@nao3.com</p>
+                <p className="sm:col-span-2"><span className="font-bold text-gray-400 mr-2">고객센터</span> 02-123-4567 (평일 10:00 ~ 18:00)</p>
+              </div>
+            </div>
+          </details>
+
           <p>© 2026 NAO3 All rights reserved.</p>
         </div>
       </footer>
