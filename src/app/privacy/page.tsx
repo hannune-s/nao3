@@ -65,9 +65,9 @@ export default function PrivacyPage() {
             <h3 className="text-lg font-bold text-gray-900 mt-6">9. 개인정보 보호책임자</h3>
             <p>회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
             <ul className="list-disc pl-5 mt-2">
-              <li>성명 : 홍길동</li>
+              <li>성명 : 송하나</li>
               <li>직책 : 대표이사</li>
-              <li>연락처 : 02-123-4567, support@nao3.com</li>
+              <li>연락처 : 070-4233-5553, hangose7@gmail.com</li>
             </ul>
 
             <h3 className="text-lg font-bold text-gray-900 mt-6">10. 권익침해 구제방법</h3>
