@@ -694,15 +694,15 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         </div>
         
         {/* App Version Info */}
-        <div className="text-center mt-6 flex flex-col items-center gap-3">
-          <span className="text-[11px] text-gray-400 font-medium tracking-widest">NAO3 v1.0.0</span>
+        <div className="text-center mt-8 mb-4 flex flex-col items-center gap-4">
+          <span className="text-[12px] text-gray-400 font-bold tracking-widest">NAO3 v1.0.0</span>
           <button 
             onClick={() => {
               if (confirm('정말로 회원 탈퇴를 진행하시겠습니까?\n탈퇴 시 모든 데이터가 삭제되며 복구할 수 없습니다.')) {
                 alert('탈퇴 요청이 접수되었습니다. 본사 확인 후 순차적으로 처리됩니다.');
               }
             }}
-            className="text-[11px] text-gray-300 hover:text-gray-500 underline underline-offset-2 transition-colors"
+            className="text-[13px] font-bold text-gray-500 hover:text-red-500 underline underline-offset-4 transition-colors"
           >
             서비스 탈퇴하기
           </button>
