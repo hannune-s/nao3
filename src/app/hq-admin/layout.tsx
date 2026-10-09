@@ -137,7 +137,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               <Link 
                 href="/hq-admin" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 가맹점 대시보드
               </Link>
@@ -146,7 +146,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               <Link 
                 href="/hq-admin/revenue" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/revenue' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/revenue' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 매출 관리
               </Link>
@@ -155,7 +155,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               <Link 
                 href="/hq-admin/statistics" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/statistics' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/statistics' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 통계
               </Link>
@@ -164,7 +164,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               <Link 
                 href="/hq-admin/notices" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/notices' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/notices' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 본사 공지사항
               </Link>
@@ -173,7 +173,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               <Link 
                 href="/hq-admin/settings" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/settings' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/settings' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 시스템 설정 (PG 연동)
               </Link>
@@ -182,7 +182,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               <Link 
                 href="/hq-admin/inquiries" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/inquiries' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/inquiries' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 1:1 문의 관리
               </Link>
@@ -191,7 +191,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
               <Link 
                 href="/hq-admin/security" 
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/security' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/security' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 보안 설정 (PIN)
               </Link>

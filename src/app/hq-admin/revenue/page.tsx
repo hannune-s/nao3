@@ -164,32 +164,32 @@ export default function HqRevenuePage() {
         </div>
         
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-sm text-left min-w-[800px]">
             <thead className="bg-gray-50 text-gray-500 text-xs font-bold border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4">순번</th>
-                <th className="px-6 py-4">결제일</th>
-                <th className="px-6 py-4">가맹점 상호명</th>
-                <th className="px-6 py-4">결제 상품</th>
-                <th className="px-6 py-4 text-right">결제 금액</th>
-                <th className="px-6 py-4 text-center">결제 수단</th>
-                <th className="px-6 py-4 text-center">결제 상태</th>
+                <th className="px-6 py-4 whitespace-nowrap">순번</th>
+                <th className="px-6 py-4 whitespace-nowrap">결제일</th>
+                <th className="px-6 py-4 whitespace-nowrap">가맹점 상호명</th>
+                <th className="px-6 py-4 whitespace-nowrap">결제 상품</th>
+                <th className="px-6 py-4 text-right whitespace-nowrap">결제 금액</th>
+                <th className="px-6 py-4 text-center whitespace-nowrap">결제 수단</th>
+                <th className="px-6 py-4 text-center whitespace-nowrap">결제 상태</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {payments.map((p, index) => (
                 <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-6 py-4 text-gray-400 font-medium">{payments.length - index}</td>
-                  <td className="px-6 py-4 text-gray-600">{new Date(p.created_at).toLocaleString()}</td>
-                  <td className="px-6 py-4 font-bold text-gray-900">{p.store_name}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-4 text-gray-400 font-medium whitespace-nowrap">{payments.length - index}</td>
+                  <td className="px-6 py-4 text-gray-600 whitespace-nowrap">{new Date(p.created_at).toLocaleString()}</td>
+                  <td className="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">{p.store_name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 rounded text-[11px] font-bold ${p.plan_type === '연간' ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
                       {p.plan_type}결제
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right font-black text-gray-900">{p.amount.toLocaleString()}원</td>
-                  <td className="px-6 py-4 text-center text-gray-500">{p.method}</td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-6 py-4 text-right font-black text-gray-900 whitespace-nowrap">{p.amount.toLocaleString()}원</td>
+                  <td className="px-6 py-4 text-center text-gray-500 whitespace-nowrap">{p.method}</td>
+                  <td className="px-6 py-4 text-center whitespace-nowrap">
                     <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold ${p.status === '결제완료' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                       {p.status}
                     </span>
