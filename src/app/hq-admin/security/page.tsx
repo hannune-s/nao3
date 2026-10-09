@@ -1,26 +1,52 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+
+// PIN 번호를 SHA-256으로 해싱하는 함수
+async function hashPin(pin: string) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 export default function SecuritySettingsPage() {
   const [currentPin, setCurrentPin] = useState('');
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
   const [hasExistingPin, setHasExistingPin] = useState(false);
+  const [storedPinHash, setStoredPinHash] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const existing = localStorage.getItem('nao3_hq_pin');
-    if (existing) {
-      setHasExistingPin(true);
-    }
+    checkExistingPin();
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const checkExistingPin = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'hq_admin_pin')
+        .single();
+        
+      if (data && data.setting_value) {
+        setHasExistingPin(true);
+        setStoredPinHash(data.setting_value);
+      }
+    } catch (err) {
+      console.warn('저장된 PIN 번호 확인 실패 (처음 설정하는 상태로 간주)');
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (hasExistingPin) {
-      const existing = localStorage.getItem('nao3_hq_pin');
-      if (currentPin !== existing) {
+      const currentHash = await hashPin(currentPin);
+      if (currentHash !== storedPinHash) {
         alert('현재 PIN 번호가 일치하지 않습니다.');
         return;
       }
@@ -36,31 +62,59 @@ export default function SecuritySettingsPage() {
       return;
     }
 
-    // 로컬 스토리지에 저장
-    localStorage.setItem('nao3_hq_pin', newPin);
-    alert('보안 PIN 번호가 성공적으로 설정되었습니다.\n다음 접속 시부터 PIN 번호를 요구합니다.');
-    
-    // 폼 초기화
-    setCurrentPin('');
-    setNewPin('');
-    setConfirmPin('');
-    setHasExistingPin(true);
-  };
+    setIsSaving(true);
+    try {
+      const newHash = await hashPin(newPin);
+      
+      const { error } = await supabase
+        .from('nao3_system_settings')
+        .upsert([{ setting_key: 'hq_admin_pin', setting_value: newHash }], { onConflict: 'setting_key' });
 
-  const handleRemove = () => {
-    const existing = localStorage.getItem('nao3_hq_pin');
-    if (!existing) return;
+      if (error) throw error;
 
-    const check = prompt('보안을 해제하시려면 현재 PIN 번호를 입력해주세요.');
-    if (check === existing) {
-      localStorage.removeItem('nao3_hq_pin');
-      alert('보안 PIN 번호가 해제되었습니다. 누구나 접속할 수 있습니다.');
-      setHasExistingPin(false);
+      alert('보안 PIN 번호가 안전하게 데이터베이스에 설정되었습니다.\n다음 접속 시부터 PIN 번호를 요구합니다.');
+      
+      // 폼 초기화 및 상태 업데이트
+      setStoredPinHash(newHash);
+      setHasExistingPin(true);
       setCurrentPin('');
       setNewPin('');
       setConfirmPin('');
-    } else if (check !== null) {
-      alert('PIN 번호가 일치하지 않습니다.');
+    } catch (err) {
+      console.error(err);
+      alert('PIN 설정 중 오류가 발생했습니다. DB 권한 또는 테이블(nao3_system_settings)을 확인하세요.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    if (!hasExistingPin) return;
+
+    const check = prompt('보안을 해제하시려면 현재 PIN 번호를 입력해주세요.');
+    if (check !== null) {
+      const checkHash = await hashPin(check);
+      if (checkHash === storedPinHash) {
+        try {
+          const { error } = await supabase
+            .from('nao3_system_settings')
+            .delete()
+            .eq('setting_key', 'hq_admin_pin');
+            
+          if (error) throw error;
+
+          alert('보안 PIN 번호가 해제되었습니다. 누구나 접속할 수 있습니다.');
+          setHasExistingPin(false);
+          setStoredPinHash(null);
+          setCurrentPin('');
+          setNewPin('');
+          setConfirmPin('');
+        } catch (err) {
+          alert('해제 중 오류가 발생했습니다.');
+        }
+      } else {
+        alert('PIN 번호가 일치하지 않습니다.');
+      }
     }
   };
 

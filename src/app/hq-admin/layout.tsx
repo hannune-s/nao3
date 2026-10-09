@@ -3,30 +3,57 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+
+// PIN 번호를 SHA-256으로 해싱하는 함수
+async function hashPin(pin: string) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(pin);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 export default function HqAdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [pinInput, setPinInput] = useState('');
-  const [storedPin, setStoredPin] = useState<string | null>(null);
+  const [storedPinHash, setStoredPinHash] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    // 로컬 스토리지에서 PIN 번호를 확인
-    const pin = localStorage.getItem('nao3_hq_pin');
-    if (pin) {
-      setStoredPin(pin);
-      setIsAuthorized(false);
-    } else {
-      // 핀 번호가 설정되어 있지 않으면 초기 통과 (보안 설정 메뉴에서 핀 등록 유도)
-      setIsAuthorized(true);
-    }
-    setIsChecking(false);
+    checkPinFromDb();
   }, []);
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const checkPinFromDb = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'hq_admin_pin')
+        .single();
+        
+      if (data && data.setting_value) {
+        setStoredPinHash(data.setting_value);
+        setIsAuthorized(false); // PIN이 있으면 잠금
+      } else {
+        setIsAuthorized(true); // PIN이 없으면 초기 설정 유도
+      }
+    } catch (err) {
+      console.warn('보안 설정 불러오기 실패. 설정 전으로 간주합니다.', err);
+      setIsAuthorized(true);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (storedPin && pinInput === storedPin) {
+    if (!storedPinHash) return;
+
+    const inputHash = await hashPin(pinInput);
+    
+    if (inputHash === storedPinHash) {
       setIsAuthorized(true);
     } else {
       alert('비밀번호가 일치하지 않습니다.');
@@ -35,10 +62,10 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
   };
 
   if (isChecking) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">보안 확인 중...</div>;
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center font-bold text-gray-500">안전한 관리자 환경을 준비 중입니다...</div>;
   }
 
-  if (storedPin && !isAuthorized) {
+  if (storedPinHash && !isAuthorized) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 font-sans">
         <form onSubmit={handlePinSubmit} className="bg-white p-8 rounded-3xl shadow-lg max-w-sm w-full text-center border border-gray-200">
