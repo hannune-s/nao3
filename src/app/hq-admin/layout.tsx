@@ -20,6 +20,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
   const [pinInput, setPinInput] = useState('');
   const [storedPinHash, setStoredPinHash] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     checkPinFromDb();
@@ -35,9 +36,9 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
         
       if (data && data.setting_value) {
         setStoredPinHash(data.setting_value);
-        setIsAuthorized(false); // PIN이 있으면 잠금
+        setIsAuthorized(false);
       } else {
-        setIsAuthorized(true); // PIN이 없으면 초기 설정 유도
+        setIsAuthorized(true);
       }
     } catch (err) {
       console.warn('보안 설정 불러오기 실패. 설정 전으로 간주합니다.', err);
@@ -90,20 +91,52 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex font-sans">
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans">
+      
+      {/* Mobile Header (Sticky) */}
+      <header className="md:hidden bg-[#1A1A1A] text-white p-4 flex items-center justify-between sticky top-0 z-50">
+        <h1 className="text-lg font-bold text-[#E5D7B7]">본사 어드민 (HQ)</h1>
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 text-gray-300 hover:text-white"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {isMobileMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </header>
+
+      {/* Sidebar Overlay (Mobile) */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        ></div>
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-[#1A1A1A] text-white flex-shrink-0 hidden md:flex flex-col">
-        <div className="p-6 border-b border-gray-800">
+      <aside className={`
+        fixed md:static inset-y-0 left-0 z-50
+        w-64 bg-[#1A1A1A] text-white flex-shrink-0 flex flex-col
+        transform transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}>
+        <div className="p-6 border-b border-gray-800 hidden md:block">
           <h1 className="text-xl font-black tracking-tight text-[#E5D7B7]">
             본사 어드민 (HQ)
           </h1>
           <p className="text-gray-400 text-xs mt-1">NAO3 최고 관리자 시스템</p>
         </div>
-        <nav className="flex-1 py-4 overflow-y-auto">
+        <nav className="flex-1 py-4 overflow-y-auto mt-[60px] md:mt-0">
           <ul className="space-y-1">
             <li>
               <Link 
                 href="/hq-admin" 
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 가맹점 대시보드
@@ -112,6 +145,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
             <li>
               <Link 
                 href="/hq-admin/revenue" 
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/revenue' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 매출 관리
@@ -120,6 +154,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
             <li>
               <Link 
                 href="/hq-admin/statistics" 
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/statistics' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 통계
@@ -128,6 +163,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
             <li>
               <Link 
                 href="/hq-admin/notices" 
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/notices' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 본사 공지사항
@@ -136,6 +172,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
             <li>
               <Link 
                 href="/hq-admin/settings" 
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/settings' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 시스템 설정 (PG 연동)
@@ -144,6 +181,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
             <li>
               <Link 
                 href="/hq-admin/inquiries" 
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/inquiries' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 1:1 문의 관리
@@ -152,6 +190,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
             <li>
               <Link 
                 href="/hq-admin/security" 
+                onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${pathname === '/hq-admin/security' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
               >
                 보안 설정 (PIN)
@@ -166,12 +205,7 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Mobile Header */}
-        <header className="md:hidden bg-[#1A1A1A] text-white p-4 flex items-center justify-between">
-          <h1 className="text-lg font-bold text-[#E5D7B7]">본사 어드민 (HQ)</h1>
-        </header>
-        
-        <div className="p-6 md:p-10">
+        <div className="p-4 md:p-10">
           {children}
         </div>
       </main>
