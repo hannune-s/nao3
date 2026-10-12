@@ -674,14 +674,28 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
   };
   // 최종 전송 버튼
   const handlePreview = () => {
-    localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify({
+    const previewSettings = {
       storeName,
       saleStart,
       saleEnd,
-      bossMessage
-    }));
+      bossMessage,
+      special_title: specialForm.title,
+      special_price: specialForm.price,
+      special_message: specialForm.message,
+      special_image_url: specialPreview
+    };
+
+    // storeId 및 storeSlug 둘 다로 저장하여 미리보기 페이지에서 확실하게 읽도록 처리
+    localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(previewSettings));
     localStorage.setItem(`nao3_staging_items_${storeId}`, JSON.stringify(items));
-    window.open(`/store/${storeSlug}/sale?preview=true`, '_blank');
+
+    if (storeSlug) {
+      localStorage.setItem(`nao3_staging_settings_${storeSlug}`, JSON.stringify(previewSettings));
+      localStorage.setItem(`nao3_staging_items_${storeSlug}`, JSON.stringify(items));
+    }
+
+    const targetSlug = storeSlug || storeId;
+    window.open(`/store/${targetSlug}/sale?preview=true`, '_blank');
   };
 
   // 최종 전송 버튼

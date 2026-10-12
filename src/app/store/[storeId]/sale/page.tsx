@@ -211,12 +211,15 @@ export default function CustomerSalePage() {
 
         const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true' || storeSlug.startsWith('demo-guest-');
         if (isPreview) {
-          const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeSlug}`) || '{}');
+          // storeSlug 또는 storeIdForQuery 둘 다로 검색하여 확실하게 로드
+          const rawSettings = localStorage.getItem(`nao3_staging_settings_${storeSlug}`) || 
+                              (storeIdForQuery ? localStorage.getItem(`nao3_staging_settings_${storeIdForQuery}`) : null);
+          const stagedSettings = JSON.parse(rawSettings || '{}');
           if (stagedSettings.storeName) setStoreName(stagedSettings.storeName);
           
           setStoreInfo((prev: any) => ({
             ...prev,
-            id: prev?.id || storeSlug,
+            id: prev?.id || storeIdForQuery || storeSlug,
             store_name: stagedSettings.storeName || prev?.store_name || storeSlug,
             special_title: stagedSettings.special_title || prev?.special_title,
             special_price: stagedSettings.special_price || prev?.special_price,
@@ -238,7 +241,9 @@ export default function CustomerSalePage() {
           }
           setBossMessage(stagedSettings.bossMessage || '');
 
-          let stagedItems = JSON.parse(localStorage.getItem(`nao3_staging_items_${storeSlug}`) || '[]');
+          const rawItems = localStorage.getItem(`nao3_staging_items_${storeSlug}`) || 
+                           (storeIdForQuery ? localStorage.getItem(`nao3_staging_items_${storeIdForQuery}`) : null);
+          let stagedItems = JSON.parse(rawItems || '[]');
           
           if (stagedItems.length === 0 && storeSlug.startsWith('demo-guest-')) {
             const histories = JSON.parse(localStorage.getItem('nao3_demo_histories') || '[]');
