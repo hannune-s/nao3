@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 export default function MyMenu({ storeData }: { storeData: any }) {
   const router = useRouter();
 
-  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'notices' | 'guide' | 'qr' | 'inquiry'>('main');
+  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry'>('main');
 
   // Account form states
   const [ownerName, setOwnerName] = useState(storeData.owner_name || '');
@@ -19,6 +19,14 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   const [operatingHours, setOperatingHours] = useState(storeData.operating_hours || '');
   const [closedDays, setClosedDays] = useState(storeData.closed_days || '');
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  // Security (PIN) states
+  const [ownerPin, setOwnerPin] = useState('');
+  const [staffPin, setStaffPin] = useState('');
+  const [hasOwnerPin, setHasOwnerPin] = useState(false);
+  const [hasStaffPin, setHasStaffPin] = useState(false);
+  const [isSavingPin, setIsSavingPin] = useState(false);
+  const [loadingPin, setLoadingPin] = useState(false);
 
   // Subscription mock states
   const [hasCard, setHasCard] = useState(false);
@@ -49,11 +57,96 @@ export default function MyMenu({ storeData }: { storeData: any }) {
     }
   };
 
+  const hashPin = async (pin: string) => {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(pin);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const fetchPins = async () => {
+    if (!storeData?.id) return;
+    setLoadingPin(true);
+    try {
+      const ownerKey = `STORE_OWNER_PIN_${storeData.id}`;
+      const staffKey = `STORE_STAFF_PIN_${storeData.id}`;
+
+      const { data, error } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_key, setting_value')
+        .in('setting_key', [ownerKey, staffKey]);
+
+      if (!error && data) {
+        const ownerRow = data.find(r => r.setting_key === ownerKey);
+        const staffRow = data.find(r => r.setting_key === staffKey);
+        setHasOwnerPin(!!ownerRow?.setting_value);
+        setHasStaffPin(!!staffRow?.setting_value);
+      }
+    } catch (err) {
+      console.warn('PIN 정보를 불러오지 못했습니다:', err);
+    } finally {
+      setLoadingPin(false);
+    }
+  };
+
   useEffect(() => {
-    if (view === 'notices') {
-      fetchHqNotices();
+    if (view === 'security') {
+      fetchPins();
     }
   }, [view]);
+
+  const handleSaveOwnerPin = async () => {
+    if (ownerPin.length !== 6 || !/^\d{6}$/.test(ownerPin)) {
+      alert('사장 PIN 번호는 숫자 6자리로 입력해 주세요.');
+      return;
+    }
+    setIsSavingPin(true);
+    try {
+      const hashed = await hashPin(ownerPin);
+      const ownerKey = `STORE_OWNER_PIN_${storeData.id}`;
+
+      const { error } = await supabase
+        .from('nao3_system_settings')
+        .upsert([{ setting_key: ownerKey, setting_value: hashed }], { onConflict: 'setting_key' });
+
+      if (error) throw error;
+      alert('사장 PIN 번호(6자리)가 안전하게 저장되었습니다!');
+      setOwnerPin('');
+      setHasOwnerPin(true);
+    } catch (err: any) {
+      console.error(err);
+      alert('저장 실패: ' + (err.message || '데이터베이스를 확인해주세요.'));
+    } finally {
+      setIsSavingPin(false);
+    }
+  };
+
+  const handleSaveStaffPin = async () => {
+    if (staffPin.length !== 6 || !/^\d{6}$/.test(staffPin)) {
+      alert('직원 PIN 번호는 숫자 6자리로 입력해 주세요.');
+      return;
+    }
+    setIsSavingPin(true);
+    try {
+      const hashed = await hashPin(staffPin);
+      const staffKey = `STORE_STAFF_PIN_${storeData.id}`;
+
+      const { error } = await supabase
+        .from('nao3_system_settings')
+        .upsert([{ setting_key: staffKey, setting_value: hashed }], { onConflict: 'setting_key' });
+
+      if (error) throw error;
+      alert('직원 PIN 번호(6자리)가 안전하게 저장되었습니다!');
+      setStaffPin('');
+      setHasStaffPin(true);
+    } catch (err: any) {
+      console.error(err);
+      alert('저장 실패: ' + (err.message || '데이터베이스를 확인해주세요.'));
+    } finally {
+      setIsSavingPin(false);
+    }
+  };
 
   
 
@@ -237,6 +330,111 @@ export default function MyMenu({ storeData }: { storeData: any }) {
           <button onClick={handleSaveSettings} disabled={isSavingSettings} className={`w-full py-4 rounded-xl font-black text-white text-[16px] transition-all shadow-md ${isSavingSettings ? 'bg-gray-400 shadow-none' : 'bg-[#5F0080] hover:bg-[#4A0066] hover:shadow-lg active:scale-[0.98]'}`}>
             {isSavingSettings ? '저장 중...' : '저장하기'}
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (view === 'security') {
+    return (
+      <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
+        {/* Header */}
+        <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center gap-3">
+          <button onClick={() => setView('main')} className="text-gray-400 hover:text-[#5F0080] transition-colors p-1 -ml-1">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+          </button>
+          <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">PIN 번호 설정</h1>
+        </div>
+
+        <div className="p-5 flex flex-col gap-6">
+          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-[13px] text-blue-900 leading-relaxed font-medium">
+            💡 <strong>PIN 번호 관리 안내</strong><br/>
+            • <strong>사장 PIN:</strong> 매장 어드민 전체(전단지 입력 + 마이메뉴)를 모두 관리할 수 있습니다.<br/>
+            • <strong>직원 PIN:</strong> 직원이 로그인할 경우 <strong>전단지 입력만 가능</strong>하며, 마이메뉴(구독/설정 등)는 철저히 숨겨집니다.<br/>
+            • 모든 PIN 번호는 데이터베이스에 암호화(단방향 해시)되어 안전하게 보관됩니다.
+          </div>
+
+          {/* 사장 PIN 설정 */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">👑</span>
+                <h2 className="text-[16px] font-extrabold text-gray-900">사장 PIN 번호 (6자리)</h2>
+              </div>
+              {hasOwnerPin ? (
+                <span className="text-[11px] font-bold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+                  설정 완료
+                </span>
+              ) : (
+                <span className="text-[11px] font-bold text-orange-700 bg-orange-50 border border-orange-200 px-2.5 py-1 rounded-full">
+                  미설정
+                </span>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-[12px] font-bold text-gray-500 mb-1.5">
+                {hasOwnerPin ? '새로 변경할 사장 PIN (숫자 6자리)' : '등록할 사장 PIN (숫자 6자리)'}
+              </label>
+              <input 
+                type="password" 
+                maxLength={6}
+                value={ownerPin} 
+                onChange={(e) => setOwnerPin(e.target.value.replace(/[^0-9]/g, ''))} 
+                placeholder="숫자 6자리 입력 (예: 123456)" 
+                className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[16px] tracking-widest font-mono text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" 
+              />
+            </div>
+
+            <button 
+              onClick={handleSaveOwnerPin} 
+              disabled={isSavingPin || loadingPin} 
+              className="w-full py-3.5 rounded-xl font-black text-white text-[15px] bg-[#5F0080] hover:bg-[#4A0066] disabled:bg-gray-400 transition-all shadow-sm active:scale-[0.98]"
+            >
+              {isSavingPin ? '저장 중...' : (hasOwnerPin ? '사장 PIN 변경하기' : '사장 PIN 저장하기')}
+            </button>
+          </div>
+
+          {/* 직원 PIN 설정 */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🧑‍💼</span>
+                <h2 className="text-[16px] font-extrabold text-gray-900">직원 PIN 번호 (6자리)</h2>
+              </div>
+              {hasStaffPin ? (
+                <span className="text-[11px] font-bold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">
+                  설정 완료
+                </span>
+              ) : (
+                <span className="text-[11px] font-bold text-gray-500 bg-gray-100 border border-gray-200 px-2.5 py-1 rounded-full">
+                  미설정
+                </span>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-[12px] font-bold text-gray-500 mb-1.5">
+                {hasStaffPin ? '새로 변경할 직원 PIN (숫자 6자리)' : '등록할 직원 PIN (숫자 6자리)'}
+              </label>
+              <input 
+                type="password" 
+                maxLength={6}
+                value={staffPin} 
+                onChange={(e) => setStaffPin(e.target.value.replace(/[^0-9]/g, ''))} 
+                placeholder="숫자 6자리 입력 (예: 654321)" 
+                className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[16px] tracking-widest font-mono text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" 
+              />
+            </div>
+
+            <button 
+              onClick={handleSaveStaffPin} 
+              disabled={isSavingPin || loadingPin} 
+              className="w-full py-3.5 rounded-xl font-black text-white text-[15px] bg-[#1A1A1A] hover:bg-black disabled:bg-gray-400 transition-all shadow-sm active:scale-[0.98]"
+            >
+              {isSavingPin ? '저장 중...' : (hasStaffPin ? '직원 PIN 변경하기' : '직원 PIN 저장하기')}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -648,6 +846,25 @@ export default function MyMenu({ storeData }: { storeData: any }) {
           <div>
             <h3 className="font-extrabold text-gray-900 text-[16px] mb-1">설정</h3>
             <p className="text-[13px] text-gray-500 font-medium">가게 정보(영업시간, 주소 등) 관리</p>
+          </div>
+          <span className="text-gray-300">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+          </span>
+        </button>
+
+        {/* PIN 번호 설정 카드 */}
+        <button 
+          onClick={() => setView('security')}
+          className="w-full bg-white rounded-2xl p-5 flex items-center justify-between shadow-sm border border-gray-100 border-l-4 border-l-blue-600 text-left hover:bg-blue-50/50 transition-colors"
+        >
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className="font-extrabold text-gray-900 text-[16px]">PIN 번호 설정</h3>
+              <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                보안
+              </span>
+            </div>
+            <p className="text-[13px] text-gray-500 font-medium">사장 PIN 6자리 / 직원 PIN 6자리 관리</p>
           </div>
           <span className="text-gray-300">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
