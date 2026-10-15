@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
-export default function MyMenu({ storeData }: { storeData: any }) {
+export default function MyMenu({ storeData, onStoreUpdate }: { storeData: any; onStoreUpdate?: (updated: any) => void }) {
   const router = useRouter();
 
   const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry'>('main');
@@ -39,7 +39,26 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   const [loadingNotices, setLoadingNotices] = useState(false);
   const [expandedNoticeId, setExpandedNoticeId] = useState<string | null>(null);
 
-  
+  const fetchLatestStoreInfo = async () => {
+    if (!storeData?.id || storeData.id.startsWith('demo-guest-')) return;
+    try {
+      const { data, error } = await supabase
+        .from('nao3_stores')
+        .select('owner_name, phone, address, operating_hours, closed_days')
+        .eq('id', storeData.id)
+        .single();
+      if (!error && data) {
+        setOwnerName(data.owner_name || '');
+        setPhone(data.phone || '');
+        setAddress(data.address || '');
+        setOperatingHours(data.operating_hours || '');
+        setClosedDays(data.closed_days || '');
+        if (onStoreUpdate) onStoreUpdate(data);
+      }
+    } catch (err) {
+      console.warn('최신 매장 정보 조회 실패:', err);
+    }
+  };
 
   const fetchHqNotices = async () => {
     setLoadingNotices(true);
@@ -91,8 +110,12 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   };
 
   useEffect(() => {
-    if (view === 'security') {
+    if (view === 'notices') {
+      fetchHqNotices();
+    } else if (view === 'security') {
       fetchPins();
+    } else if (view === 'settings' || view === 'account') {
+      fetchLatestStoreInfo();
     }
   }, [view]);
 
@@ -148,10 +171,6 @@ export default function MyMenu({ storeData }: { storeData: any }) {
     }
   };
 
-  
-
-  
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/');
@@ -172,6 +191,7 @@ export default function MyMenu({ storeData }: { storeData: any }) {
         if (authError) throw authError;
       }
 
+      if (onStoreUpdate) onStoreUpdate({ owner_name: ownerName });
       alert('계정 정보가 성공적으로 업데이트되었습니다.');
       setNewPassword(''); // reset password field
     } catch (err: any) {
@@ -185,13 +205,15 @@ export default function MyMenu({ storeData }: { storeData: any }) {
   const handleSaveSettings = async () => {
     setIsSavingSettings(true);
     try {
+      const updatedFields = { phone, address, operating_hours: operatingHours, closed_days: closedDays };
       const { error: dbError } = await supabase
         .from('nao3_stores')
-        .update({ phone, address, operating_hours: operatingHours, closed_days: closedDays })
+        .update(updatedFields)
         .eq('id', storeData.id);
 
       if (dbError) throw dbError;
 
+      if (onStoreUpdate) onStoreUpdate(updatedFields);
       alert('가게정보 설정이 성공적으로 업데이트되었습니다.');
     } catch (err: any) {
       console.error(err);

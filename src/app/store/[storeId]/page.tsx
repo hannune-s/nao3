@@ -126,7 +126,7 @@ export default function StoreAdminPage() {
             subscriptionPaid={storeData.subscription_paid}
           />
         ) : (
-          <MyMenu storeData={storeData} />
+          <MyMenu storeData={storeData} onStoreUpdate={(updated: any) => setStoreData((prev: any) => ({ ...prev, ...updated }))} />
         )}
       </div>
 
