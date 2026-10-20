@@ -698,7 +698,7 @@ export default function CustomerSalePage() {
           {/* 호스팅 제공자 */}
           <div className="text-center pt-2 pb-2">
             <p className="text-[12px] font-medium text-gray-400">
-              호스팅 제공자 : <span className="font-bold text-gray-500">한누네</span>
+              Hosting Provider : <span className="font-bold text-gray-500">SSAKDA</span>
             </p>
           </div>
         </div>
