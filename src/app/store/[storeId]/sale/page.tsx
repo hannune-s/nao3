@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 
 const getIconForProduct = (name: string) => {
   if (!name) return '✨';
@@ -695,10 +696,13 @@ export default function CustomerSalePage() {
             </div>
           )}
 
-          {/* 호스팅 제공자 */}
+          {/* Powered by NAO3 */}
           <div className="text-center pt-2 pb-2">
             <p className="text-[12px] font-medium text-gray-400">
-              Hosting Provider : <span className="font-bold text-gray-500">SSAKDA</span>
+              Powered by{' '}
+              <Link href="/" className="font-bold text-gray-500 hover:text-[#5F0080] hover:underline transition-colors">
+                NAO3
+              </Link>
             </p>
           </div>
         </div>
