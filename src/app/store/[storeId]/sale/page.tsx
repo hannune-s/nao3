@@ -697,10 +697,10 @@ export default function CustomerSalePage() {
           )}
 
           {/* Powered by NAO3 */}
-          <div className="text-center pt-2 pb-2">
-            <p className="text-[12px] font-medium text-gray-400">
+          <div className="text-center pt-4 pb-2">
+            <p className="text-[15px] font-bold text-gray-500">
               Powered by{' '}
-              <Link href="/" className="font-bold text-gray-500 hover:text-[#5F0080] hover:underline transition-colors">
+              <Link href="/" className="font-black text-[#5F0080] hover:underline transition-colors">
                 NAO3
               </Link>
             </p>
