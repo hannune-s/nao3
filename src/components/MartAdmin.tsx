@@ -96,13 +96,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
   const [historyPage, setHistoryPage] = useState(1);
 
   // 상호명, 세일 진행 기간 및 사장님 이야기 상태
-  const [storeName, setStoreName] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(`nao3_draft_storeName_${storeId}`);
-      if (saved) return saved;
-    }
-    return initialStoreName || '';
-  });
+  const [storeName, setStoreName] = useState(initialStoreName || '');
   const [saleStart, setSaleStart] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem(`nao3_draft_saleStart_${storeId}`);
@@ -621,20 +615,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         return;
       }
 
-      // 1. 가게 상호명 업데이트
-      const { data: updatedStore, error: storeError } = await supabase
-        .from('nao3_stores')
-        .update({ store_name: storeName })
-        .eq('id', storeId)
-        .select();
-      
-      if (storeError || !updatedStore || updatedStore.length === 0) {
-        console.error('상호명 업데이트 실패:', storeError);
-        alert('상호명 수정 권한이 없습니다. (RLS 에러)');
-        return;
-      }
-
-      // 2. 가장 최근 발송 이력의 기간 및 사장님 멘트 업데이트
+      // 가장 최근 발송 이력의 기간 및 사장님 멘트 업데이트
       const { data: latestPush } = await supabase.from('nao3_push_history').select('*').eq('store_id', storeId).order('created_at', { ascending: false })
         .limit(1)
         .single();
@@ -1023,9 +1004,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
           
           <div className="flex flex-col gap-1 relative z-10">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <h1 className="text-xl font-black text-white tracking-tight drop-shadow-sm">NAO3</h1>
-              <span className="bg-purple-900/50 text-purple-100 text-[10px] font-bold px-2 py-0.5 rounded-full border border-purple-700/50">{storeName}</span>
+              <span className="bg-white/15 text-white text-[13px] font-extrabold px-3 py-1 rounded-full border border-white/25 shadow-sm flex items-center gap-1.5">
+                <span>🏪</span> {storeName}
+              </span>
             </div>
           </div>
           
@@ -1037,25 +1020,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           </button>
         </div>
 
-        {/* 상단 1단/2단 고정 영역: 상호명, 세일 기간 & 사장님 이야기 */}
+        {/* 상단 1단/2단 고정 영역: 세일 기간 & 사장님 이야기 */}
         <div className="max-w-2xl mx-auto w-full p-4 sm:p-6 bg-transparent flex flex-col gap-6">
           
           {/* 구독 상태 배지 */}
           {statusBadge}
-
-          {/* 상호명 설정 */}
-          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-              <span className="text-2xl drop-shadow-sm">🏪</span> 우리 매장 상호명
-            </h3>
-            <input 
-              type="text" 
-              value={storeName} 
-              onChange={e => setStoreName(e.target.value)} 
-              placeholder="예: 우리동네 할인마트"
-              className="w-full text-[15px] font-bold text-[#5F0080] border border-gray-200 px-4 py-3.5 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
-            />
-          </div>
 
           {/* 1단: 세일 진행 기간 */}
           <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
