@@ -900,38 +900,38 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     
     if (diffDays < 0) {
       statusBadge = (
-        <div className="bg-red-50 text-red-700 border border-red-200 px-4 py-3 rounded-2xl text-[15px] font-bold flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xl drop-shadow-sm">⚠️</span>
+        <div className="bg-red-50 text-red-700 border border-red-200 px-3.5 py-2 rounded-xl text-[13px] font-bold flex items-center justify-between shadow-sm gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-base drop-shadow-sm">⚠️</span>
             <span>이용 기간이 만료되었습니다</span>
           </div>
-          <button className="text-sm font-black bg-red-600 text-white px-3 py-2 rounded-xl shadow-sm hover:bg-red-700 transition-colors whitespace-nowrap">
+          <button className="text-xs font-black bg-red-600 text-white px-2.5 py-1 rounded-lg shadow-sm hover:bg-red-700 transition-colors whitespace-nowrap">
             구독 연장하기
           </button>
         </div>
       );
     } else if (subscriptionPaid) {
       statusBadge = (
-        <div className="bg-green-50 text-green-700 border border-green-200 px-4 py-3 rounded-2xl text-[15px] font-bold flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-xl drop-shadow-sm">✅</span>
+        <div className="bg-green-50 text-green-700 border border-green-200 px-3.5 py-2 rounded-xl text-[13px] font-bold flex items-center justify-between shadow-sm">
+          <div className="flex items-center gap-1.5">
+            <span className="text-base drop-shadow-sm">✅</span>
             <span>정식 구독 이용 중</span>
           </div>
-          <span className="text-[13px] font-medium opacity-70">다음 결제일: {expiresDate.toLocaleDateString('ko-KR')}</span>
+          <span className="text-[12px] font-medium opacity-75">다음 결제일: {expiresDate.toLocaleDateString('ko-KR')}</span>
         </div>
       );
     } else {
       statusBadge = (
-        <div className="bg-amber-50 text-amber-900 border border-amber-200/70 px-4 py-3 rounded-2xl text-[15px] font-bold flex flex-col sm:flex-row sm:items-center justify-between shadow-sm gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xl drop-shadow-sm">🎁</span>
-            <span className="tracking-tight">1개월 무료 체험 중입니다</span>
+        <div className="bg-amber-50 text-amber-900 border border-amber-200/70 px-3.5 py-2 rounded-xl text-[13px] font-bold flex flex-wrap items-center justify-between shadow-sm gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-base drop-shadow-sm">🎁</span>
+            <span className="tracking-tight">1개월 무료 체험 중</span>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[13px] bg-amber-200/50 px-2.5 py-1.5 rounded-lg text-amber-900 font-black">
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] bg-amber-200/50 px-2 py-0.5 rounded-md text-amber-900 font-black">
               남은 기간: {diffDays}일
             </span>
-            <button className="text-[13px] font-black bg-gradient-to-r from-amber-400 to-orange-400 text-white px-3 py-1.5 rounded-xl shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap">
+            <button className="text-[12px] font-black bg-gradient-to-r from-amber-400 to-orange-400 text-white px-2.5 py-1 rounded-lg shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap">
               정식 구독 신청
             </button>
           </div>
@@ -1018,16 +1018,17 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         </div>
 
         {/* 상단 1단/2단 고정 영역: 세일 기간 & 사장님 이야기 */}
-        <div className="max-w-2xl mx-auto w-full p-4 sm:p-6 bg-transparent flex flex-col gap-6">
+        <div className="max-w-2xl mx-auto w-full p-4 sm:p-6 bg-transparent flex flex-col gap-4">
           
-          {/* 구독 상태 배지 */}
-          {statusBadge}
+          {/* 구독 상태 배지 & 상호명 타이틀 카드 (슬림 배치) */}
+          <div className="flex flex-col gap-2.5">
+            {statusBadge}
 
-          {/* 상호명 타이틀 카드 */}
-          <div className="bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-2xl border-2 border-[#5F0080] shadow-md flex items-center justify-center">
-            <h2 className="text-2xl sm:text-3xl font-black text-[#5F0080] tracking-tight">
-              {storeName}
-            </h2>
+            <div className="bg-white px-4 py-2.5 rounded-xl border-2 border-[#5F0080] shadow-sm flex items-center justify-center">
+              <h2 className="text-lg sm:text-xl font-black text-[#5F0080] tracking-tight">
+                {storeName}
+              </h2>
+            </div>
           </div>
 
           {/* 1단: 세일 진행 기간 */}
