@@ -223,58 +223,113 @@ export default function MyMenu({ storeData, onStoreUpdate }: { storeData: any; o
     }
   };
 
-  const loadTossPayments = () => {
-    return new Promise((resolve) => {
-      if ((window as any).TossPayments) {
-        resolve((window as any).TossPayments);
+  const loadPortOne = () => {
+    return new Promise((resolve, reject) => {
+      if ((window as any).IMP) {
+        resolve((window as any).IMP);
         return;
       }
       const script = document.createElement('script');
-      script.src = 'https://js.tosspayments.com/v1/payment';
-      script.onload = () => resolve((window as any).TossPayments);
+      script.src = 'https://cdn.iamport.kr/v1/iamport.js';
+      script.onload = () => resolve((window as any).IMP);
+      script.onerror = () => reject(new Error('포트원 결제 모듈을 불러오지 못했습니다.'));
       document.head.appendChild(script);
     });
   };
 
   const handleSubscribe = async () => {
     try {
-      // 1. Fetch Client Key from HQ Settings (or fallback to default test key)
-      let clientKey = 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq'; // Default test key
+      // 1. 기본 포트원(PortOne) KCP 테스트 연동 정보
+      let userCode = 'imp67773427';
+      let channelKey = 'channel-key-8aa11264-f4ca-4794-8b6e-58bd4a9ed614';
+
       try {
         const { data } = await supabase.from('nao3_system_settings').select('*');
         if (data) {
+          const midRow = data.find((r: any) => r.setting_key === 'pg_mid');
           const keyRow = data.find((r: any) => r.setting_key === 'pg_client_key');
-          if (keyRow && keyRow.setting_value) clientKey = keyRow.setting_value;
+          if (midRow?.setting_value?.startsWith('imp')) userCode = midRow.setting_value;
+          if (keyRow?.setting_value?.startsWith('channel-key-')) channelKey = keyRow.setting_value;
         }
       } catch (err) {
-        console.warn('DB settings not found, using default test key.');
+        console.warn('DB settings check skipped, using default PortOne keys.');
       }
 
-      // 2. Load SDK and Initialize
-      const TossPayments = await loadTossPayments() as any;
-      const tossPayments = TossPayments(clientKey);
+      // 2. 포트원 SDK 로드 및 초기화
+      const IMP = (await loadPortOne()) as any;
+      IMP.init(userCode);
 
-      // 3. Request Payment
+      // 3. 결제 요청 정보 구성
       const price = subscriptionPlan === 'annual' ? 390000 : 39000;
-      const orderName = subscriptionPlan === 'annual' ? 'NAO3 연간 결제' : 'NAO3 월간 결제';
-      const orderId = 'order_' + Math.random().toString(36).substring(2, 10);
-      
-      const origin = typeof window !== 'undefined' ? window.location.origin : '';
+      const orderName = subscriptionPlan === 'annual' ? 'NAO3 연간 구독권 (12개월)' : 'NAO3 월간 구독권 (1개월)';
+      const merchantUid = `nao3_${storeData.slug}_${Date.now()}`;
 
-      tossPayments.requestPayment('카드', {
-        amount: price,
-        orderId: orderId,
-        orderName: orderName,
-        customerName: ownerName || storeData.owner_name || '테스트 고객',
-        successUrl: origin + `/store/${storeData.slug}/success`,
-        failUrl: origin + `/store/${storeData.slug}/fail`,
-      }).catch((err: any) => {
-        if (err.code === 'USER_CANCEL') {
-          console.log('User cancelled payment');
-        } else {
-          alert('결제창 호출에 실패했습니다: ' + err.message);
+      IMP.request_pay(
+        {
+          channelKey: channelKey,
+          pay_method: 'card',
+          merchant_uid: merchantUid,
+          name: orderName,
+          amount: price,
+          buyer_email: storeData.email || '',
+          buyer_name: ownerName || storeData.owner_name || storeData.store_name || '가맹점주',
+          buyer_tel: phone || storeData.phone || '010-0000-0000',
+          buyer_addr: address || storeData.address || '',
+        },
+        async (rsp: any) => {
+          if (rsp.success) {
+            try {
+              // 구독 만료일 연장 계산
+              const baseDate = storeData.expires_at && new Date(storeData.expires_at) > new Date()
+                ? new Date(storeData.expires_at)
+                : new Date();
+              const newExpiresAt = new Date(baseDate);
+              if (subscriptionPlan === 'annual') {
+                newExpiresAt.setFullYear(newExpiresAt.getFullYear() + 1);
+              } else {
+                newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+              }
+
+              // 가맹점 구독 상태 및 만료일 DB 업데이트
+              await supabase
+                .from('nao3_stores')
+                .update({
+                  subscription_paid: true,
+                  expires_at: newExpiresAt.toISOString(),
+                })
+                .eq('id', storeData.id);
+
+              // 본사 매출 관리 테이블(nao3_payments)에 내역 기록 시도
+              await supabase
+                .from('nao3_payments')
+                .insert([{
+                  store_id: storeData.id,
+                  store_name: storeData.store_name,
+                  plan_type: subscriptionPlan === 'annual' ? '연간' : '월간',
+                  amount: price,
+                  method: '카드결제 (KCP)',
+                  status: '결제완료',
+                  imp_uid: rsp.imp_uid,
+                  merchant_uid: rsp.merchant_uid,
+                }]);
+
+              if (onStoreUpdate) {
+                onStoreUpdate({
+                  subscription_paid: true,
+                  expires_at: newExpiresAt.toISOString(),
+                });
+              }
+
+              alert(`결제가 정상적으로 완료되었습니다!\n(${orderName})`);
+            } catch (dbErr) {
+              console.warn('결제 후 DB 업데이트 경고:', dbErr);
+              alert('결제는 성공했으나 상태 반영 중 일부 경고가 발생했습니다.');
+            }
+          } else {
+            alert(`결제에 실패했습니다: ${rsp.error_msg}`);
+          }
         }
-      });
+      );
     } catch (err: any) {
       alert('결제 준비 중 오류가 발생했습니다: ' + err.message);
     }
