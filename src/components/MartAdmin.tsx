@@ -1024,8 +1024,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           {statusBadge}
 
           {/* 상호명 타이틀 카드 */}
-          <div className="bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-center">
-            <h2 className="text-xl sm:text-2xl font-black text-[#5F0080] tracking-tight">
+          <div className="bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-2xl border-2 border-[#5F0080] shadow-md flex items-center justify-center">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#5F0080] tracking-tight">
               {storeName}
             </h2>
           </div>
