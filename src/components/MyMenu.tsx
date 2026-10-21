@@ -179,6 +179,20 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     if (storeData?.id) {
       sessionStorage.removeItem(`nao3_store_role_${storeData.id}`);
     }
+
+    // PIN이 설정되어 있는지 확인하여 설정되어 있으면 PIN 입력 화면으로 즉시 이동
+    const ownerKey = `STORE_OWNER_PIN_${storeData.id}`;
+    const staffKey = `STORE_STAFF_PIN_${storeData.id}`;
+    const { data: pinRows } = await supabase
+      .from('nao3_system_settings')
+      .select('setting_key')
+      .in('setting_key', [ownerKey, staffKey]);
+
+    if (pinRows && pinRows.length > 0 && onLockPin) {
+      onLockPin();
+      return;
+    }
+
     await supabase.auth.signOut();
     router.push('/');
   };
@@ -525,15 +539,6 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
               {isSavingPin ? '저장 중...' : (hasStaffPin ? '직원 PIN 변경하기' : '직원 PIN 저장하기')}
             </button>
           </div>
-
-          {(hasOwnerPin || hasStaffPin) && onLockPin && (
-            <button
-              onClick={onLockPin}
-              className="w-full py-4 rounded-xl font-extrabold text-[#5F0080] bg-white border-2 border-[#5F0080] hover:bg-purple-50 text-[15px] transition-all shadow-sm flex items-center justify-center gap-2"
-            >
-              <span>🔒</span> 지금 바로 6자리 PIN 로그인 화면으로 전환 (테스트/잠금)
-            </button>
-          )}
         </div>
       </div>
     );

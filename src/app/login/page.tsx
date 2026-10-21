@@ -33,10 +33,19 @@ export default function AdminRouterPage() {
     
     if (session?.user) {
       const { data: st } = await supabase.from('nao3_stores').select('slug').eq('id', session.user.id).single();
-      if(st) router.push(`/store/${st.slug}`);
-    } else {
-      setLoading(false);
+      if(st) {
+        router.push(`/store/${st.slug}`);
+        return;
+      }
     }
+
+    const lastSlug = typeof window !== 'undefined' ? localStorage.getItem('nao3_last_store_slug') : null;
+    if (lastSlug) {
+      router.push(`/store/${lastSlug}`);
+      return;
+    }
+
+    setLoading(false);
   };
 
   const handleLogin = async (e: React.FormEvent) => {

@@ -67,6 +67,9 @@ export default function StoreAdminPage() {
     }
 
     setStoreData(store);
+    if (typeof window !== 'undefined' && store.slug) {
+      localStorage.setItem('nao3_last_store_slug', store.slug);
+    }
 
     if (store.expires_at) {
       const expiresAt = new Date(store.expires_at);
