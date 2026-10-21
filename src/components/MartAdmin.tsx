@@ -1004,11 +1004,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none"></div>
           
           <div className="flex flex-col gap-1 relative z-10">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <h1 className="text-xl font-black text-white tracking-tight drop-shadow-sm">NAO3</h1>
-              <span className="bg-white/15 text-white text-[13px] font-extrabold px-3 py-1 rounded-full border border-white/25 shadow-sm flex items-center gap-1.5">
-                <span>🏪</span> {storeName}
-              </span>
             </div>
           </div>
           
@@ -1026,14 +1023,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           {/* 구독 상태 배지 */}
           {statusBadge}
 
-          {/* 우리 매장 상호명 (고정 타이틀 표시) */}
-          <div className="bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <span className="text-2xl drop-shadow-sm">🏪</span>
-              <span className="text-sm font-bold text-gray-500">우리 매장 상호명</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#5F0080] tracking-tight">
-              {storeName}
+          {/* 상호명 타이틀 카드 */}
+          <div className="bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-center">
+            <h2 className="text-xl sm:text-2xl font-black text-[#5F0080] tracking-tight flex items-center gap-2">
+              <span>🏪</span> {storeName}
             </h2>
           </div>
 
