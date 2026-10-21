@@ -1020,7 +1020,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         {/* 상단 1단/2단 고정 영역: 세일 기간 & 사장님 이야기 */}
         <div className="max-w-2xl mx-auto w-full p-4 sm:p-6 bg-transparent flex flex-col gap-4">
           
-          {/* 구독 상태 배지 & 상호명 타이틀 카드 (슬림 배치) */}
+          {/* 상단 구독 상태 배지 & 매장 상호명 타이틀 카드 */}
           <div className="flex flex-col gap-2.5">
             {statusBadge}
 
