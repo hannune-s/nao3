@@ -23,6 +23,12 @@ export default function AdminRouterPage() {
   }, []);
 
   const checkUser = async () => {
+    const isResetPin = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('reset_pin') === 'true';
+    if (isResetPin) {
+      setLoading(false);
+      return;
+    }
+
     const { data: { session } } = await supabase.auth.getSession();
     
     if (session?.user) {
@@ -49,6 +55,8 @@ export default function AdminRouterPage() {
       alert('로그인 실패: ' + error.message);
       setLoading(false);
     } else if (data.session?.user) {
+      // 이메일/비밀번호로 직접 로그인한 경우 사장님 권한 즉시 부여
+      sessionStorage.setItem(`nao3_store_role_${data.session.user.id}`, 'owner');
       const { data: st } = await supabase.from('nao3_stores').select('slug').eq('id', data.session.user.id).single();
       if(st) router.push(`/store/${st.slug}`);
     }

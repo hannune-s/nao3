@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
-export default function MyMenu({ storeData, onStoreUpdate }: { storeData: any; onStoreUpdate?: (updated: any) => void }) {
+export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockPin }: { storeData: any; onStoreUpdate?: (updated: any) => void; onPinUpdated?: () => void; onLockPin?: () => void }) {
   const router = useRouter();
 
   const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry'>('main');
@@ -134,7 +134,9 @@ export default function MyMenu({ storeData, onStoreUpdate }: { storeData: any; o
         .upsert([{ setting_key: ownerKey, setting_value: hashed }], { onConflict: 'setting_key' });
 
       if (error) throw error;
-      alert('사장 PIN 번호(6자리)가 안전하게 저장되었습니다!');
+      sessionStorage.setItem(`nao3_store_role_${storeData.id}`, 'owner');
+      if (onPinUpdated) onPinUpdated();
+      alert('사장 PIN 번호(6자리)가 안전하게 저장되었습니다!\n이제 다음 접속부터는 6자리 번호로 1초 만에 로그인하실 수 있습니다.');
       setOwnerPin('');
       setHasOwnerPin(true);
     } catch (err: any) {
@@ -160,7 +162,9 @@ export default function MyMenu({ storeData, onStoreUpdate }: { storeData: any; o
         .upsert([{ setting_key: staffKey, setting_value: hashed }], { onConflict: 'setting_key' });
 
       if (error) throw error;
-      alert('직원 PIN 번호(6자리)가 안전하게 저장되었습니다!');
+      sessionStorage.setItem(`nao3_store_role_${storeData.id}`, 'owner');
+      if (onPinUpdated) onPinUpdated();
+      alert('직원 PIN 번호(6자리)가 안전하게 저장되었습니다!\n직원이 이 번호로 접속하면 전단지 입력 화면만 열리고 마이메뉴는 숨겨집니다.');
       setStaffPin('');
       setHasStaffPin(true);
     } catch (err: any) {
@@ -172,6 +176,9 @@ export default function MyMenu({ storeData, onStoreUpdate }: { storeData: any; o
   };
 
   const handleLogout = async () => {
+    if (storeData?.id) {
+      sessionStorage.removeItem(`nao3_store_role_${storeData.id}`);
+    }
     await supabase.auth.signOut();
     router.push('/');
   };
@@ -424,11 +431,17 @@ export default function MyMenu({ storeData, onStoreUpdate }: { storeData: any; o
         </div>
 
         <div className="p-5 flex flex-col gap-6">
-          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-[13px] text-blue-900 leading-relaxed font-medium">
-            💡 <strong>PIN 번호 관리 안내</strong><br/>
-            • <strong>사장 PIN:</strong> 매장 어드민 전체(전단지 입력 + 마이메뉴)를 모두 관리할 수 있습니다.<br/>
-            • <strong>직원 PIN:</strong> 직원이 로그인할 경우 <strong>전단지 입력만 가능</strong>하며, 마이메뉴(구독/설정 등)는 철저히 숨겨집니다.<br/>
-            • 모든 PIN 번호는 데이터베이스에 암호화(단방향 해시)되어 안전하게 보관됩니다.
+          <div className="bg-purple-50 border border-purple-100 rounded-2xl p-5 text-[13.5px] text-gray-800 leading-relaxed space-y-2.5 shadow-sm">
+            <div className="font-black text-[#5F0080] text-[15px] flex items-center gap-1.5">
+              <span>💡</span> 매번 아이디/비밀번호 치기 번거로우시죠?
+            </div>
+            <p className="text-gray-700 break-keep">
+              여기서 <strong>숫자 6자리 번호</strong>만 설정해 두시면, 다음부터는 복잡한 이메일과 비밀번호 대신 <strong>숫자 6자리만 눌러 1초 만에 접속</strong>할 수 있습니다!
+            </p>
+            <div className="bg-white/80 rounded-xl p-3.5 border border-purple-100 space-y-1.5 text-[13px]">
+              <p>• <strong>👑 사장 PIN (6자리):</strong> 사장님 본인이 접속할 때 쓰는 번호입니다. <strong>전단지 입력 + 마이메뉴 전체</strong>가 열립니다.</p>
+              <p>• <strong>🧑‍💼 직원 PIN (6자리):</strong> 직원에게 내 아이디/비번을 알려주지 마세요! 직원 번호를 만들어 알려주면 직원은 <strong>전단지 입력만 가능</strong>하고 마이메뉴(결제/설정)는 아예 보이지 않습니다.</p>
+            </div>
           </div>
 
           {/* 사장 PIN 설정 */}
@@ -512,6 +525,15 @@ export default function MyMenu({ storeData, onStoreUpdate }: { storeData: any; o
               {isSavingPin ? '저장 중...' : (hasStaffPin ? '직원 PIN 변경하기' : '직원 PIN 저장하기')}
             </button>
           </div>
+
+          {(hasOwnerPin || hasStaffPin) && onLockPin && (
+            <button
+              onClick={onLockPin}
+              className="w-full py-4 rounded-xl font-extrabold text-[#5F0080] bg-white border-2 border-[#5F0080] hover:bg-purple-50 text-[15px] transition-all shadow-sm flex items-center justify-center gap-2"
+            >
+              <span>🔒</span> 지금 바로 6자리 PIN 로그인 화면으로 전환 (테스트/잠금)
+            </button>
+          )}
         </div>
       </div>
     );
