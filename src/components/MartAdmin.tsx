@@ -1026,6 +1026,17 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           {/* 구독 상태 배지 */}
           {statusBadge}
 
+          {/* 우리 매장 상호명 (고정 타이틀 표시) */}
+          <div className="bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <span className="text-2xl drop-shadow-sm">🏪</span>
+              <span className="text-sm font-bold text-gray-500">우리 매장 상호명</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-[#5F0080] tracking-tight">
+              {storeName}
+            </h2>
+          </div>
+
           {/* 1단: 세일 진행 기간 */}
           <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
             <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2 flex-wrap">
