@@ -18,6 +18,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
   const [address, setAddress] = useState(storeData.address || '');
   const [operatingHours, setOperatingHours] = useState(storeData.operating_hours || '');
   const [closedDays, setClosedDays] = useState(storeData.closed_days || '');
+  const [etcInfo, setEtcInfo] = useState(storeData.etc_info || '');
   const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   // Security (PIN) states
@@ -42,18 +43,27 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
   const fetchLatestStoreInfo = async () => {
     if (!storeData?.id || storeData.id.startsWith('demo-guest-')) return;
     try {
-      const { data, error } = await supabase
-        .from('nao3_stores')
-        .select('owner_name, phone, address, operating_hours, closed_days')
-        .eq('id', storeData.id)
-        .single();
+      const [{ data, error }, { data: etcRow }] = await Promise.all([
+        supabase
+          .from('nao3_stores')
+          .select('owner_name, phone, address, operating_hours, closed_days')
+          .eq('id', storeData.id)
+          .single(),
+        supabase
+          .from('nao3_system_settings')
+          .select('setting_value')
+          .eq('setting_key', `STORE_ETC_INFO_${storeData.id}`)
+          .maybeSingle(),
+      ]);
       if (!error && data) {
+        const fetchedEtc = etcRow?.setting_value ?? '';
         setOwnerName(data.owner_name || '');
         setPhone(data.phone || '');
         setAddress(data.address || '');
         setOperatingHours(data.operating_hours || '');
         setClosedDays(data.closed_days || '');
-        if (onStoreUpdate) onStoreUpdate(data);
+        setEtcInfo(fetchedEtc);
+        if (onStoreUpdate) onStoreUpdate({ ...data, etc_info: fetchedEtc });
       }
     } catch (err) {
       console.warn('최신 매장 정보 조회 실패:', err);
@@ -227,14 +237,20 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     setIsSavingSettings(true);
     try {
       const updatedFields = { phone, address, operating_hours: operatingHours, closed_days: closedDays };
-      const { error: dbError } = await supabase
-        .from('nao3_stores')
-        .update(updatedFields)
-        .eq('id', storeData.id);
+      const [{ error: dbError }, { error: etcError }] = await Promise.all([
+        supabase
+          .from('nao3_stores')
+          .update(updatedFields)
+          .eq('id', storeData.id),
+        supabase
+          .from('nao3_system_settings')
+          .upsert([{ setting_key: `STORE_ETC_INFO_${storeData.id}`, setting_value: etcInfo }], { onConflict: 'setting_key' }),
+      ]);
 
       if (dbError) throw dbError;
+      if (etcError) throw etcError;
 
-      if (onStoreUpdate) onStoreUpdate(updatedFields);
+      if (onStoreUpdate) onStoreUpdate({ ...updatedFields, etc_info: etcInfo });
       alert('가게정보 설정이 성공적으로 업데이트되었습니다.');
     } catch (err: any) {
       console.error(err);
@@ -423,6 +439,16 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
             <div>
               <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">휴무일</label>
               <input type="text" value={closedDays} onChange={(e) => setClosedDays(e.target.value)} placeholder="예: 매주 일요일 휴무" className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all" />
+            </div>
+            <div>
+              <label className="block text-[13px] font-extrabold text-gray-800 mb-1.5">기타 안내사항</label>
+              <textarea
+                rows={3}
+                value={etcInfo}
+                onChange={(e) => setEtcInfo(e.target.value)}
+                placeholder="예: 3만원 이상 무료배달 / 건물 뒤편 전용 주차장 완비 / 지역화폐 사용 가능 등"
+                className="w-full bg-white border border-gray-200 rounded-lg px-3.5 py-3 text-[15px] text-gray-900 font-bold focus:outline-none focus:ring-2 focus:ring-[#5F0080] focus:border-transparent transition-all resize-none"
+              />
             </div>
           </div>
           <button onClick={handleSaveSettings} disabled={isSavingSettings} className={`w-full py-4 rounded-xl font-black text-white text-[16px] transition-all shadow-md ${isSavingSettings ? 'bg-gray-400 shadow-none' : 'bg-[#5F0080] hover:bg-[#4A0066] hover:shadow-lg active:scale-[0.98]'}`}>

@@ -206,7 +206,12 @@ export default function CustomerSalePage() {
           if (store) {
             storeIdForQuery = store.id;
             setStoreName(store.store_name);
-            setStoreInfo(store);
+            const { data: etcRow } = await supabase
+              .from('nao3_system_settings')
+              .select('setting_value')
+              .eq('setting_key', `STORE_ETC_INFO_${store.id}`)
+              .maybeSingle();
+            setStoreInfo({ ...store, etc_info: etcRow?.setting_value || '' });
           }
         }
 
@@ -688,6 +693,13 @@ export default function CustomerSalePage() {
                       <span className="text-[15px] font-black text-[#5F0080]">
                         <a href={`tel:${storeInfo.phone}`} className="hover:underline">{storeInfo.phone}</a>
                       </span>
+                    </div>
+                  )}
+
+                  {storeInfo.etc_info && (
+                    <div className="flex items-start gap-4">
+                      <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">기타안내</span>
+                      <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep whitespace-pre-line">{storeInfo.etc_info}</span>
                     </div>
                   )}
 
