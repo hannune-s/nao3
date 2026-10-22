@@ -31,9 +31,9 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
 
   // Subscription mock states
   const [hasCard, setHasCard] = useState(false);
-  const [subscriptionPlan, setSubscriptionPlan] = useState('annual');
+  const [subscriptionPlan, setSubscriptionPlan] = useState('monthly');
   const businessLabel = storeData.business_type === 'mart' ? '마트' : '정육점';
-  const monthlyFee = '39,000';
+  const monthlyFee = '14,900';
 
   // Notices state
   const [hqNotices, setHqNotices] = useState<any[]>([]);
@@ -297,7 +297,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
       IMP.init(userCode);
 
       // 3. 결제 요청 정보 구성
-      const price = subscriptionPlan === 'annual' ? 390000 : 39000;
+      const price = subscriptionPlan === 'annual' ? 178800 : 14900;
       const orderName = subscriptionPlan === 'annual' ? 'NAO3 연간 구독권 (12개월)' : 'NAO3 월간 구독권 (1개월)';
       const merchantUid = `nao3_${storeData.slug}_${Date.now()}`;
 
@@ -581,59 +581,122 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
           <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">구독 및 결제 관리</h1>
         </div>
 
-        <div className="p-5 flex flex-col gap-6">
+        <div className="p-5 flex flex-col gap-5 max-w-2xl mx-auto">
 
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-[14px] font-extrabold text-gray-800 mb-4 px-1">요금제 선택</h3>
-
-            {/* 안내문 */}
-            <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-5 text-[13px] text-gray-700 leading-relaxed shadow-sm">
-              <p className="font-black text-[#5F0080] flex items-center gap-1.5 mb-1.5">
-                <span>📢</span> 1개월 무료 체험 안내
-              </p>
-              <p className="text-gray-700 leading-relaxed">현재 <strong className="text-gray-900">1개월 무료 체험</strong> 중입니다.<br/>무료 체험 이후에도 NAO3를 계속 이용하시려면 아래에서 요금제를 선택하고 구독을 시작해 주세요.</p>
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
+            {/* 상단 이용권 상태 헤더 */}
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">💳</span>
+                <h3 className="text-[17px] font-black text-gray-900 tracking-tight">나의 이용권 상태</h3>
+              </div>
+              {storeData?.subscription_paid ? (
+                <span className="bg-green-50 text-green-700 border border-green-200 text-[12px] font-extrabold px-3.5 py-1.5 rounded-full">
+                  정식 구독 이용 중
+                </span>
+              ) : (
+                <span className="bg-indigo-50 text-indigo-600 border border-indigo-100 text-[12px] font-extrabold px-3.5 py-1.5 rounded-full">
+                  현재 무료 체험 중
+                </span>
+              )}
             </div>
 
-            {/* 요금제 선택 */}
-            <div className="flex flex-col gap-3 mb-6">
+            {/* 이용권 안내 및 요금제 박스 */}
+            <div className="bg-[#F8F9FA] rounded-2xl p-5 sm:p-6 border border-gray-100 mb-6">
+              <h4 className="text-[17px] font-black text-gray-900 mb-2.5 tracking-tight">NAO3 이용권 안내</h4>
+              <div className="text-[13.5px] text-gray-600 leading-relaxed space-y-1 mb-6 break-keep">
+                <p>월간 정상 이용 요금은 <strong className="text-gray-900 font-extrabold">월 49,000원</strong>.</p>
+                <p>
+                  <strong className="text-gray-900 font-extrabold">소상공인 상생 응원가</strong>로{' '}
+                  <strong className="text-[#5F0080] font-black">월 14,900원</strong>에 제한 없는 모바일 전단지 생성과 무제한 고객 푸시 알림을 경험해보세요.
+                </p>
+                <p>매월 나가는 수십만 원의 문자 발송비 부담을 확실하게 덜어드립니다.</p>
+              </div>
 
-              {/* 연간 결제 */}
-              <label className={`flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'annual' ? 'border-[#5F0080] bg-purple-50/30 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
-                <div className="flex items-start gap-3 mb-3">
-                  <input type="radio" name="plan" value="annual" checked={subscriptionPlan === 'annual'} onChange={() => setSubscriptionPlan('annual')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4 mt-0.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-1.5 mb-1">
-                      <span className="font-black text-gray-900 text-[16px]">연간 결제</span>
-                      <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shrink-0">⭐ BEST</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[14px] text-gray-500 font-semibold line-through">490,000원</span>
-                      <span className="font-black text-[#5F0080] text-[18px]">연 390,000원</span>
+              {/* 요금제 선택 (월간 결제가 위쪽, 연간 결제가 아래쪽) */}
+              <div className="flex flex-col gap-4">
+
+                {/* 1. 월간 결제 (위쪽 배치) */}
+                <label
+                  className={`relative overflow-hidden bg-white flex flex-col border-2 rounded-2xl p-5 cursor-pointer transition-all ${
+                    subscriptionPlan === 'monthly'
+                      ? 'border-[#4F46E5] ring-2 ring-[#4F46E5]/15 shadow-md'
+                      : 'border-gray-200 hover:border-indigo-300 shadow-sm'
+                  }`}
+                >
+                  {/* 우측 상단 배지 */}
+                  <div className="absolute top-0 right-0 bg-[#4F46E5] text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-bl-xl">
+                    소상공인 상생 응원가
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="radio"
+                      name="plan"
+                      value="monthly"
+                      checked={subscriptionPlan === 'monthly'}
+                      onChange={() => setSubscriptionPlan('monthly')}
+                      className="text-[#4F46E5] focus:ring-[#4F46E5] w-4 h-4 mt-1 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-extrabold text-gray-800 text-[15px] mb-1.5">월간 결제</p>
+                      <div className="flex items-baseline gap-2 flex-wrap mb-2">
+                        <span className="font-black text-gray-900 text-[28px] sm:text-[30px] leading-none tracking-tight">
+                          14,900<span className="text-[16px] font-extrabold ml-0.5">원</span>
+                        </span>
+                        <span className="text-[15px] text-gray-400 font-bold line-through">49,000원</span>
+                      </div>
+                      <p className="text-[13px] font-extrabold text-[#4F46E5] mb-1">
+                        소상공인 상생 응원가 (정가 대비 약 70% 할인)
+                      </p>
+                      <p className="text-[12px] text-gray-500 font-medium">
+                        1개월 이용권이 단독 결제됩니다. (언제든 해지 가능)
+                      </p>
                     </div>
                   </div>
-                </div>
-                <div className="pl-7 text-[12px] text-gray-600 font-medium space-y-0.5">
-                  <p>· 12개월 이용 <span className="text-gray-400">(월 32,500원 꼴 / 일시불)</span></p>
-                  <p>· 2개월 무료 혜택 자동 반영</p>
-                </div>
-              </label>
+                </label>
 
-              {/* 월간 결제 */}
-              <label className={`flex flex-col border-2 rounded-xl p-4 cursor-pointer transition-all ${subscriptionPlan === 'monthly' ? 'border-[#5F0080] bg-purple-50/30 shadow-md' : 'border-gray-200 hover:border-purple-300'}`}>
-                <div className="flex items-start gap-3 mb-2">
-                  <input type="radio" name="plan" value="monthly" checked={subscriptionPlan === 'monthly'} onChange={() => setSubscriptionPlan('monthly')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4 mt-0.5 shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-gray-800 text-[16px] mb-1">월간 결제</p>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[14px] text-gray-500 font-semibold line-through">49,000원</span>
-                      <span className="font-bold text-gray-900 text-[18px]">월 39,000원</span>
+                {/* 2. 연간 결제 (아래쪽 배치) */}
+                <label
+                  className={`relative overflow-hidden bg-white flex flex-col border-2 rounded-2xl p-5 cursor-pointer transition-all ${
+                    subscriptionPlan === 'annual'
+                      ? 'border-[#F43F5E] ring-2 ring-[#F43F5E]/15 shadow-md'
+                      : 'border-gray-200 hover:border-rose-300 shadow-sm'
+                  }`}
+                >
+                  {/* 우측 상단 배지 */}
+                  <div className="absolute top-0 right-0 bg-[#F43F5E] text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-bl-xl">
+                    추천! 정가 대비 약 64% 할인
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="radio"
+                      name="plan"
+                      value="annual"
+                      checked={subscriptionPlan === 'annual'}
+                      onChange={() => setSubscriptionPlan('annual')}
+                      className="text-[#F43F5E] focus:ring-[#F43F5E] w-4 h-4 mt-1 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-extrabold text-gray-800 text-[15px] mb-1.5">연간 결제</p>
+                      <div className="flex items-baseline gap-2 flex-wrap mb-2">
+                        <span className="font-black text-gray-900 text-[28px] sm:text-[30px] leading-none tracking-tight">
+                          178,800<span className="text-[16px] font-extrabold ml-0.5">원</span>
+                        </span>
+                        <span className="text-[15px] text-gray-400 font-bold line-through">490,000원</span>
+                      </div>
+                      <p className="text-[13px] font-extrabold text-[#F43F5E] mb-1">
+                        월 14,900원 꼴 (정가 대비 311,200원 특별 할인)
+                      </p>
+                      <p className="text-[12px] text-gray-500 font-medium">
+                        1년 치(12개월)가 한 번에 결제됩니다.
+                      </p>
                     </div>
                   </div>
-                </div>
-                <div className="pl-7 text-[12px] text-gray-600 space-y-0.5">
-                  <p>· 매월 정기결제 / 언제든 해지 가능</p>
-                </div>
-              </label>
+                </label>
+
+              </div>
             </div>
 
             <button onClick={handleSubscribe} className="w-full bg-[#5F0080] text-white font-black py-4 rounded-xl shadow-md hover:bg-purple-900 transition-colors text-[16px]">
