@@ -14,7 +14,7 @@ export default function TermsPage() {
         <div className="p-6 md:p-10 h-[60vh] overflow-y-auto custom-scrollbar">
           <div className="prose prose-sm md:prose-base max-w-none text-gray-700">
             <h3 className="text-lg font-bold text-gray-900 mt-0">제 1 조 (목적)</h3>
-            <p>이 약관은 (주)한누네(이하 "회사"라 합니다)가 제공하는 NAO3 서비스(이하 "서비스"라 합니다)의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
+            <p>이 약관은 싹(SSAK)(이하 "회사"라 합니다)가 제공하는 NAO3 서비스(이하 "서비스"라 합니다)의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.</p>
             
             <h3 className="text-lg font-bold text-gray-900 mt-6">제 2 조 (정의)</h3>
             <p>이 약관에서 사용하는 용어의 정의는 다음과 같습니다.</p>

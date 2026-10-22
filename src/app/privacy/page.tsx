@@ -14,7 +14,7 @@ export default function PrivacyPage() {
         <div className="p-6 md:p-10 h-[60vh] overflow-y-auto custom-scrollbar">
           <div className="prose prose-sm md:prose-base max-w-none text-gray-700">
             <h3 className="text-lg font-bold text-gray-900 mt-0">1. 개인정보의 처리 목적</h3>
-            <p>‘(주)한누네’(이하 ‘회사’)은(는) 다음의 목적을 위하여 개인정보를 처리하고 있으며, 다음의 목적 이외의 용도로는 이용하지 않습니다.</p>
+            <p>‘싹(SSAK)’(이하 ‘회사’)은(는) 다음의 목적을 위하여 개인정보를 처리하고 있으며, 다음의 목적 이외의 용도로는 이용하지 않습니다.</p>
             <ul className="list-disc pl-5 mt-2">
               <li>고객 가입의사 확인, 고객에 대한 서비스 제공에 따른 본인 식별.인증, 회원자격 유지.관리, 물품 또는 서비스 공급에 따른 금액 결제, 물품 또는 서비스의 공급.배송 등</li>
             </ul>
@@ -66,7 +66,7 @@ export default function PrivacyPage() {
             <p>회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.</p>
             <ul className="list-disc pl-5 mt-2">
               <li>성명 : 송하나</li>
-              <li>직책 : 대표이사</li>
+              <li>직책 : 대표</li>
               <li>연락처 : 070-4233-5553, hangose7@gmail.com</li>
             </ul>
 

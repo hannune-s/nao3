@@ -143,15 +143,23 @@ export default function StoreAdminPage() {
       return;
     }
 
-    // 4. PIN이 하나라도 설정되어 있으면 -> PIN 번호 입력 화면을 먼저 띄움
+    // 4. 사장님 PIN이 미설정 상태이고, 이메일 로그인 세션이 유효한 경우 -> 바로 사장님 권한 부여
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!foundOwnerPin && session?.user?.id === store.id) {
+      sessionStorage.setItem(`nao3_store_role_${store.id}`, 'owner');
+      setAccessRole('owner');
+      setLoading(false);
+      return;
+    }
+
+    // 5. PIN이 하나라도 설정되어 있으면 -> PIN 번호 입력 화면을 먼저 띄움
     if (hasAnyPin) {
       setAccessRole(null);
       setLoading(false);
       return;
     }
 
-    // 5. 아직 PIN이 하나도 설정되지 않은 초기 매장 -> 이메일 로그인 세션 확인
-    const { data: { session } } = await supabase.auth.getSession();
+    // 6. 아직 PIN이 하나도 설정되지 않은 초기 매장 -> 이메일 로그인 세션 확인
     if (!session?.user) {
       router.push('/login');
       return;
@@ -164,6 +172,7 @@ export default function StoreAdminPage() {
     }
 
     // 이메일 로그인된 사장님 -> 최초 PIN 등록 전이므로 사장 권한 부여
+    sessionStorage.setItem(`nao3_store_role_${store.id}`, 'owner');
     setAccessRole('owner');
     setLoading(false);
   };
