@@ -6,7 +6,35 @@ import { useRouter } from 'next/navigation';
 export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockPin }: { storeData: any; onStoreUpdate?: (updated: any) => void; onPinUpdated?: () => void; onLockPin?: () => void }) {
   const router = useRouter();
 
-  const [view, setView] = useState<'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry'>('main');
+  type MenuView = 'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry';
+  const [view, setViewState] = useState<MenuView>('main');
+
+  const setView = (nextView: MenuView) => {
+    if (typeof window !== 'undefined') {
+      if (nextView === 'main') {
+        if (window.history.state?.nao3View && window.history.state.nao3View !== 'main') {
+          window.history.back();
+          return;
+        }
+        window.history.replaceState({ nao3Tab: 'mymenu', nao3View: 'main' }, '');
+      } else {
+        window.history.pushState({ nao3Tab: 'mymenu', nao3View: nextView }, '');
+      }
+    }
+    setViewState(nextView);
+  };
+
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state?.nao3Tab === 'mymenu') {
+        setViewState(e.state.nao3View || 'main');
+      } else {
+        setViewState('main');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Account form states
   const [ownerName, setOwnerName] = useState(storeData.owner_name || '');

@@ -33,6 +33,39 @@ export default function StoreAdminPage() {
   // Navigation State
   const [activeTab, setActiveTab] = useState<'home' | 'mymenu'>('home');
 
+  const handleSwitchTab = (tab: 'home' | 'mymenu') => {
+    if (typeof window !== 'undefined') {
+      if (tab === 'home') {
+        if (activeTab === 'mymenu') {
+          window.history.pushState({ nao3Tab: 'home', nao3View: 'main' }, '');
+        }
+      } else {
+        if (activeTab !== 'mymenu') {
+          window.history.pushState({ nao3Tab: 'mymenu', nao3View: 'main' }, '');
+        } else if (window.history.state?.nao3View && window.history.state.nao3View !== 'main') {
+          window.history.back();
+          return;
+        }
+      }
+    }
+    setActiveTab(tab);
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !window.history.state?.nao3Tab) {
+      window.history.replaceState({ nao3Tab: 'home', nao3View: 'main' }, '');
+    }
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state?.nao3Tab === 'mymenu') {
+        setActiveTab('mymenu');
+      } else {
+        setActiveTab('home');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   useEffect(() => {
     if (storeSlug) {
       checkUserAndStore();
@@ -322,7 +355,7 @@ export default function StoreAdminPage() {
       {accessRole === 'owner' && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center h-16 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] z-50">
           <button 
-            onClick={() => setActiveTab('home')}
+            onClick={() => handleSwitchTab('home')}
             className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'home' ? 'text-[#5F0080]' : 'text-gray-400 hover:text-gray-600'}`}
           >
             <svg className="w-6 h-6" fill={activeTab === 'home' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
@@ -331,7 +364,7 @@ export default function StoreAdminPage() {
             <span className="text-[10px] font-extrabold tracking-tight">홈</span>
           </button>
           <button 
-            onClick={() => setActiveTab('mymenu')}
+            onClick={() => handleSwitchTab('mymenu')}
             className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'mymenu' ? 'text-[#5F0080]' : 'text-gray-400 hover:text-gray-600'}`}
           >
             <svg className="w-6 h-6" fill={activeTab === 'mymenu' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
