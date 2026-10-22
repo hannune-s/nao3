@@ -21,6 +21,8 @@ export default function RegisterPage() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
   
   const [loading, setLoading] = useState(false);
 
@@ -32,6 +34,10 @@ export default function RegisterPage() {
     }
     if (!file) {
       alert('사업자등록증을 첨부해주세요.');
+      return;
+    }
+    if (!agreeTerms || !agreePrivacy) {
+      alert('필수 이용약관 및 개인정보 처리방침에 동의해주세요.');
       return;
     }
 
@@ -254,17 +260,66 @@ export default function RegisterPage() {
 
           {/* 1개월 무료 혜택 안내 */}
           <div className="mt-4 border-t pt-6">
-            <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-2 text-sm text-gray-700 leading-relaxed shadow-sm text-center">
+            <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-4 text-sm text-gray-700 leading-relaxed shadow-sm text-center">
               <p className="font-black text-[#5F0080] flex items-center justify-center gap-1 mb-1">
                 <span className="text-base">🎁</span> 가입 시 1개월 무료 체험 혜택 제공!
               </p>
               <p className="text-gray-700 text-xs">부담 없이 시작해 보세요. 요금제 및 결제 정보 등록은<br/><strong className="text-gray-900">1개월 무료 체험 후 어드민 메뉴에서</strong> 진행하실 수 있습니다.</p>
             </div>
+
+            {/* 약관 및 개인정보 동의 */}
+            <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2.5 text-sm">
+              <label className="flex items-center gap-2.5 cursor-pointer pb-2 border-b border-gray-200">
+                <input
+                  type="checkbox"
+                  checked={agreeTerms && agreePrivacy}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setAgreeTerms(checked);
+                    setAgreePrivacy(checked);
+                  }}
+                  className="w-4 h-4 rounded text-[#5F0080] focus:ring-[#5F0080]"
+                />
+                <span className="font-extrabold text-gray-900 text-[13.5px]">전체 약관에 모두 동의합니다.</span>
+              </label>
+
+              <div className="flex items-center justify-between pt-0.5">
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={agreeTerms}
+                    onChange={(e) => setAgreeTerms(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#5F0080] focus:ring-[#5F0080]"
+                  />
+                  <span className="text-[13px] text-gray-700 font-semibold">[필수] 서비스 이용약관 동의</span>
+                </label>
+                <Link href="/terms" target="_blank" className="text-xs text-gray-500 underline hover:text-[#5F0080] font-bold">
+                  보기
+                </Link>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    required
+                    checked={agreePrivacy}
+                    onChange={(e) => setAgreePrivacy(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#5F0080] focus:ring-[#5F0080]"
+                  />
+                  <span className="text-[13px] text-gray-700 font-semibold">[필수] 개인정보 수집 및 이용 동의</span>
+                </label>
+                <Link href="/privacy" target="_blank" className="text-xs text-gray-500 underline hover:text-[#5F0080] font-bold">
+                  보기
+                </Link>
+              </div>
+            </div>
           </div>
 
           <button 
             type="submit" disabled={loading}
-            className="w-full mt-4 py-4 bg-[#5F0080] hover:bg-purple-900 disabled:bg-purple-300 text-white font-black text-lg rounded-xl transition-colors shadow-lg"
+            className="w-full mt-2 py-4 bg-[#5F0080] hover:bg-purple-900 disabled:bg-purple-300 text-white font-black text-lg rounded-xl transition-colors shadow-lg"
           >
             {loading ? '가입 처리 중...' : 'NAO3 시작하기'}
           </button>

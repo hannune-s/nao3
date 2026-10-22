@@ -41,7 +41,7 @@ export default function PrivacyPage() {
             <h3 className="text-lg font-bold text-gray-900 mt-6">3. 처리하는 개인정보의 항목</h3>
             <p>회사는 다음의 개인정보 항목을 처리하고 있습니다.</p>
             <ul className="list-disc pl-5 mt-2 space-y-1">
-              <li><strong>필수항목 :</strong> 이메일(아이디), 비밀번호, 상호명(매장명), 대표자명, 연락처(전화번호), 매장주소</li>
+              <li><strong>필수항목 :</strong> 이메일(아이디), 비밀번호, 상호명(매장명), 대표자명, 연락처(전화번호), 매장주소, 사업자등록번호, 사업자등록증 사본</li>
               <li><strong>선택항목 :</strong> 영업시간, 정기휴무일, 주차안내, 기타 매장 안내사항</li>
               <li><strong>유료서비스 결제 시 :</strong> 카드사명, 승인번호 등 결제 및 정산 처리에 필요한 정보</li>
               <li><strong>자동수집항목 :</strong> 서비스 이용기록, 접속 로그, 쿠키(Cookie), 접속 IP 정보, 기기정보(푸시 알림 토큰 등)</li>
