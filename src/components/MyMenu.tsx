@@ -114,32 +114,14 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     }
   };
 
-  const hashPin = async (pin: string) => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(pin);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
   const fetchPins = async () => {
     if (!storeData?.id) return;
     setLoadingPin(true);
     try {
-      const ownerKey = `STORE_OWNER_PIN_${storeData.id}`;
-      const staffKey = `STORE_STAFF_PIN_${storeData.id}`;
-
-      const { data, error } = await supabase
-        .from('nao3_system_settings')
-        .select('setting_key, setting_value')
-        .in('setting_key', [ownerKey, staffKey]);
-
-      if (!error && data) {
-        const ownerRow = data.find(r => r.setting_key === ownerKey);
-        const staffRow = data.find(r => r.setting_key === staffKey);
-        setHasOwnerPin(!!ownerRow?.setting_value);
-        setHasStaffPin(!!staffRow?.setting_value);
-      }
+      const res = await fetch(`/api/security/pin?type=store&storeId=${encodeURIComponent(storeData.id)}`);
+      const data = await res.json();
+      setHasOwnerPin(!!data?.hasOwnerPin);
+      setHasStaffPin(!!data?.hasStaffPin);
     } catch (err) {
       console.warn('PIN 정보를 불러오지 못했습니다:', err);
     } finally {
@@ -164,14 +146,19 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     }
     setIsSavingPin(true);
     try {
-      const hashed = await hashPin(ownerPin);
-      const ownerKey = `STORE_OWNER_PIN_${storeData.id}`;
+      const res = await fetch('/api/security/pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save_store_pin',
+          storeId: storeData.id,
+          pinType: 'owner',
+          pin: ownerPin,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || data?.error) throw new Error(data?.error || '저장 실패');
 
-      const { error } = await supabase
-        .from('nao3_system_settings')
-        .upsert([{ setting_key: ownerKey, setting_value: hashed }], { onConflict: 'setting_key' });
-
-      if (error) throw error;
       sessionStorage.setItem(`nao3_store_role_${storeData.id}`, 'owner');
       if (onPinUpdated) onPinUpdated();
       alert('사장 PIN 번호(6자리)가 안전하게 저장되었습니다!\n이제 다음 접속부터는 6자리 번호로 1초 만에 로그인하실 수 있습니다.');
@@ -192,14 +179,19 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     }
     setIsSavingPin(true);
     try {
-      const hashed = await hashPin(staffPin);
-      const staffKey = `STORE_STAFF_PIN_${storeData.id}`;
+      const res = await fetch('/api/security/pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'save_store_pin',
+          storeId: storeData.id,
+          pinType: 'staff',
+          pin: staffPin,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || data?.error) throw new Error(data?.error || '저장 실패');
 
-      const { error } = await supabase
-        .from('nao3_system_settings')
-        .upsert([{ setting_key: staffKey, setting_value: hashed }], { onConflict: 'setting_key' });
-
-      if (error) throw error;
       sessionStorage.setItem(`nao3_store_role_${storeData.id}`, 'owner');
       if (onPinUpdated) onPinUpdated();
       alert('직원 PIN 번호(6자리)가 안전하게 저장되었습니다!\n직원이 이 번호로 접속하면 전단지 입력 화면만 열리고 마이메뉴는 숨겨집니다.');
@@ -218,17 +210,15 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
       sessionStorage.removeItem(`nao3_store_role_${storeData.id}`);
     }
 
-    // PIN이 설정되어 있는지 확인하여 설정되어 있으면 PIN 입력 화면으로 즉시 이동
-    const ownerKey = `STORE_OWNER_PIN_${storeData.id}`;
-    const staffKey = `STORE_STAFF_PIN_${storeData.id}`;
-    const { data: pinRows } = await supabase
-      .from('nao3_system_settings')
-      .select('setting_key')
-      .in('setting_key', [ownerKey, staffKey]);
-
-    if (pinRows && pinRows.length > 0 && onLockPin) {
-      onLockPin();
-      return;
+    try {
+      const res = await fetch(`/api/security/pin?type=store&storeId=${encodeURIComponent(storeData.id)}`);
+      const pinStatus = await res.json();
+      if ((pinStatus?.hasOwnerPin || pinStatus?.hasStaffPin) && onLockPin) {
+        onLockPin();
+        return;
+      }
+    } catch {
+      // ignore and fall back to signOut
     }
 
     await supabase.auth.signOut();
@@ -344,44 +334,26 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
         async (rsp: any) => {
           if (rsp.success) {
             try {
-              // 구독 만료일 연장 계산
-              const baseDate = storeData.expires_at && new Date(storeData.expires_at) > new Date()
-                ? new Date(storeData.expires_at)
-                : new Date();
-              const newExpiresAt = new Date(baseDate);
-              if (subscriptionPlan === 'annual') {
-                newExpiresAt.setFullYear(newExpiresAt.getFullYear() + 1);
-              } else {
-                newExpiresAt.setMonth(newExpiresAt.getMonth() + 1);
+              const res = await fetch('/api/payment/complete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  storeId: storeData.id,
+                  planType: subscriptionPlan,
+                  impUid: rsp.imp_uid,
+                  merchantUid: rsp.merchant_uid,
+                }),
+              });
+              const result = await res.json();
+
+              if (!res.ok || !result?.success) {
+                throw new Error(result?.error || '결제 반영 중 서버 오류가 발생했습니다.');
               }
-
-              // 가맹점 구독 상태 및 만료일 DB 업데이트
-              await supabase
-                .from('nao3_stores')
-                .update({
-                  subscription_paid: true,
-                  expires_at: newExpiresAt.toISOString(),
-                })
-                .eq('id', storeData.id);
-
-              // 본사 매출 관리 테이블(nao3_payments)에 내역 기록 시도
-              await supabase
-                .from('nao3_payments')
-                .insert([{
-                  store_id: storeData.id,
-                  store_name: storeData.store_name,
-                  plan_type: subscriptionPlan === 'annual' ? '연간' : '월간',
-                  amount: price,
-                  method: '카드결제 (KCP)',
-                  status: '결제완료',
-                  imp_uid: rsp.imp_uid,
-                  merchant_uid: rsp.merchant_uid,
-                }]);
 
               if (onStoreUpdate) {
                 onStoreUpdate({
                   subscription_paid: true,
-                  expires_at: newExpiresAt.toISOString(),
+                  expires_at: result.expires_at,
                 });
               }
 

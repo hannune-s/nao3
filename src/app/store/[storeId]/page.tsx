@@ -7,14 +7,6 @@ import Link from 'next/link';
 import MartAdmin from '@/components/MartAdmin';
 import MyMenu from '@/components/MyMenu';
 
-async function hashPin(pin: string) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(pin);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 export default function StoreAdminPage() {
   const router = useRouter();
   const params = useParams();
@@ -24,8 +16,6 @@ export default function StoreAdminPage() {
   const [isExpired, setIsExpired] = useState(false);
 
   // PIN Auth & Role State
-  const [ownerPinHash, setOwnerPinHash] = useState<string | null>(null);
-  const [staffPinHash, setStaffPinHash] = useState<string | null>(null);
   const [accessRole, setAccessRole] = useState<'owner' | 'staff' | null>(null);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
@@ -111,29 +101,20 @@ export default function StoreAdminPage() {
       }
     }
 
-    // 2. DB에 저장된 사장/직원 PIN 해시 조회
-    const ownerKey = `STORE_OWNER_PIN_${store.id}`;
-    const staffKey = `STORE_STAFF_PIN_${store.id}`;
-    let foundOwnerPin: string | null = null;
-    let foundStaffPin: string | null = null;
+    // 2. 서버 API를 통해 PIN 설정 여부만 확인 (해시값 자체는 브라우저로 절대 내려보내지 않음)
+    let foundOwnerPin = false;
+    let foundStaffPin = false;
 
     try {
-      const { data: pinRows } = await supabase
-        .from('nao3_system_settings')
-        .select('setting_key, setting_value')
-        .in('setting_key', [ownerKey, staffKey]);
-
-      if (pinRows) {
-        foundOwnerPin = pinRows.find(r => r.setting_key === ownerKey)?.setting_value || null;
-        foundStaffPin = pinRows.find(r => r.setting_key === staffKey)?.setting_value || null;
-        setOwnerPinHash(foundOwnerPin);
-        setStaffPinHash(foundStaffPin);
-      }
+      const res = await fetch(`/api/security/pin?type=store&storeId=${encodeURIComponent(store.id)}`);
+      const pinStatus = await res.json();
+      foundOwnerPin = !!pinStatus?.hasOwnerPin;
+      foundStaffPin = !!pinStatus?.hasStaffPin;
     } catch (e) {
-      console.warn('PIN 조회 실패:', e);
+      console.warn('PIN 상태 확인 실패:', e);
     }
 
-    const hasAnyPin = !!(foundOwnerPin || foundStaffPin);
+    const hasAnyPin = foundOwnerPin || foundStaffPin;
 
     // 3. 현재 브라우저 탭에 저장된 PIN 인증 역할 확인
     const savedRole = sessionStorage.getItem(`nao3_store_role_${store.id}`) as 'owner' | 'staff' | null;
@@ -186,25 +167,39 @@ export default function StoreAdminPage() {
       return;
     }
 
-    const inputHash = await hashPin(pinInput);
+    try {
+      const res = await fetch('/api/security/pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'verify_store',
+          storeId: storeData.id,
+          pin: pinInput,
+        }),
+      });
+      const data = await res.json();
 
-    if (ownerPinHash && inputHash === ownerPinHash) {
-      sessionStorage.setItem(`nao3_store_role_${storeData.id}`, 'owner');
-      setAccessRole('owner');
+      if (data?.role === 'owner') {
+        sessionStorage.setItem(`nao3_store_role_${storeData.id}`, 'owner');
+        setAccessRole('owner');
+        setPinInput('');
+        return;
+      }
+
+      if (data?.role === 'staff') {
+        sessionStorage.setItem(`nao3_store_role_${storeData.id}`, 'staff');
+        setAccessRole('staff');
+        setActiveTab('home');
+        setPinInput('');
+        return;
+      }
+
+      setPinError(data?.error || 'PIN 번호가 일치하지 않습니다. 다시 확인해주세요.');
       setPinInput('');
-      return;
-    }
-
-    if (staffPinHash && inputHash === staffPinHash) {
-      sessionStorage.setItem(`nao3_store_role_${storeData.id}`, 'staff');
-      setAccessRole('staff');
-      setActiveTab('home');
+    } catch {
+      setPinError('PIN 확인 중 오류가 발생했습니다. 다시 시도해주세요.');
       setPinInput('');
-      return;
     }
-
-    setPinError('PIN 번호가 일치하지 않습니다. 다시 확인해주세요.');
-    setPinInput('');
   };
 
   const handleLockPin = () => {
