@@ -115,7 +115,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
   };
 
   const fetchPins = async () => {
-    if (!storeData?.id) return;
+    if (!storeData?.id || String(storeData.id).startsWith('demo-guest-')) return;
     setLoadingPin(true);
     try {
       const res = await fetch(`/api/security/pin?type=store&storeId=${encodeURIComponent(storeData.id)}`);
@@ -140,6 +140,10 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
   }, [view]);
 
   const handleSaveOwnerPin = async () => {
+    if (String(storeData?.id || '').startsWith('demo-guest-')) {
+      alert('체험 모드에서는 PIN 번호 설정이 불가능합니다.\n정식 스토어 개설 후 이용해 주세요!');
+      return;
+    }
     if (ownerPin.length !== 6 || !/^\d{6}$/.test(ownerPin)) {
       alert('사장 PIN 번호는 숫자 6자리로 입력해 주세요.');
       return;
@@ -173,6 +177,10 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
   };
 
   const handleSaveStaffPin = async () => {
+    if (String(storeData?.id || '').startsWith('demo-guest-')) {
+      alert('체험 모드에서는 PIN 번호 설정이 불가능합니다.\n정식 스토어 개설 후 이용해 주세요!');
+      return;
+    }
     if (staffPin.length !== 6 || !/^\d{6}$/.test(staffPin)) {
       alert('직원 PIN 번호는 숫자 6자리로 입력해 주세요.');
       return;

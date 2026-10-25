@@ -149,6 +149,9 @@ export async function POST(req: NextRequest) {
     // 2. 매장 사장/직원 PIN 저장 (서버에서 해싱 후 저장)
     if (action === 'save_store_pin') {
       const { storeId, pinType, pin } = body;
+      if (typeof storeId === 'string' && storeId.startsWith('demo-guest-')) {
+        return NextResponse.json({ error: '체험 모드에서는 PIN 번호 설정이 불가능합니다. 정식 스토어 개설 후 이용해 주세요!' }, { status: 403 });
+      }
       if (!storeId || (pinType !== 'owner' && pinType !== 'staff') || typeof pin !== 'string' || !/^\d{6}$/.test(pin)) {
         return NextResponse.json({ error: '유효하지 않은 요청입니다.' }, { status: 400 });
       }
