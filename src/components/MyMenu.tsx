@@ -980,8 +980,8 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
                           {notice.title}
                         </span>
                       </div>
-                      <span className="text-[12px] text-gray-400 font-medium shrink-0">
-                        {new Date(notice.created_at).toLocaleDateString('ko-KR')}
+                      <span className={`text-gray-400 text-xs transition-transform shrink-0 ${expandedNoticeId === notice.id ? 'rotate-180' : ''}`}>
+                        ▼
                       </span>
                     </button>
                     {expandedNoticeId === notice.id && (
