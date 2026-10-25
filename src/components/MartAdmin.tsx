@@ -211,19 +211,23 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
 
   // 자동완성 필터링 리스트 (기본 제공 + 내 이력)
   const allNames = Array.from(new Set([...recentNames, ...(ITEM_DICT[activeTab] || [])]));
-  const matchedNames = newItem.product_name.trim() === '' 
+  const nameText = newItem.product_name || '';
+  const qtyText = newItem.quantity || '';
+  const priceText = newItem.sale_price || '';
+
+  const matchedNames = nameText.trim() === '' 
     ? allNames.slice(0, 30) // 빈 칸일 때는 내 최근 이력 + 기본 예제 표시
-    : allNames.filter(name => matchSearch(newItem.product_name, name));
+    : allNames.filter(name => matchSearch(nameText, name));
 
   const defaultQtys = Array.from(new Set([...recentQtys, ...QTY_DICT])).slice(0, 15);
-  const matchedQtys = newItem.quantity.trim() === ''
+  const matchedQtys = qtyText.trim() === ''
     ? defaultQtys
-    : Array.from(new Set([...recentQtys, ...QTY_DICT])).filter(qty => matchSearch(newItem.quantity, qty));
+    : Array.from(new Set([...recentQtys, ...QTY_DICT])).filter(qty => matchSearch(qtyText, qty));
 
   const defaultPrices = Array.from(new Set([...recentPrices, '1000', '2000', '3000', '5000', '9900', '10000'])).slice(0, 15);
-  const matchedPrices = newItem.sale_price.trim() === ''
+  const matchedPrices = priceText.trim() === ''
     ? defaultPrices
-    : defaultPrices.filter(price => price.includes(newItem.sale_price));
+    : defaultPrices.filter(price => price.includes(priceText));
   const defaultGrades = ["1++", "1+", "1등급", "2등급"];
   const matchedGrades = (!newItem.grade || newItem.grade.trim() === "")
     ? defaultGrades
@@ -295,6 +299,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     if (storeId.startsWith('demo-guest-')) {
       const saved = JSON.parse(localStorage.getItem('nao3_demo_histories') || '[]');
       setHistories(saved);
+      if (saved.length > 0) {
+        setExpandedHistory((prev) => prev || saved[0].id);
+      }
       return;
     }
     const { data, error } = await supabase
@@ -365,6 +372,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
 
   // 상태가 변경될 때마다 로컬 스토리지에 자동 임시 저장 (새로고침 방지)
   useEffect(() => {
+    if (storeId.startsWith('demo-guest-') && items.length === 0) {
+      return;
+    }
     localStorage.setItem(`nao3_staging_items_${storeId}`, JSON.stringify(items));
   }, [items]);
 
@@ -463,43 +473,43 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         }
         
         setEditingHistoryItemId(null);
-        // 대기열에도 업데이트 반영
+        // 대기열에도 업데이트 반영 (최상단으로 배치)
         if (existingIndex !== -1) {
-          const newItems = [...items];
-          newItems[existingIndex] = { ...newItems[existingIndex], quantity: newItem.quantity, sale_price: formattedPrice, category: activeTab, discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || '' };
-          setItems(newItems);
+          const updatedItem = { ...items[existingIndex], quantity: newItem.quantity || '', sale_price: formattedPrice, category: activeTab, discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || '' };
+          setItems([updatedItem, ...items.filter((_, idx) => idx !== existingIndex)]);
         } else {
-          setItems([...items, { id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity, sale_price: formattedPrice, discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || '', is_sold_out: false }]);
+          setItems([{ id: targetHistoryItemId.itemId, category: activeTab, product_name: newItem.product_name, quantity: newItem.quantity || '', sale_price: formattedPrice, discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || '', is_sold_out: false }, ...items]);
         }
       } catch (err) {
         alert('이력 수정에 실패했습니다.');
         return;
       }
     } else {
-      // 일반 대기열 추가 모드
+      // 일반 대기열 추가 모드 (새로 입력한 상품이 항상 대기열 제일 상단에 올라오도록 처리)
       if (existingIndex !== -1) {
-        // 이미 동일한 이름의 품목이 있다면 중량과 가격을 모두 최신으로 덮어씌움 (완벽한 Update)
-        const newItems = [...items];
-        newItems[existingIndex] = {
-          ...newItems[existingIndex],
-          quantity: newItem.quantity,
+        const updatedItem = {
+          ...items[existingIndex],
+          quantity: newItem.quantity || '',
           sale_price: formattedPrice,
           category: activeTab,
-          discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || ''
+          discount_rate: newItem.discount_rate || '',
+          grade: newItem.grade || '',
+          origin: newItem.origin || ''
         };
-        setItems(newItems);
+        setItems([updatedItem, ...items.filter((_, idx) => idx !== existingIndex)]);
       } else {
         const insertData = { 
           id: Date.now().toString(),
           category: activeTab, 
           product_name: newItem.product_name, 
-          quantity: newItem.quantity, 
+          quantity: newItem.quantity || '', 
           sale_price: formattedPrice,
-          discount_rate: newItem.discount_rate || '', grade: newItem.grade || '', origin: newItem.origin || '',
+          discount_rate: newItem.discount_rate || '',
+          grade: newItem.grade || '',
+          origin: newItem.origin || '',
           is_sold_out: false
         };
-        setItems([...items, insertData]);
-        
+        setItems([insertData, ...items]);
       }
     }
 
@@ -508,15 +518,22 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     setQtyIdx(-1);
   };
 
+  // 대기열 품절 처리/해제 토글
+  const handleQueueToggleSoldOut = (id: string) => {
+    setItems(items.map(item => item.id === id ? { ...item, is_sold_out: !item.is_sold_out } : item));
+  };
+
   // 수정 기능 (위 폼으로 끌어오기)
   const handleEditItem = (item: any) => {
     setNewItem({ 
-      product_name: item.product_name, 
-      quantity: item.quantity, 
-      sale_price: item.sale_price.replace(/[^0-9]/g, ''),
-      discount_rate: item.discount_rate || '', grade: item.grade || '', origin: item.origin || ''
+      product_name: item.product_name || '', 
+      quantity: item.quantity || '', 
+      sale_price: (item.sale_price || '').replace(/[^0-9]/g, ''),
+      discount_rate: item.discount_rate ? String(item.discount_rate) : '',
+      grade: item.grade || '',
+      origin: item.origin || ''
     });
-    setActiveTab(item.category);
+    setActiveTab(item.category || '정육');
     handleRemoveItem(item.id); // 폼으로 끌어올리면서 기존 리스트에서는 제거
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -540,6 +557,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       setHistories(newHistories);
       if (storeId.startsWith('demo-guest-')) {
         localStorage.setItem('nao3_demo_histories', JSON.stringify(newHistories));
+        const targetHistory = newHistories.find(h => h.id === pushId);
+        if (targetHistory?.nao3_sale_items) {
+          localStorage.setItem(`nao3_staging_items_${storeId}`, JSON.stringify(targetHistory.nao3_sale_items));
+        }
       }
     } catch (err) {
       alert('품절 상태 업데이트에 실패했습니다.');
@@ -696,13 +717,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         const newPushItems = validItems.map((item, i) => ({
           id: `demo-item-${Date.now()}-${i}`,
           product_name: item.product_name,
-          quantity: item.quantity,
+          quantity: item.quantity || '',
           sale_price: item.sale_price,
           discount_rate: item.discount_rate || null,
           grade: item.grade || null,
           origin: item.origin || null,
           category: item.category,
-          is_sold_out: false,
+          is_sold_out: !!item.is_sold_out,
         }));
 
         const existing: any[] = JSON.parse(localStorage.getItem('nao3_demo_histories') || '[]');
@@ -719,7 +740,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         let finalItems: any[];
 
         if (samePeriodIdx !== -1) {
-          // 병합: 같은 상품명이면 덮어쓰기, 없는 상품이면 추가
+          // 병합: 같은 상품명이면 덮어쓰기, 없는 상품이면 최상단 추가
           const existingItems: any[] = existing[samePeriodIdx].nao3_sale_items || [];
           const mergedItems = [...existingItems];
           newPushItems.forEach(newItem => {
@@ -727,7 +748,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             if (idx !== -1) {
               mergedItems[idx] = { ...mergedItems[idx], ...newItem };
             } else {
-              mergedItems.push(newItem);
+              mergedItems.unshift(newItem);
             }
           });
           updatedHistories = existing.map((h, i) =>
@@ -762,6 +783,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
 
         setItems([]);
         setHistories(updatedHistories);
+        if (updatedHistories.length > 0) {
+          setExpandedHistory(updatedHistories[0].id);
+        }
         setSubmitted(true);
         setLoading(false);
         return;
@@ -1471,25 +1495,36 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         ) : (
           <div className="flex flex-col gap-2">
             {currentItems.map((item) => (
-              <div key={item.id} className={`flex flex-col bg-white rounded-lg border px-3 py-2.5 shadow-sm relative overflow-hidden transition-all border-gray-200`}>
+              <div key={item.id} className={`flex flex-col bg-white rounded-lg border px-3 py-2.5 shadow-sm relative overflow-hidden transition-all border-gray-200 ${item.is_sold_out ? 'bg-gray-50/70' : ''}`}>
                 
                 <div className="flex justify-between items-center mb-2">
                   <div className="flex items-center gap-2 flex-1 min-w-0 pr-2">
                     <span className="text-[10px] font-bold text-[#5F0080] border border-[#5F0080]/20 bg-[#5F0080]/5 px-1.5 py-0.5 rounded flex-shrink-0">
                       {item.category}
                     </span>
-                    <span className="text-[14px] font-bold text-gray-800 truncate">{item.product_name}</span>
+                    <span className={`text-[14px] font-bold truncate ${item.is_sold_out ? 'text-gray-400 line-through' : 'text-gray-800'}`}>{item.product_name}</span>
                     {item.grade && <span className="text-[11px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded flex-shrink-0">{item.grade}</span>}
                     {item.origin && <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.origin === '국내산(국산)' ? '국산' : item.origin}</span>}
 
-                    <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>
+                    {item.quantity && <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded flex-shrink-0">{item.quantity}</span>}
                   </div>
-                  <span className={`text-[15px] font-black flex-shrink-0 text-[#5F0080]`}>
+                  <span className={`text-[15px] font-black flex-shrink-0 ${item.is_sold_out ? 'text-red-400 line-through' : 'text-[#5F0080]'}`}>
                     {item.sale_price}
                   </span>
                 </div>
 
-                <div className="flex justify-end items-center pt-2 border-t border-gray-100">
+                <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={() => handleQueueToggleSoldOut(item.id)}
+                    className={`text-[11px] font-bold px-3 py-1 rounded-full border transition-colors ${
+                      item.is_sold_out
+                        ? 'bg-red-500 text-white border-red-500'
+                        : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {item.is_sold_out ? '품절 해제' : '품절 처리'}
+                  </button>
                   <div className="flex gap-1.5">
                     <button 
                       type="button"
