@@ -18,7 +18,20 @@ const ITEM_DICT: Record<string, string[]> = {
 };
 
 const QTY_DICT = [
-  '100g', '200g', '300g', '400g', '500g', '600g(1근)', '800g', '1kg', '1개', '2개', '3개', '5개', '10개', '1팩', '2팩', '1단', '1망', '1봉', '1박스', '1마리', '2마리', '3마리', '4마리', '1손(2마리)', '마리', '팩', '단', '통', '입', 'kg', 'g', '롤', 'L', 'ml', '개', '봉', '망', '박스', '포', '캔', '병', '1통', '2통', '1입', '2입', '5입', '10입', '2kg', '5kg', '10kg', '20kg', '1L', '1.5L', '2L', '500ml', '900ml', '30롤', '100매'
+  // 무게 (g / kg / 근)
+  '100g', '150g', '200g', '250g', '300g', '400g', '500g', '600g(1근)', '800g', '900g', '1kg', '1.2kg', '1.5kg', '2kg', '3kg', '4kg', '5kg', '10kg', '20kg', '1근', '반근(300g)', '2근',
+  // 개수 / 팩 / 봉 / 단 / 망 / 통 / 박스 / 판
+  '1개', '2개', '3개', '4개', '5개', '6개', '10개', '1팩', '2팩', '3팩', '1봉', '2봉', '3봉', '1단', '2단', '1망', '2망', '1통', '2통', '반통', '1박스', '반박스', '1판(30구)', '15구', '10구', '1모', '2모', '1줄', '2줄', '1송이', '2송이', '1포기', '2포기', '3포기', '1접', '1소쿠리', '1바구니', '1채', '1포', '1자루',
+  // 수산 (마리 / 손 / 코 / 급 / 미)
+  '1마리', '2마리', '3마리', '4마리', '5마리', '10마리', '1손(2마리)', '1코(20마리)', '1두름', '1미', '2미', '3미', '5미', '10미',
+  // 공산품 (번들 / 입 / T / 롤 / 매 / L / ml / 캔 / 병 / 컵 / 세트 / 기획)
+  '1번들', '2번들', '1묶음', '2입', '3입', '4입', '5입', '6입', '8입', '10입', '12입', '16입', '20입', '24입', '30입',
+  '10T', '20T', '30T', '50T', '100T', '120T', '150T', '160T', '180T', '200T',
+  '1롤', '10롤', '12롤', '24롤', '30롤', '10매', '20매', '30매', '50매', '80매', '100매',
+  '100ml', '180ml', '200ml', '250ml', '350ml', '500ml', '900ml', '930ml', '1L', '1.2L', '1.5L', '1.8L', '2L', '2.5L',
+  '1캔', '2캔', '3캔', '4캔', '6캔', '1병', '2병', '3병', '1컵', '2컵', '6컵', '1세트', '기획팩', '1+1', '2+1', '3+1',
+  // 단독 단위 (직접 조합용)
+  'g', 'kg', '근', '개', '팩', '봉', '단', '망', '통', '박스', '판', '구', '모', '줄', '송이', '포기', '바구니', '소쿠리', '포', '자루', '마리', '손', '미', '번들', '묶음', '입', 'T', '롤', '매', 'L', 'ml', '리터', '캔', '병', '컵', '세트', '기획'
 ];
 
 interface MartAdminProps {
@@ -89,6 +102,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
   const [priceIdx, setPriceIdx] = useState(-1);
   const [showGradeDropdown, setShowGradeDropdown] = useState(false);
   const [gradeIdx, setGradeIdx] = useState(-1);
+  const [showOriginDropdown, setShowOriginDropdown] = useState(false);
+  const [originIdx, setOriginIdx] = useState(-1);
 
   // 이력 관리 상태
   const [histories, setHistories] = useState<any[]>([]);
@@ -133,12 +148,86 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     return '';
   });
 
-  // 탭 변경 시 폼 초기화
-  const handleSpecialFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 이미지 자동 리사이즈(최대 900px) 및 용량 압축(500KB 이하) 헬퍼
+  const compressImageFile = (file: File, maxWidth = 900, maxBytes = 500 * 1024): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        if (width > maxWidth || height > maxWidth) {
+          if (width >= height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxWidth) / height);
+            height = maxWidth;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const tryCompress = (quality: number) => {
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                resolve(file);
+                return;
+              }
+              if (blob.size > maxBytes && quality > 0.3) {
+                tryCompress(quality - 0.15);
+              } else {
+                const compressedFile = new File([blob], `${storeId}_special.jpg`, {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+
+        tryCompress(0.82);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('이미지를 불러올 수 없습니다.'));
+      };
+      img.src = objectUrl;
+    });
+  };
+
+  // 특가 사진 파일 선택 핸들러 (동영상 완벽 차단 & 자동 압축)
+  const handleSpecialFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setSpecialFile(file);
-      setSpecialPreview(URL.createObjectURL(file));
+
+      // 동영상 및 이미지 외 파일 완벽 차단
+      if (!file.type.startsWith('image/') || file.type.startsWith('video/')) {
+        alert('동영상이나 일반 파일은 업로드할 수 없습니다.\n사진(JPG, PNG, WEBP 등) 파일만 선택해주세요.');
+        e.target.value = '';
+        return;
+      }
+
+      try {
+        const compressed = await compressImageFile(file, 900, 500 * 1024);
+        setSpecialFile(compressed);
+        setSpecialPreview(URL.createObjectURL(compressed));
+      } catch (err) {
+        alert('이미지 처리 중 오류가 발생했습니다. 다른 사진을 선택해주세요.');
+        e.target.value = '';
+      }
     }
   };
 
@@ -161,7 +250,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         };
 
         if (specialFile) {
-          // blob URL 대신 base64로 변환해 localStorage에 저장 (새 탭에서도 접근 가능)
+          // 이미 압축된 이미지를 base64로 변환해 localStorage에 저장 (새 탭에서도 접근 가능)
           const reader = new FileReader();
           reader.onload = (e) => {
             const base64 = e.target?.result as string;
@@ -175,21 +264,24 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       }
 
       if (specialFile) {
-        const ext = specialFile.name.split('.').pop();
-        const fileName = `${storeId}_special_${Date.now()}.${ext}`;
+        // 매장당 단일 파일명으로 덮어쓰기(upsert: true)하여 스토리지에 이전 사진이 누적되지 않도록 처리
+        const fileName = `${storeId}_special.jpg`;
         
         // Supabase Storage (버킷명: nao3_media)
-        const { error: uploadError } = await supabase.storage.from('nao3_media').upload(fileName, specialFile, { upsert: true });
+        const { error: uploadError } = await supabase.storage
+          .from('nao3_media')
+          .upload(fileName, specialFile, { upsert: true, contentType: 'image/jpeg' });
         
         if (uploadError) {
-          alert('이미지/영상 업로드에 실패했습니다.\nSupabase에 "nao3_media" 버킷이 공개(Public) 상태로 생성되어 있는지 확인해주세요.');
+          alert('사진 업로드에 실패했습니다.\nSupabase에 "nao3_media" 버킷이 공개(Public) 상태로 생성되어 있는지 확인해주세요.');
           console.error(uploadError);
           setIsSavingSpecial(false);
           return;
         }
 
         const { data: publicUrlData } = supabase.storage.from('nao3_media').getPublicUrl(fileName);
-        finalUrl = publicUrlData.publicUrl;
+        // 브라우저 캐시 갱신을 위해 타임스탬프 쿼리스트링 부착
+        finalUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`;
       }
 
       const { error: dbError } = await supabase.from('nao3_stores').update({
@@ -233,7 +325,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     ? allNames.slice(0, 30) // 빈 칸일 때는 내 최근 이력 + 기본 예제 표시
     : allNames.filter(name => matchSearch(nameText, name));
 
-  const defaultQtys = Array.from(new Set([...recentQtys, ...QTY_DICT])).slice(0, 15);
+  const defaultQtys = Array.from(new Set([...recentQtys, ...QTY_DICT]));
   const matchedQtys = qtyText.trim() === ''
     ? defaultQtys
     : Array.from(new Set([...recentQtys, ...QTY_DICT])).filter(qty => matchSearch(qtyText, qty));
@@ -246,6 +338,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
   const matchedGrades = (!newItem.grade || newItem.grade.trim() === "")
     ? defaultGrades
     : defaultGrades.filter(g => g.includes(newItem.grade));
+  const defaultOrigins = ["국산", "수입산", "미국산", "호주산", "캐나다산", "스페인산", "칠레산", "필리핀산", "노르웨이산", "중국산"];
+  const matchedOrigins = (!newItem.origin || newItem.origin.trim() === "")
+    ? defaultOrigins
+    : defaultOrigins.filter(o => matchSearch(newItem.origin, o));
 
 
   // 방향키 스크롤 포커스 처리
@@ -1229,21 +1325,17 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             
             <label className="flex flex-col items-center justify-center w-full h-28 bg-gray-50 border-2 border-dashed border-orange-300 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors overflow-hidden relative group">
               {specialPreview ? (
-                specialPreview.match(/\.(mp4|webm|ogg)$/i) ? (
-                  <video src={specialPreview} className="w-full h-full object-cover" autoPlay muted loop playsInline />
-                ) : (
-                  <img src={specialPreview} className="w-full h-full object-cover" alt="미리보기" />
-                )
+                <img src={specialPreview} className="w-full h-full object-cover" alt="미리보기" />
               ) : (
                 <div className="flex flex-col items-center justify-center">
                   <span className="text-2xl mb-1">📸</span>
-                  <p className="text-[13px] font-extrabold text-orange-600">+ 사진/영상 추가</p>
+                  <p className="text-[13px] font-extrabold text-orange-600">+ 사진 추가</p>
                 </div>
               )}
               <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-white font-black text-sm">변경하기</span>
+                <span className="text-white font-black text-sm">사진 변경하기</span>
               </div>
-              <input type="file" accept="image/*,video/*" className="hidden" onChange={handleSpecialFileChange} />
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/heic" className="hidden" onChange={handleSpecialFileChange} />
             </label>
 
             <div className="flex flex-col gap-2">
@@ -1394,15 +1486,54 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                 )}
               </div>
               <div className="relative flex-1">
-                <select 
+                <input
+                  type="text"
+                  placeholder="원산지 (예: 국산, 직접입력)"
                   value={newItem.origin || ''}
-                  onChange={e => setNewItem({...newItem, origin: e.target.value})}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
-                >
-                  <option value="">원산지 선택 (선택안함)</option>
-                  <option value="국산">국산</option>
-                  <option value="수입산">수입산</option>
-                </select>
+                  onFocus={() => setShowOriginDropdown(true)}
+                  onBlur={() => setTimeout(() => { setShowOriginDropdown(false); setOriginIdx(-1); }, 200)}
+                  onChange={e => {
+                    setNewItem({...newItem, origin: e.target.value});
+                    setOriginIdx(-1);
+                    setShowOriginDropdown(true);
+                  }}
+                  onKeyDown={(e) => {
+                    if (!showOriginDropdown || matchedOrigins.length === 0) return;
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      setOriginIdx(prev => (prev < matchedOrigins.length - 1 ? prev + 1 : prev));
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      setOriginIdx(prev => (prev > 0 ? prev - 1 : 0));
+                    } else if (e.key === 'Enter' && originIdx >= 0) {
+                      e.preventDefault();
+                      setNewItem({...newItem, origin: matchedOrigins[originIdx]});
+                      setShowOriginDropdown(false);
+                      setOriginIdx(-1);
+                    } else if (e.key === 'Escape') {
+                      setShowOriginDropdown(false);
+                    }
+                  }}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-[14px] focus:outline-none focus:ring-1 focus:ring-[#5F0080]"
+                />
+                {showOriginDropdown && matchedOrigins.length > 0 && (
+                  <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg max-h-40 overflow-y-auto top-full left-0">
+                    {matchedOrigins.map((origin, index) => (
+                      <li
+                        key={origin}
+                        onMouseEnter={() => setOriginIdx(index)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          setNewItem({...newItem, origin});
+                          setShowOriginDropdown(false);
+                        }}
+                        className={`px-3 py-2 text-sm cursor-pointer border-b border-gray-100 last:border-0 ${index === originIdx ? 'bg-[#5F0080]/10 text-[#5F0080] font-bold' : 'text-gray-700 hover:bg-[#5F0080]/5 hover:text-[#5F0080]'}`}
+                      >
+                        {origin}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
 
