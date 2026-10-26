@@ -17,7 +17,6 @@ export default function RegisterPage() {
   const [address, setAddress] = useState('');
   const [businessNumber, setBusinessNumber] = useState(''); // 사업자등록번호 추가
   const [businessType, setBusinessType] = useState('마트/슈퍼');
-  const [customBusinessType, setCustomBusinessType] = useState('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -93,9 +92,8 @@ export default function RegisterPage() {
         '마트/슈퍼': 'mart',
         '정육점': 'butcher',
         '청과야채': 'produce',
-        '기타': 'other',
       };
-      const dbBusinessType = typeMap[businessType] || 'other';
+      const dbBusinessType = typeMap[businessType] || 'mart';
       
       const { error: dbError } = await supabase.from('nao3_stores').insert({
         id: authData.user?.id, // 1사장님 = 1스토어 격리 (Tenant ID)
@@ -213,22 +211,7 @@ export default function RegisterPage() {
                   <input type="radio" name="businessType" value="청과야채" checked={businessType === '청과야채'} onChange={() => setBusinessType('청과야채')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
                   <span className="text-sm text-gray-700 font-bold">청과야채</span>
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="businessType" value="기타" checked={businessType === '기타'} onChange={() => setBusinessType('기타')} className="text-[#5F0080] focus:ring-[#5F0080] w-4 h-4" />
-                  <span className="text-sm text-gray-700 font-bold">기타 (수기입력)</span>
-                </label>
               </div>
-              
-              {businessType === '기타' && (
-                <input 
-                  type="text" 
-                  required
-                  placeholder="업종을 직접 입력해주세요" 
-                  value={customBusinessType} 
-                  onChange={e => setCustomBusinessType(e.target.value)}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] mt-1 mb-2"
-                />
-              )}
             </div>
 
             <div>
