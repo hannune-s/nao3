@@ -118,6 +118,20 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     }
     return '';
   });
+  const [eventTitle, setEventTitle] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_draft_eventTitle_${storeId}`);
+      if (saved !== null) return saved;
+    }
+    return '';
+  });
+  const [eventSubtitle, setEventSubtitle] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_draft_eventSubtitle_${storeId}`);
+      if (saved !== null) return saved;
+    }
+    return '';
+  });
 
   // 탭 변경 시 폼 초기화
   const handleSpecialFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -364,6 +378,20 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         setBossMessage(prev => prev || latestPush.boss_message);
       }
 
+      // 행사 타이틀 & 서브 문구 불러오기
+      const { data: bannerRow } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_value')
+        .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`)
+        .maybeSingle();
+      if (bannerRow?.setting_value) {
+        try {
+          const parsed = JSON.parse(bannerRow.setting_value);
+          if (parsed.eventTitle) setEventTitle(prev => prev || parsed.eventTitle);
+          if (parsed.eventSubtitle) setEventSubtitle(prev => prev || parsed.eventSubtitle);
+        } catch (e) {}
+      }
+
       fetchHistories();
     };
 
@@ -393,6 +421,14 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
   useEffect(() => {
     localStorage.setItem(`nao3_draft_bossMessage_${storeId}`, bossMessage);
   }, [bossMessage, storeId]);
+
+  useEffect(() => {
+    localStorage.setItem(`nao3_draft_eventTitle_${storeId}`, eventTitle);
+  }, [eventTitle, storeId]);
+
+  useEffect(() => {
+    localStorage.setItem(`nao3_draft_eventSubtitle_${storeId}`, eventSubtitle);
+  }, [eventSubtitle, storeId]);
 
   // 목록에 추가 또는 즉시 수정
   const handleAddItem = async (e?: React.FormEvent) => {
@@ -630,10 +666,34 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         stagedSettings.saleStart = saleStart;
         stagedSettings.saleEnd = saleEnd;
         stagedSettings.bossMessage = bossMessage;
+        stagedSettings.eventTitle = eventTitle.trim();
+        stagedSettings.eventSubtitle = eventSubtitle.trim();
         localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
-        alert('체험 모드: 상호명, 기간, 멘트가 고객화면에 반영되었습니다! [고객 화면 보기]로 확인해보세요.');
+        alert('체험 모드: 행사 문구, 기간, 사장님 이야기가 고객화면에 반영되었습니다! [고객 화면 보기]로 확인해보세요.');
         setLoading(false);
         return;
+      }
+
+      // 행사 타이틀 & 서브 문구 저장 (nao3_system_settings)
+      const bannerPayload = JSON.stringify({
+        eventTitle: eventTitle.trim(),
+        eventSubtitle: eventSubtitle.trim()
+      });
+      const { data: existingBanner } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_key')
+        .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`)
+        .maybeSingle();
+
+      if (existingBanner) {
+        await supabase
+          .from('nao3_system_settings')
+          .update({ setting_value: bannerPayload })
+          .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`);
+      } else {
+        await supabase
+          .from('nao3_system_settings')
+          .insert({ setting_key: `STORE_EVENT_BANNER_${storeId}`, setting_value: bannerPayload });
       }
 
       // 가장 최근 발송 이력의 기간 및 사장님 멘트 업데이트
@@ -655,7 +715,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         if (!updatedData || updatedData.length === 0) {
            throw new Error("보안 정책(RLS) 문제로 업데이트가 차단되었습니다. 제공해드린 SQL을 Supabase에서 실행해주세요!");
         }
-        alert('진행 중인 세일에 기간과 사장님 이야기가 즉시 반영되었습니다!');
+        alert('진행 중인 세일에 행사 문구, 기간, 사장님 이야기가 즉시 반영되었습니다!');
       } else {
         const { error } = await supabase.from('nao3_push_history').insert([{
           store_id: storeId,
@@ -665,7 +725,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           boss_message: bossMessage.trim() || null
         }]);
         if (error) throw error;
-        alert('새로운 세일 기본 정보(기간, 멘트)가 성공적으로 저장되었습니다!');
+        alert('새로운 세일 기본 정보(행사 문구, 기간, 멘트)가 성공적으로 저장되었습니다!');
       }
     } catch (err: any) {
       console.error(err);
@@ -681,6 +741,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       saleStart,
       saleEnd,
       bossMessage,
+      eventTitle: eventTitle.trim(),
+      eventSubtitle: eventSubtitle.trim(),
       special_title: specialForm.title,
       special_price: specialForm.price,
       special_message: specialForm.message,
@@ -778,6 +840,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         stagedSettings.saleStart = saleStart;
         stagedSettings.saleEnd = saleEnd;
         stagedSettings.bossMessage = bossMessage;
+        stagedSettings.eventTitle = eventTitle.trim();
+        stagedSettings.eventSubtitle = eventSubtitle.trim();
         stagedSettings.storeName = storeName;
         localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
 
@@ -791,6 +855,27 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         return;
       }
 
+      // 행사 타이틀 & 서브 문구 저장 (nao3_system_settings)
+      const bannerPayload = JSON.stringify({
+        eventTitle: eventTitle.trim(),
+        eventSubtitle: eventSubtitle.trim()
+      });
+      const { data: existingBanner } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_key')
+        .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`)
+        .maybeSingle();
+
+      if (existingBanner) {
+        await supabase
+          .from('nao3_system_settings')
+          .update({ setting_value: bannerPayload })
+          .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`);
+      } else {
+        await supabase
+          .from('nao3_system_settings')
+          .insert({ setting_key: `STORE_EVENT_BANNER_${storeId}`, setting_value: bannerPayload });
+      }
 
       // 1. 가장 최근 이력을 가져와서 기간 비교
       const { data: latestPush } = await supabase.from('nao3_push_history').select('*').eq('store_id', storeId).order('created_at', { ascending: false })
@@ -1083,6 +1168,36 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             </div>
           </div>
           
+          {/* 1.5단: 행사 타이틀 & 서브 문구 설정 */}
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
+            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2 flex-wrap">
+              <span className="text-2xl drop-shadow-sm">🎉</span> 행사 타이틀 & 서브 문구 설정
+              <span className="text-[12px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-1 tracking-normal leading-tight">(비워두면 기본 문구로 자동 노출 · 단어에 맞는 아이콘 자동 생성)</span>
+            </h3>
+            <div className="flex flex-col gap-2.5 mt-1">
+              <div>
+                <label className="block text-[12px] font-extrabold text-gray-500 mb-1">행사 타이틀 (큰 제목)</label>
+                <input
+                  type="text"
+                  value={eventTitle}
+                  onChange={e => setEventTitle(e.target.value)}
+                  placeholder="기본값: 오늘의 특가 찬스! (예: 크리스마스 특가, 할로윈 파티, 주말 대축전)"
+                  className="w-full text-[15px] font-extrabold text-gray-900 border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 placeholder:text-gray-400 placeholder:font-normal transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-[12px] font-extrabold text-gray-500 mb-1">서브 문구 (아래 설명)</label>
+                <input
+                  type="text"
+                  value={eventSubtitle}
+                  onChange={e => setEventSubtitle(e.target.value)}
+                  placeholder="기본값: 단골 고객님을 위해 준비한 깜짝 한정 세일"
+                  className="w-full text-[14px] font-bold text-gray-800 border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 placeholder:text-gray-400 placeholder:font-normal transition-all"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* 2단: 사장님 이야기 */}
           <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-purple-100 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5F0080] to-[#E8D4FF]"></div>
@@ -1100,7 +1215,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
               disabled={loading}
               className="w-full py-4 mt-3 bg-[#5F0080] text-white hover:bg-purple-900 font-extrabold rounded-xl shadow-[0_4px_14px_rgba(95,0,128,0.25)] transition-all text-[16px] tracking-tight"
             >
-              상호명 · 기간 · 멘트 즉시 반영하기
+              행사문구 · 기간 · 멘트 즉시 반영하기
             </button>
           </div>
         </div>

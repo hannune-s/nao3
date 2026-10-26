@@ -68,6 +68,45 @@ const getIconForProduct = (name: string) => {
   return '✨'; // 기본 아이콘
 };
 
+const getIconForEventTitle = (title: string) => {
+  if (!title) return '🎉';
+  const t = title.replace(/\s/g, '').toLowerCase();
+
+  // 시즌/명절/기념일
+  if (t.includes('크리스마스') || t.includes('성탄') || t.includes('산타') || t.includes('xmas') || t.includes('christmas')) return '🎄';
+  if (t.includes('할로윈') || t.includes('halloween')) return '🎃';
+  if (t.includes('추석') || t.includes('한가위') || t.includes('보름')) return '🌕';
+  if (t.includes('설날') || t.includes('구정') || t.includes('명절') || t.includes('새해') || t.includes('신년')) return '🧧';
+  if (t.includes('발렌타인') || t.includes('화이트데이') || t.includes('빼빼로') || t.includes('사랑')) return '💝';
+  if (t.includes('어버이') || t.includes('스승') || t.includes('감사') || t.includes('효도')) return '💐';
+  if (t.includes('어린이') || t.includes('생일') || t.includes('기념') || t.includes('주년') || t.includes('오픈') || t.includes('창립')) return '🎂';
+  if (t.includes('복날') || t.includes('초복') || t.includes('중복') || t.includes('말복') || t.includes('삼계탕')) return '🐓';
+  if (t.includes('김장')) return '🥬';
+  if (t.includes('캠핑') || t.includes('바베큐') || t.includes('바비큐') || t.includes('나들이') || t.includes('소풍')) return '⛺';
+
+  // 계절/날씨
+  if (t.includes('봄') || t.includes('벚꽃') || t.includes('꽃')) return '🌸';
+  if (t.includes('여름') || t.includes('바캉스') || t.includes('휴가') || t.includes('무더위') || t.includes('시원')) return '🏖️';
+  if (t.includes('가을') || t.includes('단풍') || t.includes('수확')) return '🍁';
+  if (t.includes('겨울') || t.includes('연말') || t.includes('눈') || t.includes('방한')) return '⛄';
+  if (t.includes('비오는') || t.includes('장마')) return '☔';
+
+  // 품목/테마
+  if (t.includes('한우') || t.includes('소고기') || t.includes('정육') || t.includes('고기') || t.includes('스테이크')) return '🥩';
+  if (t.includes('삼겹') || t.includes('한돈') || t.includes('돼지')) return '🥓';
+  if (t.includes('수산') || t.includes('생선') || t.includes('회') || t.includes('해산물') || t.includes('바다')) return '🐟';
+  if (t.includes('과일') || t.includes('청과') || t.includes('사과') || t.includes('딸기') || t.includes('수박')) return '🍎';
+  if (t.includes('야채') || t.includes('채소') || t.includes('신선')) return '🥬';
+
+  // 세일 강조 키워드
+  if (t.includes('타임') || t.includes('번개') || t.includes('마감') || t.includes('긴급') || t.includes('선착순')) return '⚡';
+  if (t.includes('주말') || t.includes('불금') || t.includes('폭탄') || t.includes('초특가') || t.includes('대박') || t.includes('파격') || t.includes('핫')) return '🔥';
+  if (t.includes('왕') || t.includes('최고') || t.includes('프리미엄') || t.includes('명품')) return '👑';
+  if (t.includes('선물') || t.includes('사은') || t.includes('보너스') || t.includes('혜택')) return '🎁';
+
+  return '🎉';
+};
+
 interface SaleItem {
   id: string;
   category: string;
@@ -90,6 +129,8 @@ export default function CustomerSalePage() {
   const [periodText, setPeriodText] = useState('');
   const [durationBadge, setDurationBadge] = useState('');
   const [bossMessage, setBossMessage] = useState('');
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventSubtitle, setEventSubtitle] = useState('');
   const [storeName, setStoreName] = useState('우리동네 마트');
   const [storeInfo, setStoreInfo] = useState<any>(null);
   const [isStoreInfoOpen, setIsStoreInfoOpen] = useState(false);
@@ -212,6 +253,19 @@ export default function CustomerSalePage() {
               .eq('setting_key', `STORE_ETC_INFO_${store.id}`)
               .maybeSingle();
             setStoreInfo({ ...store, etc_info: etcRow?.setting_value || '' });
+
+            const { data: bannerRow } = await supabase
+              .from('nao3_system_settings')
+              .select('setting_value')
+              .eq('setting_key', `STORE_EVENT_BANNER_${store.id}`)
+              .maybeSingle();
+            if (bannerRow?.setting_value) {
+              try {
+                const parsed = JSON.parse(bannerRow.setting_value);
+                if (parsed.eventTitle) setEventTitle(parsed.eventTitle);
+                if (parsed.eventSubtitle) setEventSubtitle(parsed.eventSubtitle);
+              } catch (e) {}
+            }
           }
         }
 
@@ -222,6 +276,8 @@ export default function CustomerSalePage() {
                               (storeIdForQuery ? localStorage.getItem(`nao3_staging_settings_${storeIdForQuery}`) : null);
           const stagedSettings = JSON.parse(rawSettings || '{}');
           if (stagedSettings.storeName) setStoreName(stagedSettings.storeName);
+          if (stagedSettings.eventTitle !== undefined) setEventTitle(stagedSettings.eventTitle);
+          if (stagedSettings.eventSubtitle !== undefined) setEventSubtitle(stagedSettings.eventSubtitle);
           
           setStoreInfo((prev: any) => ({
             ...prev,
@@ -405,10 +461,10 @@ export default function CustomerSalePage() {
               </div>
             )}
             <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-1.5 tracking-tight">
-              🎉 오늘의 특가 찬스!
+              {getIconForEventTitle(eventTitle || '오늘의 특가 찬스!')} {eventTitle || '오늘의 특가 찬스!'}
             </h3>
             <p className="text-[13px] font-bold text-gray-500 mb-3">
-              단골 고객님을 위해 준비한 깜짝 한정 세일
+              {eventSubtitle || '단골 고객님을 위해 준비한 깜짝 한정 세일'}
             </p>
             
             {periodText && (
