@@ -586,8 +586,8 @@ export default function LandingPage() {
             </div>
             <div className="bg-gray-800/40 border border-gray-700/50 p-6 md:p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
               <div className="w-16 h-16 bg-green-500/20 text-green-400 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-green-500/30">🤝</div>
-              <h3 className="text-2xl font-bold mb-4 text-white">강력한 직원 다중 협업</h3>
-              <p className="text-gray-400 leading-relaxed break-keep">여러 명의 직원을 어드민에 초대하세요. 매장 어디서나 각자의 스마트폰으로 동시에 세일 푸시를 관리할 수 있습니다.</p>
+              <h3 className="text-2xl font-bold mb-4 text-white">비번 하나로 끝나는 직원 협업</h3>
+              <p className="text-gray-400 leading-relaxed break-keep">복잡한 직원 초대나 개별 가입이 필요 없습니다. 직원 전용 비밀번호 하나만 공유하면 여러 직원이 각자 스마트폰으로 동시에 세일 푸시를 관리할 수 있고, 퇴사 시 비밀번호만 바꾸면 즉시 차단됩니다.</p>
             </div>
             <div className="bg-gray-800/40 border border-gray-700/50 p-6 md:p-10 rounded-3xl backdrop-blur-md hover:bg-gray-800/60 transition-colors">
               <div className="w-16 h-16 bg-yellow-500/20 text-yellow-400 rounded-2xl flex items-center justify-center text-3xl mb-6 border border-yellow-500/30">🔗</div>
