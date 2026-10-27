@@ -23,26 +23,31 @@ export default function AdminRouterPage() {
   }, []);
 
   const checkUser = async () => {
-    const isResetPin = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('reset_pin') === 'true';
-    if (isResetPin) {
-      setLoading(false);
-      return;
-    }
-
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (session?.user) {
-      const { data: st } = await supabase.from('nao3_stores').select('slug').eq('id', session.user.id).single();
-      if(st) {
-        router.push(`/store/${st.slug}`);
+    try {
+      const isResetPin = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('reset_pin') === 'true';
+      if (isResetPin) {
+        setLoading(false);
         return;
       }
-    }
 
-    const lastSlug = typeof window !== 'undefined' ? localStorage.getItem('nao3_last_store_slug') : null;
-    if (lastSlug) {
-      router.push(`/store/${lastSlug}`);
-      return;
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        const { data: st } = await supabase
+          .from('nao3_stores')
+          .select('slug')
+          .eq('id', session.user.id)
+          .maybeSingle();
+
+        if (st?.slug) {
+          sessionStorage.setItem(`nao3_store_role_${session.user.id}`, 'owner');
+          localStorage.setItem('nao3_last_store_slug', st.slug);
+          router.replace(`/store/${st.slug}`);
+          return;
+        }
+      }
+    } catch (e) {
+      console.error('Session check error:', e);
     }
 
     setLoading(false);
@@ -66,8 +71,21 @@ export default function AdminRouterPage() {
     } else if (data.session?.user) {
       // 이메일/비밀번호로 직접 로그인한 경우 사장님 권한 즉시 부여
       sessionStorage.setItem(`nao3_store_role_${data.session.user.id}`, 'owner');
-      const { data: st } = await supabase.from('nao3_stores').select('slug').eq('id', data.session.user.id).single();
-      if(st) router.push(`/store/${st.slug}`);
+      const { data: st } = await supabase
+        .from('nao3_stores')
+        .select('slug')
+        .eq('id', data.session.user.id)
+        .maybeSingle();
+
+      if (st?.slug) {
+        localStorage.setItem('nao3_last_store_slug', st.slug);
+        router.replace(`/store/${st.slug}`);
+      } else {
+        alert('해당 계정에 연결된 매장 정보를 찾을 수 없습니다.');
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
     }
   };
 
