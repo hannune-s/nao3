@@ -107,6 +107,40 @@ const getIconForEventTitle = (title: string) => {
   return '🎉';
 };
 
+const emojiToTwemojiUrl = (emoji: string) => {
+  const cps = Array.from(emoji).map((c) => c.codePointAt(0)!.toString(16));
+  const code = cps.includes('200d') ? cps.join('-') : cps.filter((c) => c !== 'fe0f').join('-');
+  return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/${code}.svg`;
+};
+
+function EmojiIcon({ emoji, className = 'w-[16px] h-[16px]' }: { emoji: string; className?: string }) {
+  const [isMobileOs, setIsMobileOs] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') {
+      const ua = navigator.userAgent.toLowerCase();
+      if (/android|iphone|ipad|ipod/.test(ua)) {
+        setIsMobileOs(true);
+      }
+    }
+  }, []);
+
+  if (isMobileOs || imgError) {
+    return <span>{emoji}</span>;
+  }
+
+  return (
+    <img
+      src={emojiToTwemojiUrl(emoji)}
+      alt={emoji}
+      className={`${className} inline-block object-contain select-none`}
+      draggable={false}
+      onError={() => setImgError(true)}
+    />
+  );
+}
+
 interface SaleItem {
   id: string;
   category: string;
@@ -696,7 +730,7 @@ export default function CustomerSalePage() {
               </div>
             )}
             <h3 className="text-2xl sm:text-3xl font-black text-[#1A1A1A] mb-2 tracking-tight leading-snug break-keep whitespace-pre-line">
-              {getIconForEventTitle(eventTitle || '오늘의 특가 찬스!')} {eventTitle || '오늘의 특가 찬스!'}
+              <EmojiIcon emoji={getIconForEventTitle(eventTitle || '오늘의 특가 찬스!')} className="w-7 h-7 sm:w-8 sm:h-8 align-middle mr-1" /> {eventTitle || '오늘의 특가 찬스!'}
             </h3>
             <p className="text-[16px] sm:text-[18px] font-extrabold text-[#B81D5C] mb-4 tracking-tight leading-snug break-keep whitespace-pre-line">
               {eventSubtitle || '단골 고객님을 위해 준비한 깜짝 한정 세일'}
@@ -884,7 +918,7 @@ export default function CustomerSalePage() {
                                   </span>
                                 )}
                                 <span className="flex-shrink-0 w-[26px] h-[26px] bg-[#F9F9F9] rounded-full flex items-center justify-center border border-gray-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)] text-[14px]">
-                                  {getIconForProduct(item.product_name)}
+                                  <EmojiIcon emoji={getIconForProduct(item.product_name)} className="w-[16px] h-[16px]" />
                                 </span>
                                 <h4 className={`text-[16px] font-bold text-gray-900 truncate ${item.options.every((opt: any) => opt.is_sold_out) ? 'line-through text-gray-400' : ''}`}>
                                   {item.product_name}
