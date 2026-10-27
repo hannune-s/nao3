@@ -450,27 +450,27 @@ export default function CustomerSalePage() {
         <div className="bg-[#F8F9FA] w-full pb-6 shadow-sm border-b border-gray-200">
           
           {/* 2. 특가 배너 영역 */}
-          <div className="py-6 px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <div className="py-7 px-4 text-center animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             {durationBadge && (
-              <div className="mb-3">
-                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r from-[#5F0080] to-[#7A00A3] text-white font-extrabold text-[13px] sm:text-[14px] shadow-[0_4px_12px_rgba(95,0,128,0.25)] animate-pulse tracking-wide ring-2 ring-[#5F0080]/20">
-                  <svg className="w-4 h-4 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+              <div className="mb-4">
+                <span className="inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-gradient-to-r from-[#5F0080] to-[#7A00A3] text-white font-black text-[15px] sm:text-[17px] shadow-[0_4px_14px_rgba(95,0,128,0.3)] animate-pulse tracking-wide ring-2 ring-[#5F0080]/20">
+                  <svg className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   <span>{durationBadge}</span>
-                  <span className="text-[#E8D4FF] font-medium">단독 특가</span>
+                  <span className="text-[#FFD700] font-extrabold">단독 특가</span>
                 </span>
               </div>
             )}
-            <h3 className="text-xl font-extrabold text-[#1A1A1A] mb-1.5 tracking-tight">
+            <h3 className="text-2xl sm:text-3xl font-black text-[#1A1A1A] mb-2 tracking-tight leading-snug break-keep whitespace-pre-line">
               {getIconForEventTitle(eventTitle || '오늘의 특가 찬스!')} {eventTitle || '오늘의 특가 찬스!'}
             </h3>
-            <p className="text-[13px] font-bold text-gray-500 mb-3">
+            <p className="text-[16px] sm:text-[18px] font-extrabold text-[#B81D5C] mb-4 tracking-tight leading-snug break-keep whitespace-pre-line">
               {eventSubtitle || '단골 고객님을 위해 준비한 깜짝 한정 세일'}
             </p>
             
             {periodText && (
-              <div className="mt-2 inline-flex bg-[#F8F0FF] text-[#5F0080] font-bold text-[13px] sm:text-[14px] px-6 py-2.5 rounded-full shadow-[0_2px_8px_rgba(95,0,128,0.05)] border border-[#E8D4FF] items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
-                <div className="flex items-center tracking-tighter whitespace-nowrap opacity-90">
-                  <span className="leading-tight">{periodText}</span>
+              <div className="mt-2 inline-flex bg-[#F8F0FF] text-[#5F0080] font-black text-[16px] sm:text-[18px] px-7 py-3.5 sm:px-9 sm:py-4 rounded-2xl shadow-[0_4px_12px_rgba(95,0,128,0.08)] border-2 border-[#D8B4FE] items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
+                <div className="flex items-center tracking-tight whitespace-nowrap">
+                  <span className="leading-tight">🗓️ {periodText}</span>
                 </div>
               </div>
             )}

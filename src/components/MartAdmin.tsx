@@ -1272,23 +1272,23 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             </h3>
             <div className="flex flex-col gap-2.5 mt-1">
               <div>
-                <label className="block text-[12px] font-extrabold text-gray-500 mb-1">행사 타이틀 (큰 제목)</label>
-                <input
-                  type="text"
+                <label className="block text-[12px] font-extrabold text-gray-500 mb-1">행사 타이틀 (큰 제목 · 엔터로 줄바꿈 가능)</label>
+                <textarea
+                  rows={2}
                   value={eventTitle}
                   onChange={e => setEventTitle(e.target.value)}
-                  placeholder="기본값: 오늘의 특가 찬스! (예: 크리스마스 특가, 할로윈 파티, 주말 대축전)"
-                  className="w-full text-[15px] font-extrabold text-gray-900 border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 placeholder:text-gray-400 placeholder:font-normal transition-all"
+                  placeholder="기본값: 오늘의 특가 찬스! (엔터를 치면 원하는 위치에서 줄바꿈됩니다)"
+                  className="w-full text-[15px] font-extrabold text-gray-900 border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug"
                 />
               </div>
               <div>
-                <label className="block text-[12px] font-extrabold text-gray-500 mb-1">서브 문구 (아래 설명)</label>
-                <input
-                  type="text"
+                <label className="block text-[12px] font-extrabold text-gray-500 mb-1">서브 문구 (아래 설명 · 엔터로 줄바꿈 가능)</label>
+                <textarea
+                  rows={2}
                   value={eventSubtitle}
                   onChange={e => setEventSubtitle(e.target.value)}
                   placeholder="기본값: 단골 고객님을 위해 준비한 깜짝 한정 세일"
-                  className="w-full text-[14px] font-bold text-gray-800 border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 placeholder:text-gray-400 placeholder:font-normal transition-all"
+                  className="w-full text-[14px] font-bold text-gray-800 border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug"
                 />
               </div>
             </div>
