@@ -33,13 +33,23 @@ export default function AdminRouterPage() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (session?.user) {
-        const { data: st } = await supabase
+        let { data: st } = await supabase
           .from('nao3_stores')
-          .select('slug')
+          .select('id, slug')
           .eq('id', session.user.id)
           .maybeSingle();
 
+        if (!st && session.user.email) {
+          const { data: stByEmail } = await supabase
+            .from('nao3_stores')
+            .select('id, slug')
+            .eq('email', session.user.email)
+            .maybeSingle();
+          st = stByEmail;
+        }
+
         if (st?.slug) {
+          sessionStorage.setItem(`nao3_store_role_${st.id}`, 'owner');
           sessionStorage.setItem(`nao3_store_role_${session.user.id}`, 'owner');
           localStorage.setItem('nao3_last_store_slug', st.slug);
           router.replace(`/store/${st.slug}`);
@@ -61,7 +71,7 @@ export default function AdminRouterPage() {
     localStorage.setItem('nao3_auto_login', String(autoLogin));
 
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password,
     });
 
@@ -69,19 +79,29 @@ export default function AdminRouterPage() {
       alert('로그인 실패: ' + error.message);
       setLoading(false);
     } else if (data.session?.user) {
-      // 이메일/비밀번호로 직접 로그인한 경우 사장님 권한 즉시 부여
-      sessionStorage.setItem(`nao3_store_role_${data.session.user.id}`, 'owner');
-      const { data: st } = await supabase
+      let { data: st } = await supabase
         .from('nao3_stores')
-        .select('slug')
+        .select('id, slug')
         .eq('id', data.session.user.id)
         .maybeSingle();
 
+      if (!st && data.session.user.email) {
+        const { data: stByEmail } = await supabase
+          .from('nao3_stores')
+          .select('id, slug')
+          .eq('email', data.session.user.email)
+          .maybeSingle();
+        st = stByEmail;
+      }
+
       if (st?.slug) {
+        // 이메일/비밀번호로 직접 로그인한 경우 사장님 권한 즉시 부여
+        sessionStorage.setItem(`nao3_store_role_${st.id}`, 'owner');
+        sessionStorage.setItem(`nao3_store_role_${data.session.user.id}`, 'owner');
         localStorage.setItem('nao3_last_store_slug', st.slug);
         router.replace(`/store/${st.slug}`);
       } else {
-        alert('해당 계정에 연결된 매장 정보를 찾을 수 없습니다.');
+        alert('해당 계정에 연결된 매장 정보를 찾을 수 없습니다. (가입하신 이메일이 맞는지 확인해주세요)');
         setLoading(false);
       }
     } else {

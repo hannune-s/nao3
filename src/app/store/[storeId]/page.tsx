@@ -126,7 +126,8 @@ export default function StoreAdminPage() {
 
     // 4. 사장님 PIN이 미설정 상태이고, 이메일 로그인 세션이 유효한 경우 -> 바로 사장님 권한 부여
     const { data: { session } } = await supabase.auth.getSession();
-    if (!foundOwnerPin && session?.user?.id === store.id) {
+    const isStoreOwner = session?.user && (session.user.id === store.id || (store.email && session.user.email === store.email));
+    if (!foundOwnerPin && isStoreOwner) {
       sessionStorage.setItem(`nao3_store_role_${store.id}`, 'owner');
       setAccessRole('owner');
       setLoading(false);
@@ -146,7 +147,7 @@ export default function StoreAdminPage() {
       return;
     }
 
-    if (session.user.id !== store.id) {
+    if (!isStoreOwner) {
       alert('접근 권한이 없습니다.');
       router.push('/');
       return;
