@@ -819,7 +819,10 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
   }
 
   if (view === 'qr') {
-    const customerLink = typeof window !== 'undefined' ? `${window.location.origin}/store/${storeData.slug}/sale` : '';
+    const baseOrigin = typeof window !== 'undefined'
+      ? (window.location.hostname.includes('vercel.app') ? 'https://www.nao3.kr' : window.location.origin)
+      : 'https://www.nao3.kr';
+    const customerLink = `${baseOrigin}/store/${storeData.slug}/sale`;
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=1024x1024&margin=10&data=${encodeURIComponent(customerLink)}`;
     const storeTitle = storeData.store_name || '우리 매장';
 

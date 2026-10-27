@@ -131,14 +131,65 @@ export default function CustomerSalePage() {
   const [bossMessage, setBossMessage] = useState('');
   const [eventTitle, setEventTitle] = useState('');
   const [eventSubtitle, setEventSubtitle] = useState('');
-  const [storeName, setStoreName] = useState('우리동네 마트');
+  const [storeName, setStoreName] = useState('');
   const [storeInfo, setStoreInfo] = useState<any>(null);
   const [isStoreInfoOpen, setIsStoreInfoOpen] = useState(false);
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(true);
+  const [isStandaloneMode, setIsStandaloneMode] = useState(false);
+  const [installGuideMode, setInstallGuideMode] = useState<'ios' | 'android' | null>(null);
+
+  // 매장별 전용 Manifest 및 iOS 홈화면 타이틀 동적 적용
+  useEffect(() => {
+    if (typeof document === 'undefined' || !storeSlug) return;
+    const titleForApp = storeName || '우리 매장';
+    const dynamicManifestHref = `/api/manifest?slug=${encodeURIComponent(storeSlug)}&name=${encodeURIComponent(titleForApp)}`;
+
+    let manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
+    if (!manifestLink) {
+      manifestLink = document.createElement('link');
+      manifestLink.rel = 'manifest';
+      document.head.appendChild(manifestLink);
+    }
+    manifestLink.href = dynamicManifestHref;
+
+    let appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement | null;
+    if (!appleTitleMeta) {
+      appleTitleMeta = document.createElement('meta');
+      appleTitleMeta.name = 'apple-mobile-web-app-title';
+      document.head.appendChild(appleTitleMeta);
+    }
+    appleTitleMeta.content = titleForApp;
+
+    let appleCapableMeta = document.querySelector('meta[name="apple-mobile-web-app-capable"]') as HTMLMetaElement | null;
+    if (!appleCapableMeta) {
+      appleCapableMeta = document.createElement('meta');
+      appleCapableMeta.name = 'apple-mobile-web-app-capable';
+      appleCapableMeta.content = 'yes';
+      document.head.appendChild(appleCapableMeta);
+    }
+  }, [storeSlug, storeName]);
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
+      window.location.replace(`https://www.nao3.kr${window.location.pathname}${window.location.search}`);
+      return;
+    }
+
+    if (typeof window !== 'undefined') {
+      const standalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true;
+      setIsStandaloneMode(standalone);
+
+      const alreadySubbed = localStorage.getItem(`nao3_push_sub_${storeSlug}`) === 'true';
+      const notifGranted = 'Notification' in window && Notification.permission === 'granted';
+      if (standalone && alreadySubbed && notifGranted) {
+        setShowInstallBanner(false);
+      }
+    }
+
     const handler = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -146,84 +197,129 @@ export default function CustomerSalePage() {
     };
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
+  }, [storeSlug]);
+
+  const subscribeToStorePush = async (currentStoreTitle: string, installedJustNow: boolean): Promise<boolean> => {
+    if (!('Notification' in window)) return false;
+
+    const perm = await Notification.requestPermission();
+    if (perm === 'granted' && 'serviceWorker' in navigator) {
+      try {
+        let reg = await navigator.serviceWorker.ready;
+        let sub = await reg.pushManager.getSubscription();
+
+        const urlBase64ToUint8Array = (base64String: string) => {
+          const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+          const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+          const rawData = window.atob(base64);
+          const outputArray = new Uint8Array(rawData.length);
+          for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+          }
+          return outputArray;
+        };
+
+        const vapidKey = urlBase64ToUint8Array(
+          'BPjk-7gccGn9cI7r_mWhS2bRC_-FbApH8Tg8YhIPBDL6s1WIybDbDUT0E6u0IfrDNR_rR7sUzVXPboyKqL6-KTU'
+        );
+
+        if (sub) {
+          await sub.unsubscribe();
+          await reg.unregister();
+          reg = await navigator.serviceWorker.register('/sw.js');
+          await navigator.serviceWorker.ready;
+        }
+
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: vapidKey,
+        });
+
+        const targetStoreUuid = storeInfo?.id;
+        if (targetStoreUuid) {
+          const { error: dbError } = await supabase.from('nao3_system_settings').insert({
+            setting_key: 'PUSH_SUB_' + targetStoreUuid + '_' + Date.now().toString(),
+            setting_value: JSON.stringify(sub),
+          });
+          if (dbError) {
+            alert('알림 등록 오류: ' + dbError.message);
+            return false;
+          }
+        }
+
+        localStorage.setItem(`nao3_push_sub_${storeSlug}`, 'true');
+        if (installedJustNow || isStandaloneMode) {
+          alert(`🎉 [${currentStoreTitle}] 홈 화면 추가 및 특가 알림 설정이 모두 완료되었습니다!\n이제부터 실시간 세일 소식을 가장 먼저 받아보실 수 있습니다.`);
+        }
+        return true;
+      } catch (e) {
+        console.error('Push sub error', e);
+        alert('알림 설정 중 오류가 발생했습니다. 브라우저 설정을 확인해 주세요.');
+        return false;
+      }
+    } else if (perm === 'denied') {
+      alert('휴대폰 브라우저에서 알림이 차단되어 있습니다.\n브라우저 주소창 옆 자물쇠(설정) 아이콘을 눌러 [알림]을 허용해 주세요.');
+      return false;
+    }
+    return false;
+  };
 
   const handleInstallAndPush = async () => {
-    let installPrompted = false;
-    
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      installPrompted = true;
+    const currentStoreTitle = storeInfo?.store_name || storeName || '우리 매장';
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
+    const isIos = /iphone|ipad|ipod/.test(ua);
+    const isAndroid = /android/.test(ua);
+    const isInApp = /kakaotalk|naver|instagram|fb_iab|fban|fbav|line/.test(ua);
+
+    // 1. 안드로이드 카카오톡/네이버 등 인앱 브라우저일 때 -> 즉시 크롬 외부 브라우저로 연결
+    if (isAndroid && isInApp) {
+      const targetUrl = window.location.href.replace(/^https?:\/\//i, '');
+      window.location.href = `intent://${targetUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+      return;
     }
 
-    if ('Notification' in window) {
-      const perm = await Notification.requestPermission();
-      if (perm === 'granted' && 'serviceWorker' in navigator) {
-        try {
-          let reg = await navigator.serviceWorker.ready;
-          let sub = await reg.pushManager.getSubscription();
-
-          const urlBase64ToUint8Array = (base64String: string) => {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-              outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray;
-          };
-          
-          const vapidKey = urlBase64ToUint8Array('BPjk-7gccGn9cI7r_mWhS2bRC_-FbApH8Tg8YhIPBDL6s1WIybDbDUT0E6u0IfrDNR_rR7sUzVXPboyKqL6-KTU');
-
-          if (sub) {
-            await sub.unsubscribe();
-            // iOS Safari의 고질적인 캐시 버그(삭제 후 재설치 시 예전 토큰을 반환하는 현상)를 강제 초기화
-            await reg.unregister();
-            reg = await navigator.serviceWorker.register('/sw.js');
-            await navigator.serviceWorker.ready;
-          }
-
-          sub = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: vapidKey
-          });
-          
-          if (storeInfo?.id) {
-            const { error: dbError } = await supabase.from('nao3_system_settings').insert({
-              setting_key: 'PUSH_SUB_' + storeInfo.id + '_' + Date.now().toString(),
-              setting_value: JSON.stringify(sub)
-            });
-            if (dbError) {
-              alert('알림 등록 오류: ' + dbError.message);
-            } else {
-              alert('🎉 알림 수신 동의가 완료되었습니다! 이제부터 우리동네 마트의 특가 알림을 받아보실 수 있습니다.');
-            }
-          }
-        } catch (e) {
-          console.error('Push sub error', e);
-          alert('알림 설정 중 오류가 발생했습니다. 브라우저 설정을 확인해 주세요.');
-        }
-      } else if (perm === 'denied') {
-        alert('알림이 차단되어 있습니다. 기기 설정에서 알림을 허용해 주세요.');
+    // 2. 아이폰(iOS) 처리
+    if (isIos) {
+      // 아직 홈 화면에 추가하지 않은 상태(Safari 또는 카톡 인앱) -> 시각적 1·2·3단계 홈화면 추가 안내 모달 표시
+      if (!isStandaloneMode) {
+        setInstallGuideMode('ios');
+        return;
       }
-    } else {
-      const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
-      if (isIos) {
-        alert('아이폰(iOS)은 앱을 먼저 설치해야 알림을 받을 수 있습니다!\n\n화면 하단의 [공유] 버튼(네모 안 화살표)을 누르고 [홈 화면에 추가]를 선택해 주세요.');
-      } else {
-        alert('이 브라우저는 푸시 알림을 지원하지 않습니다.');
-      }
-    }
-    
-    if (installPrompted) {
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
+      // 이미 홈 화면 아이콘으로 들어온 상태(standalone) -> 즉시 푸시 알림 권한 요청 및 등록
+      const ok = await subscribeToStorePush(currentStoreTitle, true);
+      if (ok) {
         setShowInstallBanner(false);
       }
+      return;
+    }
+
+    // 3. 안드로이드(크롬/삼성인터넷 등) 및 PC 브라우저: 충돌 없도록 [1단계: 홈화면 설치] 완료 후 -> [2단계: 푸시 알림 등록] 순차 실행
+    let installedJustNow = false;
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        if (choiceResult?.outcome === 'accepted') {
+          installedJustNow = true;
+        }
+      } catch (e) {
+        console.warn('Install prompt error', e);
+      }
       setDeferredPrompt(null);
-    } else {
+    }
+
+    // 홈화면 추가 팝업이 완전히 닫힌 뒤 0.2초 후 푸시 알림 권한 요청 실행 (팝업 겹침 완벽 방지)
+    await new Promise((r) => setTimeout(r, 200));
+    const pushOk = await subscribeToStorePush(currentStoreTitle, installedJustNow);
+
+    if (installedJustNow || isStandaloneMode) {
       setShowInstallBanner(false);
+    } else {
+      // 자동 홈화면 추가 팝업(deferredPrompt)이 지원되지 않은 브라우저이거나 이미 닫힌 경우 -> 수동 홈화면 추가 안내 모달 표시
+      setInstallGuideMode('android');
+      if (pushOk) {
+        setShowInstallBanner(false);
+      }
     }
   };
 
@@ -233,20 +329,24 @@ export default function CustomerSalePage() {
     const fetchItems = async () => {
       try {
         // 0. URL의 storeId를 기반으로 해당 가게 상호명 가져오기 (미리보기 모드라도 항상 가져와서 가게정보/특가 정보를 렌더링해야 함)
-                let storeIdForQuery = storeSlug;
+        let storeIdForQuery = storeSlug;
         if (storeSlug.startsWith('demo-guest-')) {
           setStoreName('체험용 마트');
           setStoreInfo({ id: storeSlug, store_name: '체험용 마트' });
         } else {
+          const isUuidSlug = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeSlug);
           const { data: store } = await supabase
             .from('nao3_stores')
             .select('id, store_name, address, phone, operating_hours, closed_days, special_image_url, special_title, special_price, special_message')
-            .eq('slug', storeSlug)
-            .single();
+            .eq(isUuidSlug ? 'id' : 'slug', storeSlug)
+            .maybeSingle();
             
           if (store) {
             storeIdForQuery = store.id;
             setStoreName(store.store_name);
+            if (typeof document !== 'undefined' && store.store_name) {
+              document.title = `NAO3 - ${store.store_name}`;
+            }
             const { data: etcRow } = await supabase
               .from('nao3_system_settings')
               .select('setting_value')
@@ -412,20 +512,99 @@ export default function CustomerSalePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F1F2F4] pb-24 font-sans pt-12">
+    <main className={`min-h-screen bg-[#F1F2F4] pb-24 font-sans ${showInstallBanner ? 'pt-12' : ''}`}>
       {/* 최상단 PWA 설치 및 푸시 유도 배너 */}
       {showInstallBanner && (
         <div className="fixed top-0 left-0 right-0 h-12 bg-gray-900 z-50 flex items-center justify-between px-4 shadow-md animate-fade-in-down">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🎁</span>
-            <span className="text-white text-[12px] font-bold tracking-tight">터치 한 번으로 세일 소식 받기!</span>
+          <div className="flex items-center gap-2 min-w-0 pr-2">
+            <span className="text-xl shrink-0">{isStandaloneMode ? '🔔' : '🎁'}</span>
+            <span className="text-white text-[12px] font-bold tracking-tight truncate">
+              {isStandaloneMode
+                ? '마지막 1단계! 실시간 세일 알림을 켜주세요'
+                : '터치 한 번으로 세일 소식 받기!'}
+            </span>
           </div>
           <button 
             onClick={handleInstallAndPush}
-            className="bg-yellow-400 text-yellow-900 font-black text-[11px] px-3 py-1.5 rounded-full hover:bg-yellow-300 transition-colors shadow-sm"
+            className="shrink-0 bg-yellow-400 text-yellow-900 font-black text-[11.5px] px-3.5 py-1.5 rounded-full hover:bg-yellow-300 transition-colors shadow-sm"
           >
-            홈 화면에 추가
+            {isStandaloneMode ? '세일 알림 켜기' : '홈 화면에 추가'}
           </button>
+        </div>
+      )}
+
+      {/* iOS / 안드로이드 수동 홈화면 추가 시각 안내 모달 */}
+      {installGuideMode && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/65 flex items-center justify-center p-4 animate-fade-in-up"
+          onClick={() => setInstallGuideMode(null)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border-2 border-[#5F0080]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center mb-4">
+              <span className="inline-block bg-purple-100 text-[#5F0080] text-[12px] font-black px-3 py-1 rounded-full mb-2">
+                {installGuideMode === 'ios' ? '🍎 아이폰(iOS) 단골 등록 안내' : '📱 홈 화면 바로가기 안내'}
+              </span>
+              <h3 className="text-[20px] font-black text-gray-900 leading-snug break-keep">
+                [{storeName || '우리 매장'}]<br />홈 화면에 추가하는 방법
+              </h3>
+            </div>
+
+            {installGuideMode === 'ios' ? (
+              <div className="space-y-3 text-left bg-[#FAF5FF] border border-purple-200 rounded-2xl p-4 mb-5">
+                <div className="flex items-start gap-2.5">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-[#5F0080] text-white text-[13px] font-black flex items-center justify-center mt-0.5">1</span>
+                  <p className="text-[14px] font-bold text-gray-800 leading-snug break-keep">
+                    화면 맨 아래 가운데(또는 우측 상단)의 <strong className="text-[#5F0080]">[공유 📤] (네모 안 화살표)</strong> 버튼을 눌러주세요.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-[#B81D5C] text-white text-[13px] font-black flex items-center justify-center mt-0.5">2</span>
+                  <p className="text-[14px] font-bold text-gray-800 leading-snug break-keep">
+                    메뉴를 아래로 조금 내려서 <strong className="text-[#B81D5C]">[홈 화면에 추가 ➕]</strong>를 누른 뒤 우측 상단 <strong>[추가]</strong>를 눌러주세요.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-[#5F0080] text-white text-[13px] font-black flex items-center justify-center mt-0.5">3</span>
+                  <p className="text-[14px] font-bold text-gray-800 leading-snug break-keep">
+                    바탕화면에 생긴 <strong className="text-[#5F0080]">[{storeName || '우리 매장'}]</strong> 아이콘을 눌러 들어오신 뒤 상단 <strong>[세일 알림 켜기]</strong>를 누르면 완료됩니다!
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 text-left bg-[#FAF5FF] border border-purple-200 rounded-2xl p-4 mb-5">
+                <div className="bg-white border border-purple-100 rounded-xl p-3 text-center">
+                  <p className="text-[14px] font-black text-[#5F0080] break-keep">
+                    🎉 [{storeName || '우리 매장'}] 특가 알림 수신 설정 완료!
+                  </p>
+                </div>
+                <p className="text-[13.5px] font-bold text-gray-700 leading-relaxed break-keep">
+                  휴대폰 바탕화면에도 매장 아이콘을 추가하시려면 아래 순서대로 눌러주세요:
+                </p>
+                <div className="flex items-start gap-2.5">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-[#5F0080] text-white text-[13px] font-black flex items-center justify-center mt-0.5">1</span>
+                  <p className="text-[14px] font-bold text-gray-800 leading-snug break-keep">
+                    화면 우측 상단 <strong className="text-[#5F0080]">[ ⋮ ]</strong> 버튼 (삼성인터넷은 하단 <strong className="text-[#5F0080]">[ ≡ ]</strong> 메뉴)을 눌러주세요.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2.5">
+                  <span className="shrink-0 w-6 h-6 rounded-full bg-[#B81D5C] text-white text-[13px] font-black flex items-center justify-center mt-0.5">2</span>
+                  <p className="text-[14px] font-bold text-gray-800 leading-snug break-keep">
+                    메뉴에서 <strong className="text-[#B81D5C]">[홈 화면에 추가]</strong> (또는 <strong>[현재 페이지 추가 ➔ 홈 화면]</strong>)를 누르면 바탕화면에 <strong className="text-[#5F0080]">[{storeName || '우리 매장'}]</strong> 아이콘이 생깁니다!
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={() => setInstallGuideMode(null)}
+              className="w-full py-3.5 bg-[#5F0080] hover:bg-purple-900 text-white font-black rounded-2xl text-[15px] shadow-md transition-colors"
+            >
+              확인했습니다
+            </button>
+          </div>
         </div>
       )}
 
