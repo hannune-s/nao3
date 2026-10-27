@@ -701,68 +701,57 @@ export default function CustomerSalePage() {
         )}
       </div>
 
-      {/* 매장 정보 아코디언 */}
+      {/* 매장 안내 (항상 펼침 노출) */}
       {storeInfo && (
         <div className="w-full bg-white border-t-8 border-[#F4F4F4] pb-8 mt-6">
-          <button 
-            onClick={() => setIsStoreInfoOpen(!isStoreInfoOpen)}
-            className="w-full py-5 px-5 flex items-center justify-between text-[16px] font-black text-gray-900 transition-colors"
-          >
+          <div className="py-5 px-5 flex items-center justify-between text-[16px] font-black text-gray-900">
             <span>{storeName} 매장 안내</span>
-            <svg 
-              className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${isStoreInfoOpen ? 'rotate-180' : ''}`} 
-              fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.0" d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+          </div>
           
-          {isStoreInfoOpen && (
-            <div className="px-5 pb-6 animate-fade-in-up">
-              <div className="bg-[#FAFAFA] rounded-xl p-5 border border-gray-200">
-                <div className="flex flex-col gap-4">
-                  
-                  {storeInfo.operating_hours && (
-                    <div className="flex items-start gap-4">
-                      <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">영업시간</span>
-                      <span className="text-[15px] font-black text-gray-900 leading-snug break-keep">{storeInfo.operating_hours}</span>
-                    </div>
-                  )}
+          <div className="px-5 pb-6">
+            <div className="bg-[#FAFAFA] rounded-xl p-5 border border-gray-200">
+              <div className="flex flex-col gap-4">
+                
+                {storeInfo.operating_hours && (
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">영업시간</span>
+                    <span className="text-[15px] font-black text-gray-900 leading-snug break-keep">{storeInfo.operating_hours}</span>
+                  </div>
+                )}
 
-                  {storeInfo.closed_days && (
-                    <div className="flex items-start gap-4">
-                      <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">휴무일</span>
-                      <span className="text-[15px] font-black text-[#E52525] leading-snug break-keep">{storeInfo.closed_days}</span>
-                    </div>
-                  )}
+                {storeInfo.closed_days && (
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">휴무일</span>
+                    <span className="text-[15px] font-black text-[#E52525] leading-snug break-keep">{storeInfo.closed_days}</span>
+                  </div>
+                )}
 
-                  {storeInfo.address && (
-                    <div className="flex items-start gap-4">
-                      <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">오시는길</span>
-                      <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep">{storeInfo.address}</span>
-                    </div>
-                  )}
-                  
-                  {storeInfo.phone && (
-                    <div className="flex items-start gap-4">
-                      <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">고객센터</span>
-                      <span className="text-[15px] font-black text-[#5F0080]">
-                        <a href={`tel:${storeInfo.phone}`} className="hover:underline">{storeInfo.phone}</a>
-                      </span>
-                    </div>
-                  )}
+                {storeInfo.address && (
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">오시는길</span>
+                    <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep">{storeInfo.address}</span>
+                  </div>
+                )}
+                
+                {storeInfo.phone && (
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">고객센터</span>
+                    <span className="text-[15px] font-black text-[#5F0080]">
+                      <a href={`tel:${storeInfo.phone}`} className="hover:underline">{storeInfo.phone}</a>
+                    </span>
+                  </div>
+                )}
 
-                  {storeInfo.etc_info && (
-                    <div className="flex items-start gap-4">
-                      <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">기타안내</span>
-                      <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep whitespace-pre-line">{storeInfo.etc_info}</span>
-                    </div>
-                  )}
+                {storeInfo.etc_info && (
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">기타안내</span>
+                    <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep whitespace-pre-line">{storeInfo.etc_info}</span>
+                  </div>
+                )}
 
-                </div>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Powered by NAO3 */}
           <div className="text-center pt-4 pb-2">
