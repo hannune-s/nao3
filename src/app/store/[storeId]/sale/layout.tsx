@@ -1,51 +1,55 @@
-import { Metadata } from 'next';
-import { supabase } from '@/lib/supabase';
+import type { Metadata } from 'next';
+import { createClient } from '@supabase/supabase-js';
 
-export async function generateMetadata({ params }: { params: Promise<{ storeId: string }> }): Promise<Metadata> {
-  const resolvedParams = await params;
-  const storeSlug = resolvedParams.storeId;
-  
-  // demo-guest
-  if (storeSlug?.startsWith('demo-guest')) {
-    const appTitle = `NAO3 - demo`;
-    return {
-      title: appTitle,
-      appleWebApp: {
-        title: appTitle,
-        statusBarStyle: 'default',
-      },
-      icons: {
-        icon: '/icon.jpg',
-        apple: '/icon.jpg',
-      },
-      manifest: `/manifest.json`,
-    };
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+);
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ storeId: string }>;
+}): Promise<Metadata> {
+  const { storeId } = await params;
+  let storeName = '우리 매장';
+
+  if (storeId && !storeId.startsWith('demo-guest-')) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeId);
+      const { data: store } = await supabase
+        .from('nao3_stores')
+        .select('store_name')
+        .eq(isUuid ? 'id' : 'slug', storeId)
+        .maybeSingle();
+      if (store?.store_name) {
+        storeName = store.store_name;
+      }
+    } catch (e) {}
+  } else if (storeId?.startsWith('demo-guest-')) {
+    storeName = '체험용 마트';
   }
 
-  // DB query
-  const { data: storeData } = await supabase
-    .from('nao3_stores')
-    .select('store_name')
-    .eq('slug', storeSlug)
-    .single();
-
-  const storeName = storeData?.store_name || 'NAO3';
-  const appTitle = `NAO3 - ${storeName}`;
-
   return {
-    title: appTitle,
+    title: `${storeName} - 오늘의 특가 전단지`,
+    description: `${storeName}의 실시간 깜짝 세일과 오늘의 특가 소식을 확인하세요.`,
+    manifest: `/api/manifest?mode=sale&slug=${encodeURIComponent(storeId)}&name=${encodeURIComponent(storeName)}`,
     appleWebApp: {
-      title: appTitle,
+      capable: true,
+      title: storeName,
       statusBarStyle: 'default',
     },
     icons: {
-      icon: '/icon.jpg',
-      apple: '/icon.jpg',
+      icon: '/icon-192.png',
+      apple: '/icon-192.png',
     },
-    manifest: `/manifest.json`,
   };
 }
 
-export default function SaleLayout({ children }: { children: React.ReactNode }) {
+export default function CustomerSaleLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }

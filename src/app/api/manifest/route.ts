@@ -1,41 +1,114 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
+);
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get('slug') || '';
-  const name = searchParams.get('name') || '우리 매장';
+  const mode = searchParams.get('mode') || 'sale'; // 'sale' | 'admin'
+  let name = searchParams.get('name') || '';
 
+  // 만약 name 파라미터가 비어있다면 DB에서 직접 상호명 조회
+  if (!name && slug && !slug.startsWith('demo-guest-')) {
+    try {
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+      const { data: store } = await supabase
+        .from('nao3_stores')
+        .select('store_name')
+        .eq(isUuid ? 'id' : 'slug', slug)
+        .maybeSingle();
+      if (store?.store_name) {
+        name = store.store_name;
+      }
+    } catch (e) {}
+  }
+
+  const storeTitle = name || '우리 매장';
+
+  if (mode === 'admin') {
+    const startUrl = slug ? `/store/${slug}` : '/';
+    const adminManifest = {
+      id: `${startUrl}?app=admin`,
+      name: `사장님 NAO3 - ${storeTitle}`,
+      short_name: `사장님 ${storeTitle}`,
+      description: `${storeTitle} 사장님 전용 스마트 전단지 관리 어드민`,
+      display: 'standalone',
+      orientation: 'portrait',
+      start_url: startUrl,
+      scope: startUrl,
+      background_color: '#FFFFFF',
+      theme_color: '#111111',
+      icons: [
+        {
+          src: '/icon-admin-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icon-admin-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icon-admin-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+    };
+
+    return new NextResponse(JSON.stringify(adminManifest), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/manifest+json; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      },
+    });
+  }
+
+  // 고객용 세일 전단지 매니페스트 (mode === 'sale')
   const startUrl = slug ? `/store/${slug}/sale` : '/';
-  const scope = slug ? `/store/${slug}` : '/';
-
-  const manifest = {
+  const saleManifest = {
     id: startUrl,
-    name: `${name} 모바일 특가 전단지`,
-    short_name: name,
-    description: `${name}의 실시간 깜짝 세일과 오늘의 특가 소식을 확인하세요.`,
+    name: `${storeTitle} 특가 전단지`,
+    short_name: storeTitle,
+    description: `${storeTitle}의 실시간 깜짝 세일과 오늘의 특가 소식을 확인하세요.`,
     display: 'standalone',
     orientation: 'portrait',
     start_url: startUrl,
-    scope: scope,
+    scope: startUrl,
     background_color: '#FFFFFF',
     theme_color: '#5F0080',
     icons: [
       {
-        src: '/icon.jpg',
+        src: '/icon-192.png',
         sizes: '192x192',
-        type: 'image/jpeg',
-        purpose: 'any maskable',
+        type: 'image/png',
+        purpose: 'any',
       },
       {
-        src: '/icon.jpg',
+        src: '/icon-512.png',
         sizes: '512x512',
-        type: 'image/jpeg',
-        purpose: 'any maskable',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/icon-512.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
       },
     ],
   };
 
-  return new NextResponse(JSON.stringify(manifest), {
+  return new NextResponse(JSON.stringify(saleManifest), {
     status: 200,
     headers: {
       'Content-Type': 'application/manifest+json; charset=utf-8',

@@ -3,14 +3,27 @@
   "short_name": "사장님 NAO3",
   "description": "NAO3 사장님 전용 어드민",
   "display": "standalone",
+  "start_url": "/login",
   "background_color": "#ffffff",
   "theme_color": "#111111",
   "icons": [
     {
-      "src": "/icon-admin.svg",
+      "src": "/icon-admin-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-admin-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-admin-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

@@ -665,39 +665,41 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
 
   // 방향키 스크롤 포커스 처리
   useEffect(() => {
-    // 1. Change manifest to admin version
-    const manifestLink = document.querySelector('link[rel="manifest"]');
-    let oldHref = '/manifest.json';
-    if (manifestLink) {
-      oldHref = manifestLink.getAttribute('href') || '/manifest.json';
-      manifestLink.setAttribute('href', '/manifest-admin.json');
-    }
-
-    // 2. 앱으로 이미 실행 중인지 확인
+    // 1. 앱으로 이미 실행 중인지 확인
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
     
     // 이미 설치된 상태이거나, 사용자가 닫기를 누른 경우 배너 숨김
     if (isStandalone || localStorage.getItem('hideAdminInstallBanner') === 'true') {
       setShowAdminInstallBanner(false);
     } else {
-      // 카카오/네이버 인앱 브라우저나 아이폰에서도 무조건 배너는 띄움
       setShowAdminInstallBanner(true);
+    }
+
+    // 2. 초기 로딩 시점에 이미 캡처된 프롬프트가 있으면 즉시 연동
+    if ((window as any).__nao3DeferredPrompt) {
+      setAdminDeferredPrompt((window as any).__nao3DeferredPrompt);
     }
 
     // 3. 네이티브 프롬프트 가로채기 (안드로이드 크롬 등)
     const handler = (e: any) => {
       e.preventDefault();
+      (window as any).__nao3DeferredPrompt = e;
       setAdminDeferredPrompt(e);
-      // 이벤트가 발생해도, 사용자가 닫았으면 띄우지 않음
       if (localStorage.getItem('hideAdminInstallBanner') !== 'true') {
         setShowAdminInstallBanner(true);
       }
     };
+    const readyHandler = () => {
+      if ((window as any).__nao3DeferredPrompt) {
+        setAdminDeferredPrompt((window as any).__nao3DeferredPrompt);
+      }
+    };
     window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('nao3-install-ready', readyHandler);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
-      if (manifestLink) manifestLink.setAttribute('href', oldHref);
+      window.removeEventListener('nao3-install-ready', readyHandler);
     };
   }, []);
 
@@ -1494,24 +1496,29 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
               </button>
               <button 
                 onClick={async () => {
-                  if (adminDeferredPrompt) {
-                    // Chrome 등 네이티브 프롬프트가 지원되는 브라우저
-                    adminDeferredPrompt.prompt();
-                    const { outcome } = await adminDeferredPrompt.userChoice;
+                  const ua = navigator.userAgent.toLowerCase();
+                  const isAndroid = /android/.test(ua);
+                  const isInApp = /kakaotalk|naver|instagram|fb_iab|fban|fbav|line/.test(ua);
+
+                  if (isAndroid && isInApp) {
+                    const targetUrl = window.location.href.replace(/^https?:\/\//i, '');
+                    window.location.href = `intent://${targetUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+                    return;
+                  }
+
+                  const promptEvent = adminDeferredPrompt || (typeof window !== 'undefined' ? (window as any).__nao3DeferredPrompt : null);
+                  if (promptEvent) {
+                    promptEvent.prompt();
+                    const { outcome } = await promptEvent.userChoice;
                     if (outcome === 'accepted') {
                       setShowAdminInstallBanner(false);
                     }
+                    (window as any).__nao3DeferredPrompt = null;
                     setAdminDeferredPrompt(null);
+                  } else if (/iphone|ipad|ipod/.test(ua)) {
+                    alert('아이폰(iOS) 홈 화면 설치 방법:\n\n1. 화면 맨 아래 [공유] 버튼(네모 안 화살표)을 눌러주세요.\n2. 메뉴를 내려 [홈 화면에 추가]를 누르면 바탕화면에 사장님 어드민 아이콘이 생성됩니다!');
                   } else {
-                    // 카카오, 네이버 등 인앱 브라우저나 사파리(iOS)
-                    const ua = navigator.userAgent.toLowerCase();
-                    if (ua.includes('kakaotalk') || ua.includes('naver')) {
-                      alert('현재 브라우저(카카오/네이버)에서는 앱 설치가 지원되지 않습니다.\n\n화면 우측 하단(또는 상단)의 메뉴[⋮]를 눌러 "다른 브라우저로 열기"를 선택하신 후 설치해주세요.');
-                    } else if (/iphone|ipad|ipod/.test(ua)) {
-                      alert('아이폰(iOS) 설치 방법:\n\n화면 하단의 [공유] 버튼(네모 안 화살표)을 누른 후, [홈 화면에 추가]를 선택해주세요.');
-                    } else {
-                      alert('현재 브라우저에서는 자동 설치가 지원되지 않습니다.\n브라우저 메뉴에서 [홈 화면에 추가] 또는 [앱 설치]를 선택해주세요.');
-                    }
+                    alert('바탕화면에 이미 설치되어 있거나, 브라우저 우측 상단 [⋮] 메뉴(삼성인터넷은 하단 [≡])에서 [홈 화면에 추가]를 눌러 바로 설치하실 수 있습니다.');
                   }
                 }}
                 className="bg-yellow-400 hover:bg-yellow-300 text-black font-extrabold text-xs px-3 py-1.5 rounded-lg whitespace-nowrap"

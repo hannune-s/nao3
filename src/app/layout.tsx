@@ -4,10 +4,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "NAO3 Sale Push Admin",
   description: "마켓컬리 스타일 세일 푸시 어드민",
-  manifest: "/manifest.json",
   icons: {
-    icon: '/icon.jpg',
-    apple: '/icon.jpg',
+    icon: '/icon-192.png',
+    apple: '/icon-192.png',
   },
 };
 
@@ -22,6 +21,12 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              window.__nao3DeferredPrompt = null;
+              window.addEventListener('beforeinstallprompt', function(e) {
+                e.preventDefault();
+                window.__nao3DeferredPrompt = e;
+                window.dispatchEvent(new Event('nao3-install-ready'));
+              });
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js').then(function(registration) {

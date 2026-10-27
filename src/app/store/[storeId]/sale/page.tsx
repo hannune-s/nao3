@@ -140,36 +140,14 @@ export default function CustomerSalePage() {
   const [isStandaloneMode, setIsStandaloneMode] = useState(false);
   const [installGuideMode, setInstallGuideMode] = useState<'ios' | 'android' | null>(null);
 
-  // 매장별 전용 Manifest 및 iOS 홈화면 타이틀 동적 적용
+  // iOS 홈화면 타이틀 동기화 (manifest 링크는 서버 layout.tsx에서 최초 HTML에 주입됨)
   useEffect(() => {
-    if (typeof document === 'undefined' || !storeSlug) return;
-    const titleForApp = storeName || '우리 매장';
-    const dynamicManifestHref = `/api/manifest?slug=${encodeURIComponent(storeSlug)}&name=${encodeURIComponent(titleForApp)}`;
-
-    let manifestLink = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
-    if (!manifestLink) {
-      manifestLink = document.createElement('link');
-      manifestLink.rel = 'manifest';
-      document.head.appendChild(manifestLink);
-    }
-    manifestLink.href = dynamicManifestHref;
-
+    if (typeof document === 'undefined' || !storeName) return;
     let appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement | null;
-    if (!appleTitleMeta) {
-      appleTitleMeta = document.createElement('meta');
-      appleTitleMeta.name = 'apple-mobile-web-app-title';
-      document.head.appendChild(appleTitleMeta);
+    if (appleTitleMeta) {
+      appleTitleMeta.content = storeName;
     }
-    appleTitleMeta.content = titleForApp;
-
-    let appleCapableMeta = document.querySelector('meta[name="apple-mobile-web-app-capable"]') as HTMLMetaElement | null;
-    if (!appleCapableMeta) {
-      appleCapableMeta = document.createElement('meta');
-      appleCapableMeta.name = 'apple-mobile-web-app-capable';
-      appleCapableMeta.content = 'yes';
-      document.head.appendChild(appleCapableMeta);
-    }
-  }, [storeSlug, storeName]);
+  }, [storeName]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
@@ -188,18 +166,38 @@ export default function CustomerSalePage() {
       if (standalone && alreadySubbed && notifGranted) {
         setShowInstallBanner(false);
       }
+
+      if ((window as any).__nao3DeferredPrompt) {
+        setDeferredPrompt((window as any).__nao3DeferredPrompt);
+      }
     }
 
     const handler = (e: any) => {
       e.preventDefault();
+      (window as any).__nao3DeferredPrompt = e;
       setDeferredPrompt(e);
       setShowInstallBanner(true);
     };
+    const readyHandler = () => {
+      if ((window as any).__nao3DeferredPrompt) {
+        setDeferredPrompt((window as any).__nao3DeferredPrompt);
+      }
+    };
+    const installedHandler = () => {
+      localStorage.setItem(`nao3_installed_${storeSlug}`, 'true');
+    };
+
     window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    window.addEventListener('nao3-install-ready', readyHandler);
+    window.addEventListener('appinstalled', installedHandler);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('nao3-install-ready', readyHandler);
+      window.removeEventListener('appinstalled', installedHandler);
+    };
   }, [storeSlug]);
 
-  const subscribeToStorePush = async (currentStoreTitle: string, installedJustNow: boolean): Promise<boolean> => {
+  const subscribeToStorePush = async (currentStoreTitle: string, showSuccessAlert: boolean): Promise<boolean> => {
     if (!('Notification' in window)) return false;
 
     const perm = await Notification.requestPermission();
@@ -248,7 +246,7 @@ export default function CustomerSalePage() {
         }
 
         localStorage.setItem(`nao3_push_sub_${storeSlug}`, 'true');
-        if (installedJustNow || isStandaloneMode) {
+        if (showSuccessAlert) {
           alert(`🎉 [${currentStoreTitle}] 홈 화면 추가 및 특가 알림 설정이 모두 완료되었습니다!\n이제부터 실시간 세일 소식을 가장 먼저 받아보실 수 있습니다.`);
         }
         return true;
@@ -280,12 +278,10 @@ export default function CustomerSalePage() {
 
     // 2. 아이폰(iOS) 처리
     if (isIos) {
-      // 아직 홈 화면에 추가하지 않은 상태(Safari 또는 카톡 인앱) -> 시각적 1·2·3단계 홈화면 추가 안내 모달 표시
       if (!isStandaloneMode) {
         setInstallGuideMode('ios');
         return;
       }
-      // 이미 홈 화면 아이콘으로 들어온 상태(standalone) -> 즉시 푸시 알림 권한 요청 및 등록
       const ok = await subscribeToStorePush(currentStoreTitle, true);
       if (ok) {
         setShowInstallBanner(false);
@@ -293,29 +289,39 @@ export default function CustomerSalePage() {
       return;
     }
 
-    // 3. 안드로이드(크롬/삼성인터넷 등) 및 PC 브라우저: 충돌 없도록 [1단계: 홈화면 설치] 완료 후 -> [2단계: 푸시 알림 등록] 순차 실행
+    // 3. 안드로이드(크롬/삼성인터넷 등) 및 PC 브라우저: [1단계: 자동 홈화면 추가] 완료 후 -> [2단계: 푸시 알림 등록] 순차 실행
     let installedJustNow = false;
-    if (deferredPrompt) {
+    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__nao3DeferredPrompt : null);
+
+    if (promptEvent) {
       try {
-        deferredPrompt.prompt();
-        const choiceResult = await deferredPrompt.userChoice;
+        promptEvent.prompt();
+        const choiceResult = await promptEvent.userChoice;
         if (choiceResult?.outcome === 'accepted') {
           installedJustNow = true;
+          localStorage.setItem(`nao3_installed_${storeSlug}`, 'true');
         }
       } catch (e) {
         console.warn('Install prompt error', e);
       }
+      (window as any).__nao3DeferredPrompt = null;
       setDeferredPrompt(null);
     }
 
-    // 홈화면 추가 팝업이 완전히 닫힌 뒤 0.2초 후 푸시 알림 권한 요청 실행 (팝업 겹침 완벽 방지)
-    await new Promise((r) => setTimeout(r, 200));
-    const pushOk = await subscribeToStorePush(currentStoreTitle, installedJustNow);
+    const alreadyInstalledBefore =
+      isStandaloneMode || localStorage.getItem(`nao3_installed_${storeSlug}`) === 'true';
 
-    if (installedJustNow || isStandaloneMode) {
+    // 홈화면 추가 팝업이 닫힌 직후 푸시 알림 권한 요청 실행
+    await new Promise((r) => setTimeout(r, 200));
+    const pushOk = await subscribeToStorePush(
+      currentStoreTitle,
+      installedJustNow || alreadyInstalledBefore
+    );
+
+    if (installedJustNow || alreadyInstalledBefore) {
       setShowInstallBanner(false);
     } else {
-      // 자동 홈화면 추가 팝업(deferredPrompt)이 지원되지 않은 브라우저이거나 이미 닫힌 경우 -> 수동 홈화면 추가 안내 모달 표시
+      // 이미 이전에 설치했다가 지웠거나 브라우저가 수동 설치만 지원하는 경우 안내 표시
       setInstallGuideMode('android');
       if (pushOk) {
         setShowInstallBanner(false);
