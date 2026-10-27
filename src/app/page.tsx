@@ -803,7 +803,7 @@ export default function LandingPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
               </svg>
             </summary>
-            <div className="mt-6 p-6 bg-gray-900/60 rounded-2xl leading-relaxed text-center sm:text-left border border-gray-800 shadow-inner cursor-text">
+            <div className="mt-6 p-6 bg-gray-900/60 rounded-2xl leading-relaxed text-left border border-gray-800 shadow-inner cursor-text">
               <div className="grid sm:grid-cols-2 gap-y-2.5 gap-x-8">
                 <p><span className="font-bold text-gray-300 mr-2">상호명</span> 싹(SSAK)</p>
                 <p><span className="font-bold text-gray-300 mr-2">대표자</span> 송하나</p>
