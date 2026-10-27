@@ -820,7 +820,8 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
 
   if (view === 'qr') {
     const customerLink = typeof window !== 'undefined' ? `${window.location.origin}/store/${storeData.slug}/sale` : '';
-    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=1024x1024&data=${encodeURIComponent(customerLink)}`;
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=1024x1024&margin=10&data=${encodeURIComponent(customerLink)}`;
+    const storeTitle = storeData.store_name || '우리 매장';
 
     const copyLink = () => {
       navigator.clipboard.writeText(customerLink).then(() => {
@@ -830,7 +831,352 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
       });
     };
 
-    const downloadQR = async () => {
+    const drawRoundedRect = (
+      ctx: CanvasRenderingContext2D,
+      x: number,
+      y: number,
+      w: number,
+      h: number,
+      r: number | { tl: number; tr: number; br: number; bl: number }
+    ) => {
+      const radii = typeof r === 'number' ? { tl: r, tr: r, br: r, bl: r } : r;
+      ctx.beginPath();
+      ctx.moveTo(x + radii.tl, y);
+      ctx.lineTo(x + w - radii.tr, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + radii.tr);
+      ctx.lineTo(x + w, y + h - radii.br);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - radii.br, y + h);
+      ctx.lineTo(x + radii.bl, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - radii.bl);
+      ctx.lineTo(x, y + radii.tl);
+      ctx.quadraticCurveTo(x, y, x + radii.tl, y);
+      ctx.closePath();
+    };
+
+    const buildPosterCanvas = async (): Promise<HTMLCanvasElement> => {
+      const response = await fetch(qrImageUrl);
+      const blob = await response.blob();
+      const objUrl = window.URL.createObjectURL(blob);
+
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              window.URL.revokeObjectURL(objUrl);
+              reject(new Error('Canvas context unavailable'));
+              return;
+            }
+
+            // A4 Portrait High-Res Ratio (1240 x 1754 px)
+            const W = 1240;
+            const H = 1754;
+            canvas.width = W;
+            canvas.height = H;
+
+            const fontStack = '"Pretendard", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif';
+
+            // 1. Base White Background
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, W, H);
+
+            // 2. Outer Card Frame
+            drawRoundedRect(ctx, 36, 36, W - 72, H - 72, 40);
+            ctx.fillStyle = '#FDF8FB';
+            ctx.fill();
+
+            // 3. Top Header Banner (Deep Brand Purple -> Plum Rose Gradient)
+            const headerGrad = ctx.createLinearGradient(36, 36, W - 36, 340);
+            headerGrad.addColorStop(0, '#4A0066');
+            headerGrad.addColorStop(0.55, '#5F0080');
+            headerGrad.addColorStop(1, '#8F1156');
+            drawRoundedRect(ctx, 36, 36, W - 72, 304, { tl: 40, tr: 40, br: 0, bl: 0 });
+            ctx.fillStyle = headerGrad;
+            ctx.fill();
+
+            // Top Gold Badge inside Header
+            drawRoundedRect(ctx, (W - 560) / 2, 76, 560, 56, 28);
+            ctx.fillStyle = '#FFD700';
+            ctx.fill();
+            ctx.fillStyle = '#3B0054';
+            ctx.font = `900 28px ${fontStack}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('📢 단골 고객님 전용 모바일 특가 안내', W / 2, 105);
+
+            // Store Name in Header
+            const nameFontSize = storeTitle.length > 12 ? 62 : storeTitle.length > 8 ? 74 : 86;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = `900 ${nameFontSize}px ${fontStack}`;
+            ctx.fillText(storeTitle, W / 2, 206);
+
+            // Subtitle in Header
+            ctx.fillStyle = '#FFE4F2';
+            ctx.font = `700 35px ${fontStack}`;
+            ctx.fillText('실시간 깜짝 세일 · 오늘의 득템 소식지', W / 2, 286);
+
+            // 4. Main Hook Copy
+            ctx.fillStyle = '#374151';
+            ctx.font = `800 36px ${fontStack}`;
+            ctx.fillText('장보러 오시기 전, 오늘 뭐가 싼지 궁금하셨죠?', W / 2, 405);
+
+            ctx.fillStyle = '#B81D5C';
+            ctx.font = `900 43px ${fontStack}`;
+            ctx.fillText('QR 찍고 [홈 화면에 추가]하면 특가 찬스를 놓치지 않습니다!', W / 2, 468);
+
+            // 5. Three Key Benefit Cards
+            const cards = [
+              {
+                x: 84,
+                bg: '#FAF5FF',
+                border: '#D8B4FE',
+                titleColor: '#5F0080',
+                title: '🙅‍♂️ 회원가입 없음',
+                line1: '이름 · 전화번호 등',
+                line2: '개인정보 입력 0%',
+              },
+              {
+                x: 454,
+                bg: '#FFF0F6',
+                border: '#F9A8D4',
+                titleColor: '#B81D5C',
+                title: '⚡ 앱 설치 필요 없음',
+                line1: '카메라로 비추기만 하면',
+                line2: '1초 만에 전단지 열림',
+              },
+              {
+                x: 824,
+                bg: '#FEFCE8',
+                border: '#FDE047',
+                titleColor: '#B45309',
+                title: '🔔 실시간 득템 알림',
+                line1: '갑자기 뜨는 폭탄 세일 ·',
+                line2: '품절 소식 가장 먼저 확인',
+              },
+            ];
+
+            cards.forEach((c) => {
+              drawRoundedRect(ctx, c.x, 525, 332, 200, 26);
+              ctx.fillStyle = c.bg;
+              ctx.fill();
+              ctx.lineWidth = 3;
+              ctx.strokeStyle = c.border;
+              ctx.stroke();
+
+              ctx.fillStyle = c.titleColor;
+              ctx.font = `900 31px ${fontStack}`;
+              ctx.fillText(c.title, c.x + 166, 578);
+
+              ctx.fillStyle = '#1F2937';
+              ctx.font = `700 26px ${fontStack}`;
+              ctx.fillText(c.line1, c.x + 166, 636);
+              ctx.fillText(c.line2, c.x + 166, 676);
+            });
+
+            // 6. Central QR Code Frame
+            const qrBoxX = 270;
+            const qrBoxY = 760;
+            const qrBoxW = 700;
+            const qrBoxH = 525;
+
+            ctx.save();
+            ctx.shadowColor = 'rgba(95, 0, 128, 0.12)';
+            ctx.shadowBlur = 24;
+            ctx.shadowOffsetY = 8;
+            drawRoundedRect(ctx, qrBoxX, qrBoxY, qrBoxW, qrBoxH, 36);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            ctx.restore();
+
+            drawRoundedRect(ctx, qrBoxX, qrBoxY, qrBoxW, qrBoxH, 36);
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = '#5F0080';
+            ctx.stroke();
+
+            // QR Box Top Bar
+            drawRoundedRect(ctx, qrBoxX, qrBoxY, qrBoxW, 82, { tl: 33, tr: 33, br: 0, bl: 0 });
+            ctx.fillStyle = '#5F0080';
+            ctx.fill();
+
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = `900 33px ${fontStack}`;
+            ctx.fillText('📱 지금 스마트폰 [카메라]로 비춰보세요!', W / 2, qrBoxY + 43);
+
+            // Draw QR Image
+            const qrSize = 400;
+            ctx.drawImage(img, (W - qrSize) / 2, qrBoxY + 102, qrSize, qrSize);
+
+            // 7. Step-by-Step 3-Second Guide Box
+            const stepBoxX = 84;
+            const stepBoxY = 1320;
+            const stepBoxW = W - 168;
+            const stepBoxH = 315;
+
+            drawRoundedRect(ctx, stepBoxX, stepBoxY, stepBoxW, stepBoxH, 28);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fill();
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#E5E7EB';
+            ctx.stroke();
+
+            ctx.fillStyle = '#111827';
+            ctx.font = `900 33px ${fontStack}`;
+            ctx.textAlign = 'center';
+            ctx.fillText('👇 딱 3초! 단골 등록하고 특가 알림 받는 방법', W / 2, stepBoxY + 52);
+
+            const steps = [
+              {
+                num: '1',
+                badgeBg: '#5F0080',
+                text: '스마트폰 기본 [카메라]를 켜고 위 QR코드를 비춰 뜨는 주소를 터치하세요.',
+                textColor: '#1F2937',
+                weight: '700',
+              },
+              {
+                num: '2',
+                badgeBg: '#B81D5C',
+                text: '전단지 화면 맨 위의 [홈 화면에 추가 (세일 소식 받기)] 버튼을 꼭 눌러주세요!',
+                textColor: '#B81D5C',
+                weight: '900',
+              },
+              {
+                num: '3',
+                badgeBg: '#5F0080',
+                text: '휴대폰 화면에 생긴 우리 매장 아이콘으로 매일 깜짝 특가·품절 소식을 받아보세요!',
+                textColor: '#1F2937',
+                weight: '700',
+              },
+            ];
+
+            steps.forEach((st, idx) => {
+              const rowY = stepBoxY + 118 + idx * 72;
+              const circleX = stepBoxX + 58;
+
+              ctx.beginPath();
+              ctx.arc(circleX, rowY, 22, 0, Math.PI * 2);
+              ctx.fillStyle = st.badgeBg;
+              ctx.fill();
+
+              ctx.fillStyle = '#FFFFFF';
+              ctx.font = `900 25px ${fontStack}`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(st.num, circleX, rowY + 1);
+
+              ctx.fillStyle = st.textColor;
+              ctx.font = `${st.weight} 27px ${fontStack}`;
+              ctx.textAlign = 'left';
+              ctx.fillText(st.text, circleX + 38, rowY + 1);
+            });
+
+            // 8. Footer Text & Outer Frame Border
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#6B7280';
+            ctx.font = `700 25px ${fontStack}`;
+            ctx.fillText(`언제나 신선하고 정직한 상품으로 보답하겠습니다 · ${storeTitle}`, W / 2, 1676);
+
+            drawRoundedRect(ctx, 36, 36, W - 72, H - 72, 40);
+            ctx.lineWidth = 6;
+            ctx.strokeStyle = '#5F0080';
+            ctx.stroke();
+
+            window.URL.revokeObjectURL(objUrl);
+            resolve(canvas);
+          } catch (e) {
+            window.URL.revokeObjectURL(objUrl);
+            reject(e);
+          }
+        };
+        img.onerror = (err) => {
+          window.URL.revokeObjectURL(objUrl);
+          reject(err);
+        };
+        img.src = objUrl;
+      });
+    };
+
+    const downloadPoster = async () => {
+      try {
+        const canvas = await buildPosterCanvas();
+        canvas.toBlob((outBlob) => {
+          if (!outBlob) return;
+          const finalUrl = window.URL.createObjectURL(outBlob);
+          const link = document.createElement('a');
+          link.href = finalUrl;
+          link.download = `${storeTitle}_단골모집_홍보포스터_A4.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(finalUrl);
+        }, 'image/png');
+      } catch (err) {
+        alert('포스터 이미지 생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    };
+
+    const printPoster = async (mode: 'a4-full' | 'a4-half') => {
+      try {
+        const canvas = await buildPosterCanvas();
+        const dataUrl = canvas.toDataURL('image/png');
+        const printWin = window.open('', '_blank', 'width=900,height=1000');
+        if (!printWin) {
+          alert('팝업 차단이 설정되어 있습니다. 브라우저 주소창에서 팝업을 허용해 주세요.');
+          return;
+        }
+
+        const htmlContent = mode === 'a4-full'
+          ? `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${storeTitle} - A4 홍보 포스터 인쇄</title>
+  <style>
+    @page { size: A4 portrait; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 210mm; height: 297mm; background: #fff; display: flex; align-items: center; justify-content: center; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    img { width: 210mm; height: 297mm; object-fit: contain; display: block; }
+  </style>
+</head>
+<body>
+  <img src="${dataUrl}" onload="setTimeout(function(){ window.focus(); window.print(); }, 250);" />
+</body>
+</html>`
+          : `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>${storeTitle} - A4 반절(2장) 홍보 안내문 인쇄</title>
+  <style>
+    @page { size: A4 landscape; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 297mm; height: 210mm; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .sheet { width: 297mm; height: 210mm; display: flex; align-items: center; justify-content: space-between; position: relative; padding: 4mm; }
+    .half { width: 142mm; height: 202mm; display: flex; align-items: center; justify-content: center; }
+    .half img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .cutline { position: absolute; left: 50%; top: 0; bottom: 0; border-left: 2px dashed #9CA3AF; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; }
+    .cut-badge { background: #fff; color: #6B7280; font-family: sans-serif; font-size: 11px; font-weight: bold; padding: 6px 4px; writing-mode: vertical-rl; letter-spacing: 2px; }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="half"><img src="${dataUrl}" /></div>
+    <div class="cutline"><span class="cut-badge">✂️ 반으로 잘라서 계산대와 입구에 각각 붙여두세요</span></div>
+    <div class="half"><img src="${dataUrl}" onload="setTimeout(function(){ window.focus(); window.print(); }, 250);" /></div>
+  </div>
+</body>
+</html>`;
+
+        printWin.document.open();
+        printWin.document.write(htmlContent);
+        printWin.document.close();
+      } catch (err) {
+        alert('인쇄 준비에 실패했습니다. 포스터 이미지를 다운로드하여 인쇄해주세요.');
+      }
+    };
+
+    const downloadRawQR = async () => {
       try {
         const response = await fetch(qrImageUrl);
         const blob = await response.blob();
@@ -858,7 +1204,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
           ctx.font = '900 100px sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(storeData.store_name || '스마트 전단지', canvas.width / 2, canvas.height - (padding + textHeight / 2) + 50);
+          ctx.fillText(storeTitle, canvas.width / 2, canvas.height - (padding + textHeight / 2) + 50);
           
           ctx.fillStyle = '#5F0080';
           ctx.font = 'bold 50px sans-serif';
@@ -869,7 +1215,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
             const finalUrl = window.URL.createObjectURL(outBlob);
             const link = document.createElement('a');
             link.href = finalUrl;
-            link.download = `${storeData.store_name || '매장'}_홍보용_QR.png`;
+            link.download = `${storeTitle}_QR코드_단독.png`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -879,7 +1225,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
         };
         img.src = url;
       } catch (err) {
-        alert('QR코드 생성에 실패했습니다. 이미지를 길게 눌러 저장해주세요.');
+        alert('QR코드 생성에 실패했습니다.');
       }
     };
 
@@ -890,15 +1236,15 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
           <button onClick={() => setView('main')} className="text-gray-400 hover:text-gray-800 transition-colors p-1 -ml-1">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
           </button>
-          <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">고객 홍보 (링크 & QR)</h1>
+          <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">고객 홍보 (링크 & 인쇄용 QR 포스터)</h1>
         </div>
 
-        <div className="p-5 space-y-6 max-w-lg mx-auto">
+        <div className="p-4 sm:p-5 space-y-6 max-w-lg mx-auto">
           
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-            <h2 className="text-lg font-black text-gray-900 mb-2">우리 매장 전용 링크</h2>
+          <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-black text-gray-900 mb-1.5">🔗 우리 매장 전용 링크</h2>
             <p className="text-[13px] text-gray-500 mb-4 break-keep">
-              고객들에게 문자로 발송할 수 있는 우리 매장만의 고유 주소입니다.
+              고객들에게 문자나 카카오톡으로 발송할 수 있는 우리 매장만의 고유 주소입니다.
             </p>
             
             <div className="flex gap-2">
@@ -906,34 +1252,151 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
                 type="text" 
                 readOnly 
                 value={customerLink} 
-                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-700 outline-none"
+                className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-3 text-sm text-gray-700 outline-none"
               />
               <button 
                 onClick={copyLink}
-                className="shrink-0 bg-gray-900 text-white font-bold px-4 rounded-xl hover:bg-black transition-colors"
+                className="shrink-0 bg-gray-900 text-white font-bold px-4 rounded-xl hover:bg-black transition-colors text-sm"
               >
                 링크 복사
               </button>
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 text-center">
-            <h2 className="text-lg font-black text-gray-900 mb-2">홍보용 QR 코드</h2>
-            <p className="text-[13px] text-gray-500 mb-6 break-keep">
-              계산대나 매장 입구에 붙여두세요! 고객들이 카메라로 찍으면 1초 만에 스마트 전단지로 연결됩니다.
-            </p>
-            
-            <div className="inline-block p-4 border-4 border-gray-100 rounded-3xl bg-white mb-6">
-              <img src={qrImageUrl} alt="Store QR Code" className="w-48 h-48 mx-auto" />
+          {/* Ready-to-Print Store POP Poster Section */}
+          <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-100">
+            <div className="mb-4">
+              <span className="inline-block bg-purple-100 text-[#5F0080] text-[12px] font-black px-3 py-1 rounded-full mb-2">
+                🖨️ 사장님 맞춤형 인쇄 서비스
+              </span>
+              <h2 className="text-[19px] font-black text-gray-900 mb-1.5 break-keep">
+                매장 부착용 단골 모집 안내문 (A4 / A4 반절)
+              </h2>
+              <p className="text-[13.5px] text-gray-500 leading-relaxed break-keep">
+                손님들에게 일일이 설명하실 필요 없도록 <strong className="text-gray-800">상호명·회원가입 불필요·홈화면 추가 방법</strong>을 모두 적어두었습니다. 그대로 인쇄해서 계산대와 입구에 붙여두세요!
+              </p>
             </div>
 
-            <button 
-              onClick={downloadQR}
-              className="w-full bg-[#5F0080] text-white font-black py-4 rounded-xl shadow-md hover:bg-purple-900 transition-colors text-[16px] flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              QR 이미지 다운로드
-            </button>
+            {/* Live Visual Preview of the Printable A4 Poster */}
+            <div className="rounded-2xl border-[3px] border-[#5F0080] bg-[#FDF8FB] overflow-hidden shadow-md mb-6">
+              {/* Poster Header */}
+              <div className="bg-gradient-to-r from-[#4A0066] via-[#5F0080] to-[#8F1156] px-4 py-5 text-center text-white">
+                <div className="inline-block bg-[#FFD700] text-[#3B0054] text-[11px] sm:text-[12px] font-black px-3 py-1 rounded-full mb-2 shadow-sm">
+                  📢 단골 고객님 전용 모바일 특가 안내
+                </div>
+                <div className="text-[24px] sm:text-[28px] font-black tracking-tight leading-tight mb-1 break-keep">
+                  {storeTitle}
+                </div>
+                <div className="text-[13px] sm:text-[14px] font-bold text-[#FFE4F2]">
+                  실시간 깜짝 세일 · 오늘의 득템 소식지
+                </div>
+              </div>
+
+              {/* Poster Body */}
+              <div className="p-4 sm:p-5 text-center space-y-4">
+                <div className="space-y-1">
+                  <p className="text-[13px] sm:text-[14px] font-extrabold text-gray-700 break-keep">
+                    장보러 오시기 전, 오늘 뭐가 싼지 궁금하셨죠?
+                  </p>
+                  <p className="text-[15px] sm:text-[16.5px] font-black text-[#B81D5C] leading-snug break-keep">
+                    QR 찍고 [홈 화면에 추가]하면 특가 찬스를 놓치지 않습니다!
+                  </p>
+                </div>
+
+                {/* 3 Key Benefits */}
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-[#FAF5FF] border border-purple-200 rounded-xl p-2.5">
+                    <div className="text-[12px] sm:text-[13px] font-black text-[#5F0080] mb-1 break-keep">🙅‍♂️ 회원가입 없음</div>
+                    <div className="text-[10.5px] sm:text-[11.5px] font-bold text-gray-700 leading-tight break-keep">
+                      이름·전화번호 등<br />개인정보 입력 0%
+                    </div>
+                  </div>
+                  <div className="bg-[#FFF0F6] border border-pink-200 rounded-xl p-2.5">
+                    <div className="text-[12px] sm:text-[13px] font-black text-[#B81D5C] mb-1 break-keep">⚡ 앱 설치 없음</div>
+                    <div className="text-[10.5px] sm:text-[11.5px] font-bold text-gray-700 leading-tight break-keep">
+                      카메라로 비추면<br />1초 만에 전단지 열림
+                    </div>
+                  </div>
+                  <div className="bg-[#FEFCE8] border border-yellow-300 rounded-xl p-2.5">
+                    <div className="text-[12px] sm:text-[13px] font-black text-amber-700 mb-1 break-keep">🔔 실시간 득템</div>
+                    <div className="text-[10.5px] sm:text-[11.5px] font-bold text-gray-700 leading-tight break-keep">
+                      폭탄 세일·품절 소식<br />가장 먼저 확인
+                    </div>
+                  </div>
+                </div>
+
+                {/* Central QR Box */}
+                <div className="max-w-[240px] mx-auto rounded-2xl border-[3px] border-[#5F0080] bg-white overflow-hidden shadow-sm">
+                  <div className="bg-[#5F0080] text-white text-[12px] font-black py-2 px-2">
+                    📱 스마트폰 [카메라]로 비춰보세요!
+                  </div>
+                  <div className="p-3 bg-white">
+                    <img src={qrImageUrl} alt="Store QR Code" className="w-40 h-40 mx-auto object-contain" />
+                  </div>
+                </div>
+
+                {/* 3-Step Guide */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-3.5 text-left space-y-2">
+                  <div className="text-center text-[13px] font-black text-gray-900 mb-2">
+                    👇 딱 3초! 단골 등록하고 특가 알림 받는 방법
+                  </div>
+                  <div className="flex items-start gap-2 text-[12px] text-gray-800 font-bold leading-snug">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-[#5F0080] text-white text-[11px] font-black flex items-center justify-center mt-0.5">1</span>
+                    <span>스마트폰 기본 <strong>[카메라]</strong>를 켜고 위 QR코드를 비춰 뜨는 주소를 터치하세요.</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-[12px] text-[#B81D5C] font-black leading-snug">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-[#B81D5C] text-white text-[11px] font-black flex items-center justify-center mt-0.5">2</span>
+                    <span>전단지 화면 맨 위의 <strong>[홈 화면에 추가 (세일 소식 받기)]</strong> 버튼을 꼭 눌러주세요!</span>
+                  </div>
+                  <div className="flex items-start gap-2 text-[12px] text-gray-800 font-bold leading-snug">
+                    <span className="shrink-0 w-5 h-5 rounded-full bg-[#5F0080] text-white text-[11px] font-black flex items-center justify-center mt-0.5">3</span>
+                    <span>휴대폰 화면에 생긴 <strong>우리 매장 아이콘</strong>으로 매일 깜짝 특가 소식을 받아보세요!</span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] font-bold text-gray-400 pt-1">
+                  언제나 신선하고 정직한 상품으로 보답하겠습니다 · {storeTitle}
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons for Store Owners */}
+            <div className="space-y-3">
+              <button 
+                onClick={downloadPoster}
+                className="w-full bg-[#5F0080] text-white font-black py-4 px-4 rounded-2xl shadow-md hover:bg-purple-900 transition-colors text-[16px] flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                <span>홍보 안내문 이미지 다운로드 (A4 비율)</span>
+              </button>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button 
+                  onClick={() => printPoster('a4-full')}
+                  className="w-full bg-gray-900 text-white font-black py-3.5 px-3 rounded-2xl hover:bg-black transition-colors text-[14px] flex flex-col items-center justify-center gap-0.5 shadow-sm"
+                >
+                  <span className="flex items-center gap-1.5">🖨️ A4 1장 꽉 차게 바로 인쇄</span>
+                  <span className="text-[11px] font-medium text-gray-300">(출입문 · 벽면 부착용 큰 사이즈)</span>
+                </button>
+
+                <button 
+                  onClick={() => printPoster('a4-half')}
+                  className="w-full bg-[#B81D5C] text-white font-black py-3.5 px-3 rounded-2xl hover:bg-[#96154A] transition-colors text-[14px] flex flex-col items-center justify-center gap-0.5 shadow-sm"
+                >
+                  <span className="flex items-center gap-1.5">✂️ A4 반절 크기(2장) 바로 인쇄</span>
+                  <span className="text-[11px] font-medium text-pink-100">(반으로 잘라 계산대 · 매대 비치용)</span>
+                </button>
+              </div>
+
+              <div className="pt-2 text-center">
+                <button
+                  onClick={downloadRawQR}
+                  className="text-[12.5px] font-bold text-gray-400 hover:text-gray-700 underline underline-offset-4 transition-colors py-1"
+                >
+                  안내 문구 없이 QR 코드만 단독으로 다운로드하기
+                </button>
+              </div>
+            </div>
           </div>
 
         </div>
@@ -1078,8 +1541,8 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
           className="w-full bg-white rounded-2xl p-5 flex items-center justify-between shadow-sm border border-gray-100 border-l-4 border-l-pink-500 text-left hover:bg-pink-50/50 transition-colors"
         >
           <div>
-            <h3 className="font-extrabold text-gray-900 text-[16px] mb-1">고객 홍보 (링크 & QR)</h3>
-            <p className="text-[13px] text-gray-500 font-medium">우리 매장 전용 링크 및 QR코드 다운로드</p>
+            <h3 className="font-extrabold text-gray-900 text-[16px] mb-1">고객 홍보 (링크 & 인쇄용 QR 포스터)</h3>
+            <p className="text-[13px] text-gray-500 font-medium">전용 링크 복사 및 매장 부착용 A4 · 반절 홍보문 인쇄</p>
           </div>
           <span className="text-gray-300">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
