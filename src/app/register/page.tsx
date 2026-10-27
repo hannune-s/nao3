@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -15,20 +15,65 @@ export default function RegisterPage() {
   const [slug, setSlug] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [address, setAddress] = useState('');
+  const [detailAddress, setDetailAddress] = useState('');
   const [businessNumber, setBusinessNumber] = useState(''); // 사업자등록번호 추가
   const [businessType, setBusinessType] = useState('마트/슈퍼');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const detailAddressRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreePrivacy, setAgreePrivacy] = useState(false);
   
   const [loading, setLoading] = useState(false);
 
+  // 카카오(다음) 우편번호 검색 스크립트 로드 (무료, 키 불필요)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !(window as any).daum?.Postcode) {
+      const script = document.createElement('script');
+      script.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  }, []);
+
+  const handleOpenAddressPopup = () => {
+    const daum = (window as any).daum;
+    if (!daum || !daum.Postcode) {
+      alert('주소 검색 서비스를 불러오는 중입니다. 잠시 후 다시 눌러주세요.');
+      return;
+    }
+    new daum.Postcode({
+      oncomplete: function (data: any) {
+        let fullAddr = data.roadAddress || data.jibunAddress;
+        let extraAddr = '';
+        if (data.addressType === 'R') {
+          if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+            extraAddr += data.bname;
+          }
+          if (data.buildingName !== '') {
+            extraAddr += extraAddr !== '' ? `, ${data.buildingName}` : data.buildingName;
+          }
+          if (extraAddr !== '') {
+            fullAddr += ` (${extraAddr})`;
+          }
+        }
+        setAddress(fullAddr);
+        setTimeout(() => {
+          detailAddressRef.current?.focus();
+        }, 100);
+      },
+    }).open();
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!slug) {
       alert('매장 아이디를 입력해주세요.');
+      return;
+    }
+    if (!address) {
+      alert('매장 주소를 검색하여 입력해주세요.');
       return;
     }
     if (!file) {
@@ -94,6 +139,7 @@ export default function RegisterPage() {
         '청과야채': 'produce',
       };
       const dbBusinessType = typeMap[businessType] || 'mart';
+      const combinedAddress = detailAddress.trim() ? `${address} ${detailAddress.trim()}` : address;
       
       const { error: dbError } = await supabase.from('nao3_stores').insert({
         id: authData.user?.id, // 1사장님 = 1스토어 격리 (Tenant ID)
@@ -101,7 +147,7 @@ export default function RegisterPage() {
         store_name: storeName,
         slug,
         owner_name: ownerName,
-        address,
+        address: combinedAddress,
         business_number: businessNumber, // 사업자등록번호 저장
         business_type: dbBusinessType,
         business_license_url: licenseUrl,
@@ -168,7 +214,7 @@ export default function RegisterPage() {
                 <input 
                   type="text" required placeholder="영문 소문자/숫자만 입력" 
                   value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] mb-3"
                 />
                 <input 
                   type="text" required placeholder="대표자명" 
@@ -181,11 +227,34 @@ export default function RegisterPage() {
                 value={businessNumber} onChange={e => setBusinessNumber(e.target.value)}
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
               />
-              <input 
-                type="text" required placeholder="매장 주소" 
-                value={address} onChange={e => setAddress(e.target.value)}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
-              />
+              <div className="flex gap-2">
+                <input 
+                  type="text"
+                  required
+                  readOnly
+                  placeholder="매장 주소 (클릭하여 검색)" 
+                  value={address}
+                  onClick={handleOpenAddressPopup}
+                  className="flex-1 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080] bg-gray-50/50 cursor-pointer"
+                />
+                <button
+                  type="button"
+                  onClick={handleOpenAddressPopup}
+                  className="px-4 py-3 bg-[#5F0080]/10 text-[#5F0080] font-extrabold text-sm rounded-xl hover:bg-[#5F0080]/20 transition-colors whitespace-nowrap shrink-0"
+                >
+                  주소 검색
+                </button>
+              </div>
+              {address && (
+                <input
+                  ref={detailAddressRef}
+                  type="text"
+                  placeholder="상세 주소 입력 (예: 1층 102호)"
+                  value={detailAddress}
+                  onChange={e => setDetailAddress(e.target.value)}
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#5F0080]"
+                />
+              )}
             </div>
           </div>
 
