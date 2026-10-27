@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   if (mode === 'admin') {
     const startUrl = slug ? `/store/${slug}` : '/';
     const adminManifest = {
-      id: `${startUrl}?app=admin`,
+      id: `${startUrl}?mode=admin&v=3`,
       name: `사장님 NAO3 - ${storeTitle}`,
       short_name: `사장님 ${storeTitle}`,
       description: `${storeTitle} 사장님 전용 스마트 전단지 관리 어드민`,
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': 'application/manifest+json; charset=utf-8',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
       },
     });
   }
@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
   // 고객용 세일 전단지 매니페스트 (mode === 'sale')
   const startUrl = slug ? `/store/${slug}/sale` : '/';
   const saleManifest = {
-    id: startUrl,
+    id: `${startUrl}?mode=sale&v=3`,
     name: `${storeTitle} 특가 전단지`,
     short_name: storeTitle,
     description: `${storeTitle}의 실시간 깜짝 세일과 오늘의 특가 소식을 확인하세요.`,
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
     status: 200,
     headers: {
       'Content-Type': 'application/manifest+json; charset=utf-8',
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
     },
   });
 }

@@ -139,15 +139,30 @@ export default function CustomerSalePage() {
   const [showInstallBanner, setShowInstallBanner] = useState(true);
   const [isStandaloneMode, setIsStandaloneMode] = useState(false);
   const [installGuideMode, setInstallGuideMode] = useState<'ios' | 'android' | null>(null);
+  const [installCompleteModal, setInstallCompleteModal] = useState(false);
 
-  // iOS 홈화면 타이틀 동기화 (manifest 링크는 서버 layout.tsx에서 최초 HTML에 주입됨)
+  // iOS 홈화면 타이틀 및 head 내 manifest 링크 보장
   useEffect(() => {
-    if (typeof document === 'undefined' || !storeName) return;
-    let appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement | null;
-    if (appleTitleMeta) {
-      appleTitleMeta.content = storeName;
+    if (typeof document === 'undefined') return;
+    if (storeSlug) {
+      let manifestLink = document.head.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
+      if (!manifestLink) {
+        manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        document.head.appendChild(manifestLink);
+      }
+      const targetHref = `/api/manifest?mode=sale&slug=${encodeURIComponent(storeSlug)}&v=3`;
+      if (!manifestLink.getAttribute('href')?.includes(`slug=${encodeURIComponent(storeSlug)}`)) {
+        manifestLink.href = targetHref;
+      }
     }
-  }, [storeName]);
+    if (storeName) {
+      const appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement | null;
+      if (appleTitleMeta) {
+        appleTitleMeta.content = storeName;
+      }
+    }
+  }, [storeSlug, storeName]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
@@ -184,7 +199,7 @@ export default function CustomerSalePage() {
       }
     };
     const installedHandler = () => {
-      localStorage.setItem(`nao3_installed_${storeSlug}`, 'true');
+      setShowInstallBanner(false);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -197,13 +212,13 @@ export default function CustomerSalePage() {
     };
   }, [storeSlug]);
 
-  const subscribeToStorePush = async (currentStoreTitle: string, showSuccessAlert: boolean): Promise<boolean> => {
+  const subscribeToStorePush = async (showCompleteModal: boolean): Promise<boolean> => {
     if (!('Notification' in window)) return false;
 
     const perm = await Notification.requestPermission();
     if (perm === 'granted' && 'serviceWorker' in navigator) {
       try {
-        let reg = await navigator.serviceWorker.ready;
+        const reg = await navigator.serviceWorker.ready;
         let sub = await reg.pushManager.getSubscription();
 
         const urlBase64ToUint8Array = (base64String: string) => {
@@ -221,38 +236,32 @@ export default function CustomerSalePage() {
           'BPjk-7gccGn9cI7r_mWhS2bRC_-FbApH8Tg8YhIPBDL6s1WIybDbDUT0E6u0IfrDNR_rR7sUzVXPboyKqL6-KTU'
         );
 
-        if (sub) {
-          await sub.unsubscribe();
-          await reg.unregister();
-          reg = await navigator.serviceWorker.register('/sw.js');
-          await navigator.serviceWorker.ready;
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: vapidKey,
+          });
         }
 
-        sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: vapidKey,
-        });
-
         const targetStoreUuid = storeInfo?.id;
-        if (targetStoreUuid) {
+        if (targetStoreUuid && sub) {
           const { error: dbError } = await supabase.from('nao3_system_settings').insert({
             setting_key: 'PUSH_SUB_' + targetStoreUuid + '_' + Date.now().toString(),
             setting_value: JSON.stringify(sub),
           });
           if (dbError) {
-            alert('알림 등록 오류: ' + dbError.message);
+            console.error('Push DB insert error:', dbError);
             return false;
           }
         }
 
         localStorage.setItem(`nao3_push_sub_${storeSlug}`, 'true');
-        if (showSuccessAlert) {
-          alert(`🎉 [${currentStoreTitle}] 홈 화면 추가 및 특가 알림 설정이 모두 완료되었습니다!\n이제부터 실시간 세일 소식을 가장 먼저 받아보실 수 있습니다.`);
+        if (showCompleteModal) {
+          setInstallCompleteModal(true);
         }
         return true;
       } catch (e) {
         console.error('Push sub error', e);
-        alert('알림 설정 중 오류가 발생했습니다. 브라우저 설정을 확인해 주세요.');
         return false;
       }
     } else if (perm === 'denied') {
@@ -263,7 +272,6 @@ export default function CustomerSalePage() {
   };
 
   const handleInstallAndPush = async () => {
-    const currentStoreTitle = storeInfo?.store_name || storeName || '우리 매장';
     const ua = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
     const isIos = /iphone|ipad|ipod/.test(ua);
     const isAndroid = /android/.test(ua);
@@ -282,50 +290,63 @@ export default function CustomerSalePage() {
         setInstallGuideMode('ios');
         return;
       }
-      const ok = await subscribeToStorePush(currentStoreTitle, true);
+      const ok = await subscribeToStorePush(true);
       if (ok) {
         setShowInstallBanner(false);
       }
       return;
     }
 
-    // 3. 안드로이드(크롬/삼성인터넷 등) 및 PC 브라우저: [1단계: 자동 홈화면 추가] 완료 후 -> [2단계: 푸시 알림 등록] 순차 실행
-    let installedJustNow = false;
-    const promptEvent = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__nao3DeferredPrompt : null);
+    // 3. 이미 홈 화면 앱(standalone)에서 실행 중인 경우 -> 푸시 알림만 즉시 켜기
+    if (isStandaloneMode) {
+      const ok = await subscribeToStorePush(true);
+      if (ok) {
+        setShowInstallBanner(false);
+      }
+      return;
+    }
+
+    // 4. 안드로이드(크롬/삼성인터넷 등) 및 PC 브라우저:
+    // 페이지 열자마자 빠르게 누른 경우를 대비해 최대 1.2초간 네이티브 설치 이벤트 대기
+    let promptEvent = deferredPrompt || (typeof window !== 'undefined' ? (window as any).__nao3DeferredPrompt : null);
+    if (!promptEvent && typeof window !== 'undefined') {
+      for (let i = 0; i < 12; i++) {
+        await new Promise((r) => setTimeout(r, 100));
+        if ((window as any).__nao3DeferredPrompt) {
+          promptEvent = (window as any).__nao3DeferredPrompt;
+          break;
+        }
+      }
+    }
 
     if (promptEvent) {
+      let accepted = false;
       try {
         promptEvent.prompt();
         const choiceResult = await promptEvent.userChoice;
         if (choiceResult?.outcome === 'accepted') {
-          installedJustNow = true;
-          localStorage.setItem(`nao3_installed_${storeSlug}`, 'true');
+          accepted = true;
         }
       } catch (e) {
         console.warn('Install prompt error', e);
       }
       (window as any).__nao3DeferredPrompt = null;
       setDeferredPrompt(null);
+
+      if (accepted) {
+        setShowInstallBanner(false);
+        // 네이티브 설치 창이 닫히고 백그라운드 설치가 시작될 여유 시간(600ms) 확보 후 푸시 알림 권한 요청 (블로킹 alert 미사용)
+        await new Promise((r) => setTimeout(r, 600));
+        await subscribeToStorePush(true);
+      }
+      return;
     }
 
-    const alreadyInstalledBefore =
-      isStandaloneMode || localStorage.getItem(`nao3_installed_${storeSlug}`) === 'true';
-
-    // 홈화면 추가 팝업이 닫힌 직후 푸시 알림 권한 요청 실행
-    await new Promise((r) => setTimeout(r, 200));
-    const pushOk = await subscribeToStorePush(
-      currentStoreTitle,
-      installedJustNow || alreadyInstalledBefore
-    );
-
-    if (installedJustNow || alreadyInstalledBefore) {
+    // 5. 이미 휴대폰(앱스/바탕화면)에 설치되어 있어 브라우저가 중복 설치 창을 생략한 경우 -> 푸시 알림 등록 후 안내 모달 표시
+    const pushOk = await subscribeToStorePush(false);
+    setInstallGuideMode('android');
+    if (pushOk) {
       setShowInstallBanner(false);
-    } else {
-      // 이미 이전에 설치했다가 지웠거나 브라우저가 수동 설치만 지원하는 경우 안내 표시
-      setInstallGuideMode('android');
-      if (pushOk) {
-        setShowInstallBanner(false);
-      }
     }
   };
 
@@ -609,6 +630,35 @@ export default function CustomerSalePage() {
               className="w-full py-3.5 bg-[#5F0080] hover:bg-purple-900 text-white font-black rounded-2xl text-[15px] shadow-md transition-colors"
             >
               확인했습니다
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 홈화면 추가 + 특가 알림 설정 완료 모달 (브라우저 백그라운드 설치를 멈추지 않는 비블로킹 UI) */}
+      {installCompleteModal && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/65 flex items-center justify-center p-4 animate-fade-in-up"
+          onClick={() => setInstallCompleteModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border-2 border-[#5F0080] text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-16 h-16 bg-purple-50 text-[#5F0080] rounded-full flex items-center justify-center mx-auto mb-3 text-3xl shadow-inner">
+              🎉
+            </div>
+            <h3 className="text-[20px] font-black text-gray-900 leading-snug break-keep mb-2">
+              [{storeName || '우리 매장'}]<br />홈 화면 추가 및 알림 설정 완료!
+            </h3>
+            <p className="text-[14px] font-bold text-gray-600 leading-relaxed break-keep mb-5">
+              휴대폰 바탕화면에 바로가기 아이콘이 생성 중이며, 이제부터 실시간 특가 소식을 가장 먼저 받아보실 수 있습니다.
+            </p>
+            <button
+              onClick={() => setInstallCompleteModal(false)}
+              className="w-full py-3.5 bg-[#5F0080] hover:bg-purple-900 text-white font-black rounded-2xl text-[15px] shadow-md transition-colors"
+            >
+              확인
             </button>
           </div>
         </div>

@@ -663,8 +663,27 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     : defaultOrigins.filter(o => matchSearch(newItem.origin, o));
 
 
-  // 방향키 스크롤 포커스 처리
+  // 방향키 스크롤 포커스 및 PWA 설치 처리
   useEffect(() => {
+    if (typeof document !== 'undefined' && storeSlug) {
+      let manifestLink = document.head.querySelector('link[rel="manifest"]') as HTMLLinkElement | null;
+      if (!manifestLink) {
+        manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        document.head.appendChild(manifestLink);
+      }
+      const targetHref = `/api/manifest?mode=admin&slug=${encodeURIComponent(storeSlug)}&v=3`;
+      if (!manifestLink.getAttribute('href')?.includes('mode=admin') || !manifestLink.getAttribute('href')?.includes(`slug=${encodeURIComponent(storeSlug)}`)) {
+        manifestLink.href = targetHref;
+      }
+      if (initialStoreName) {
+        const appleTitleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement | null;
+        if (appleTitleMeta) {
+          appleTitleMeta.content = `사장님 ${initialStoreName}`;
+        }
+      }
+    }
+
     // 1. 앱으로 이미 실행 중인지 확인
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true;
     
@@ -701,7 +720,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       window.removeEventListener('beforeinstallprompt', handler);
       window.removeEventListener('nao3-install-ready', readyHandler);
     };
-  }, []);
+  }, [storeSlug, initialStoreName]);
 
   useEffect(() => {
     if (nameIdx >= 0) {
@@ -1506,7 +1525,17 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                     return;
                   }
 
-                  const promptEvent = adminDeferredPrompt || (typeof window !== 'undefined' ? (window as any).__nao3DeferredPrompt : null);
+                  let promptEvent = adminDeferredPrompt || (typeof window !== 'undefined' ? (window as any).__nao3DeferredPrompt : null);
+                  if (!promptEvent && typeof window !== 'undefined') {
+                    for (let i = 0; i < 12; i++) {
+                      await new Promise((r) => setTimeout(r, 100));
+                      if ((window as any).__nao3DeferredPrompt) {
+                        promptEvent = (window as any).__nao3DeferredPrompt;
+                        break;
+                      }
+                    }
+                  }
+
                   if (promptEvent) {
                     promptEvent.prompt();
                     const { outcome } = await promptEvent.userChoice;

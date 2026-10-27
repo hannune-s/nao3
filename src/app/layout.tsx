@@ -21,6 +21,25 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
+              (function() {
+                try {
+                  var path = window.location.pathname || '';
+                  var m = path.match(/^\\/store\\/([^\\/]+)(\\/sale)?/);
+                  var manifestHref = '/manifest.json';
+                  if (m) {
+                    var slug = encodeURIComponent(m[1]);
+                    var mode = m[2] ? 'sale' : 'admin';
+                    manifestHref = '/api/manifest?mode=' + mode + '&slug=' + slug + '&v=3';
+                  }
+                  var link = document.head.querySelector('link[rel="manifest"]');
+                  if (!link) {
+                    link = document.createElement('link');
+                    link.rel = 'manifest';
+                    document.head.appendChild(link);
+                  }
+                  link.href = manifestHref;
+                } catch (err) {}
+              })();
               window.__nao3DeferredPrompt = null;
               window.addEventListener('beforeinstallprompt', function(e) {
                 e.preventDefault();
@@ -28,12 +47,10 @@ export default function RootLayout({
                 window.dispatchEvent(new Event('nao3-install-ready'));
               });
               if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(function(registration) {
-                    console.log('ServiceWorker registration successful');
-                  }, function(err) {
-                    console.log('ServiceWorker registration failed: ', err);
-                  });
+                navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then(function(registration) {
+                  registration.update();
+                }).catch(function(err) {
+                  console.log('ServiceWorker registration failed: ', err);
                 });
               }
             `,
