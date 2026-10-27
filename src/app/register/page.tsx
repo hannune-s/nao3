@@ -66,6 +66,91 @@ export default function RegisterPage() {
     }).open();
   };
 
+  // 사업자등록증 이미지 자동 리사이즈(최대 1200px) 및 용량 압축(500KB 이하) 헬퍼
+  const compressLicenseImage = (rawFile: File, maxWidth = 1200, maxBytes = 500 * 1024): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(rawFile);
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        let { width, height } = img;
+        if (width > maxWidth || height > maxWidth) {
+          if (width >= height) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxWidth) / height);
+            height = maxWidth;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(rawFile);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const tryCompress = (quality: number) => {
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                resolve(rawFile);
+                return;
+              }
+              if (blob.size > maxBytes && quality > 0.3) {
+                tryCompress(quality - 0.15);
+              } else {
+                const compressedFile = new File([blob], 'business_license.jpg', {
+                  type: 'image/jpeg',
+                  lastModified: Date.now(),
+                });
+                resolve(compressedFile);
+              }
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+
+        tryCompress(0.85);
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('이미지를 읽을 수 없습니다.'));
+      };
+      img.src = objectUrl;
+    });
+  };
+
+  const handleLicenseFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const selected = e.target.files[0];
+
+      // PDF 및 동영상 등 이미지 외 파일 완벽 차단
+      if (!selected.type.startsWith('image/') || selected.type === 'application/pdf') {
+        alert('사업자등록증은 사진(JPG, PNG 등 이미지) 파일만 첨부하실 수 있습니다.');
+        e.target.value = '';
+        setFile(null);
+        return;
+      }
+
+      try {
+        const compressed = await compressLicenseImage(selected, 1200, 500 * 1024);
+        setFile(compressed);
+      } catch (err) {
+        alert('사진 처리 중 오류가 발생했습니다. 다른 사진 파일을 선택해주세요.');
+        e.target.value = '';
+        setFile(null);
+      }
+    } else {
+      setFile(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!slug) {
@@ -99,14 +184,12 @@ export default function RegisterPage() {
         setLoading(false);
         return;
       }
-      // 1. 사업자등록증 Storage 업로드
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      const filePath = `${slug || 'unnamed'}/${fileName}`; // 스토어 ID(slug) 폴더로 정리
+      // 1. 사업자등록증 Storage 업로드 (이미 500KB 이하로 압축된 JPG)
+      const filePath = `${slug || 'unnamed'}/license_${Date.now()}.jpg`;
 
       const { error: uploadError } = await supabase.storage
         .from('business_licenses') // 스토리지 버킷명
-        .upload(filePath, file);
+        .upload(filePath, file, { upsert: true, contentType: 'image/jpeg' });
 
       if (uploadError) throw new Error(`파일 업로드 실패: ${uploadError.message}`);
 
@@ -284,12 +367,12 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-gray-600 mb-2">사업자등록증 첨부</label>
+              <label className="block text-xs font-bold text-gray-600 mb-2">사업자등록증 사진 첨부 (JPG, PNG 등 이미지 전용)</label>
               <div className="flex items-center gap-2">
                 <input 
-                  type="file" accept="image/*,.pdf" required={!file}
+                  type="file" accept="image/jpeg,image/png,image/webp,image/heic" required={!file}
                   ref={fileInputRef}
-                  onChange={e => setFile(e.target.files ? e.target.files[0] : null)}
+                  onChange={handleLicenseFileChange}
                   className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-white file:text-[#5F0080] file:shadow-sm hover:file:bg-gray-50 cursor-pointer"
                 />
                 {file && (
