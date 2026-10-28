@@ -14,11 +14,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '유효하지 않은 결제 검증 요청입니다.' }, { status: 400 });
     }
 
-    // 1. 중복 결제 영수증(imp_uid) 재사용 공격 차단
+    // 1. 중복 결제 영수증(imp_uid) 재사용 공격 차단 (nao3_system_settings 활용)
+    const uidKey = `PAYMENT_UID_${impUid}`;
     const { data: existingPayment } = await supabase
-      .from('nao3_payments')
-      .select('id')
-      .eq('imp_uid', impUid)
+      .from('nao3_system_settings')
+      .select('setting_key')
+      .eq('setting_key', uidKey)
       .maybeSingle();
 
     if (existingPayment) {
@@ -62,19 +63,29 @@ export async function POST(req: NextRequest) {
 
     if (updateErr) throw updateErr;
 
-    // 4. 본사 매출 관리 테이블(nao3_payments) 기록
-    await supabase.from('nao3_payments').insert([
-      {
-        store_id: store.id,
-        store_name: store.store_name,
-        plan_type: planType === 'annual' ? '연간' : '월간',
-        amount: expectedAmount,
-        method: '카드결제 (KCP)',
-        status: '결제완료',
-        imp_uid: impUid,
-        merchant_uid: merchantUid,
-      },
-    ]);
+    // 4. 본사 매출 관리 로그(nao3_system_settings) 기록
+    const nowIso = new Date().toISOString();
+    const logKey = `PAYMENT_LOG_${Date.now()}_${store.id}`;
+    const paymentRecord = {
+      id: logKey,
+      created_at: nowIso,
+      store_id: store.id,
+      store_name: store.store_name,
+      plan_type: planType === 'annual' ? '연간' : '월간',
+      amount: expectedAmount,
+      method: '카드결제 (KCP)',
+      status: '결제완료',
+      imp_uid: impUid,
+      merchant_uid: merchantUid,
+    };
+
+    await supabase.from('nao3_system_settings').upsert(
+      [
+        { setting_key: uidKey, setting_value: nowIso },
+        { setting_key: logKey, setting_value: JSON.stringify(paymentRecord) },
+      ],
+      { onConflict: 'setting_key' }
+    );
 
     return NextResponse.json({
       success: true,

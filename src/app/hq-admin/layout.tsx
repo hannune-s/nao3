@@ -177,15 +177,6 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
             </li>
             <li>
               <Link 
-                href="/hq-admin/settings" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/settings' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
-              >
-                시스템 설정 (PG 연동)
-              </Link>
-            </li>
-            <li>
-              <Link 
                 href="/hq-admin/inquiries" 
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/inquiries' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}

@@ -263,6 +263,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
+    // 6. 본사 어드민에서 특정 가맹점 사장/직원 PIN 초기화 (분실 시 해제)
+    if (action === 'reset_store_pin') {
+      const { storeId } = body;
+      if (!storeId || typeof storeId !== 'string') {
+        return NextResponse.json({ error: 'storeId is required' }, { status: 400 });
+      }
+
+      const ownerKey = `STORE_OWNER_PIN_${storeId}`;
+      const staffKey = `STORE_STAFF_PIN_${storeId}`;
+
+      const { error } = await supabase
+        .from('nao3_system_settings')
+        .delete()
+        .in('setting_key', [ownerKey, staffKey]);
+
+      if (error) throw error;
+
+      // 해당 매장에 걸려있던 5회 오류 잠금(Rate Limit)도 함께 해제
+      for (const k of Array.from(failedAttempts.keys())) {
+        if (k.endsWith(`:store_${storeId}`)) {
+          failedAttempts.delete(k);
+        }
+      }
+
+      return NextResponse.json({ success: true });
+    }
+
     return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });

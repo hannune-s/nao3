@@ -621,10 +621,10 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
                 <p>매월 나가는 수십만 원의 문자 발송비 부담을 확실하게 덜어드립니다.</p>
               </div>
 
-              {/* 요금제 선택 (월간 결제가 위쪽, 연간 결제가 아래쪽) */}
+              {/* 요금제 선택 (1개월 이용권 단독 노출) */}
               <div className="flex flex-col gap-4">
 
-                {/* 1. 월간 결제 (위쪽 배치) */}
+                {/* 1. 월간 결제 (1개월 이용권) */}
                 <label
                   className={`relative overflow-hidden bg-white flex flex-col border-2 rounded-2xl p-5 cursor-pointer transition-all ${
                     subscriptionPlan === 'monthly'
@@ -647,7 +647,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
                       className="text-[#4F46E5] focus:ring-[#4F46E5] w-4 h-4 mt-1 shrink-0"
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="font-extrabold text-gray-800 text-[15px] mb-1.5">월간 결제</p>
+                      <p className="font-extrabold text-gray-800 text-[15px] mb-1.5">월간 이용권 (1개월)</p>
                       <div className="flex items-baseline gap-2 flex-wrap mb-2">
                         <span className="font-black text-gray-900 text-[28px] sm:text-[30px] leading-none tracking-tight">
                           14,900<span className="text-[16px] font-extrabold ml-0.5">원</span>
@@ -658,47 +658,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
                         소상공인 상생 응원가 (정가 대비 약 70% 할인)
                       </p>
                       <p className="text-[12px] text-gray-500 font-medium">
-                        1개월 이용권이 단독 결제됩니다. (언제든 해지 가능)
-                      </p>
-                    </div>
-                  </div>
-                </label>
-
-                {/* 2. 연간 결제 (아래쪽 배치) */}
-                <label
-                  className={`relative overflow-hidden bg-white flex flex-col border-2 rounded-2xl p-5 cursor-pointer transition-all ${
-                    subscriptionPlan === 'annual'
-                      ? 'border-[#F43F5E] ring-2 ring-[#F43F5E]/15 shadow-md'
-                      : 'border-gray-200 hover:border-rose-300 shadow-sm'
-                  }`}
-                >
-                  {/* 우측 상단 배지 */}
-                  <div className="absolute top-0 right-0 bg-[#F43F5E] text-white text-[11px] font-extrabold px-3.5 py-1.5 rounded-bl-xl">
-                    추천! 정가 대비 약 64% 할인
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="radio"
-                      name="plan"
-                      value="annual"
-                      checked={subscriptionPlan === 'annual'}
-                      onChange={() => setSubscriptionPlan('annual')}
-                      className="text-[#F43F5E] focus:ring-[#F43F5E] w-4 h-4 mt-1 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-extrabold text-gray-800 text-[15px] mb-1.5">연간 결제</p>
-                      <div className="flex items-baseline gap-2 flex-wrap mb-2">
-                        <span className="font-black text-gray-900 text-[28px] sm:text-[30px] leading-none tracking-tight">
-                          178,800<span className="text-[16px] font-extrabold ml-0.5">원</span>
-                        </span>
-                        <span className="text-[15px] text-gray-400 font-bold line-through">490,000원</span>
-                      </div>
-                      <p className="text-[13px] font-extrabold text-[#F43F5E] mb-1">
-                        월 14,900원 꼴 (정가 대비 311,200원 특별 할인)
-                      </p>
-                      <p className="text-[12px] text-gray-500 font-medium">
-                        1년 치(12개월)가 한 번에 결제됩니다.
+                        1개월 이용권이 단독 결제됩니다. (서비스 제공기간: 결제일로부터 1개월 / 언제든 해지 가능)
                       </p>
                     </div>
                   </div>

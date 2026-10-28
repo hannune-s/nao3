@@ -646,21 +646,21 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-center items-stretch gap-8 md:gap-12 max-w-4xl mx-auto">
+          <div className="flex justify-center items-stretch max-w-md mx-auto">
             
-            {/* Monthly Plan */}
-            <div className="w-full md:w-1/2 bg-white rounded-3xl p-8 shadow-[0_15px_40px_rgba(79,70,229,0.1)] border-2 border-[#4F46E5] relative overflow-hidden hover:-translate-y-2 transition-transform duration-300 flex flex-col justify-between">
+            {/* Monthly Plan (1개월 이용권 단독 노출) */}
+            <div className="w-full bg-white rounded-3xl p-8 shadow-[0_15px_40px_rgba(79,70,229,0.1)] border-2 border-[#4F46E5] relative overflow-hidden hover:-translate-y-2 transition-transform duration-300 flex flex-col justify-between">
               <div className="absolute top-0 right-0 bg-[#4F46E5] text-white font-extrabold px-4 py-1.5 rounded-bl-2xl text-xs tracking-tight shadow-sm">
                 소상공인 상생 응원가
               </div>
               <div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">월간 결제</h4>
-                <p className="text-gray-500 text-sm font-medium mb-6">부담 없이 매월 결제하고 싶으신 분</p>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">월간 이용권 (1개월)</h4>
+                <p className="text-gray-500 text-sm font-medium mb-6">약정 없이 1개월 단위로 이용하는 요금제</p>
                 <div className="flex flex-col mb-3">
                   <span className="text-lg text-gray-400 font-bold line-through mb-1">정상가 49,000원</span>
                   <div className="flex items-baseline gap-1">
                     <span className="text-4xl font-black text-gray-900">14,900</span>
-                    <span className="text-lg font-bold text-gray-500">원 / 월</span>
+                    <span className="text-lg font-bold text-gray-500">원 / 1개월</span>
                   </div>
                 </div>
                 <p className="text-sm font-extrabold text-[#4F46E5] mb-8 bg-indigo-50 inline-block px-3 py-1 rounded-md">
@@ -669,7 +669,7 @@ export default function LandingPage() {
                 <ul className="space-y-4 mb-8">
                   <li className="flex items-start gap-3">
                     <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>
-                    <span className="text-gray-600 font-medium break-keep">푸시 알림 평생 무제한 발송</span>
+                    <span className="text-gray-600 font-medium break-keep">모바일 전단지 무제한 생성 및 관리</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>
@@ -677,49 +677,11 @@ export default function LandingPage() {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>
-                    <span className="text-gray-900 font-bold break-keep">언제든지 위약금 없이 해지 가능</span>
+                    <span className="text-gray-900 font-bold break-keep">언제든지 위약금 없이 해지 가능 (서비스 제공기간: 결제일로부터 1개월)</span>
                   </li>
                 </ul>
               </div>
               <Link href="/register" className="block w-full py-4 text-center rounded-xl font-black text-white bg-[#4F46E5] hover:bg-indigo-700 transition-colors shadow-md">
-                1개월 무료로 시작하기
-              </Link>
-            </div>
-
-            {/* Annual Plan */}
-            <div className="w-full md:w-1/2 bg-white rounded-3xl p-8 shadow-[0_20px_50px_rgba(95,0,128,0.15)] border-2 border-[#5F0080] relative overflow-hidden hover:-translate-y-2 transition-transform duration-300 flex flex-col justify-between">
-              <div className="absolute top-0 right-0 bg-[#F43F5E] text-white font-extrabold px-4 py-1.5 rounded-bl-2xl text-xs tracking-tight shadow-sm">
-                추천! 정가 대비 약 64% 할인
-              </div>
-              <div>
-                <h4 className="text-xl font-bold text-[#5F0080] mb-2">연간 결제</h4>
-                <p className="text-gray-500 text-sm font-medium mb-6">1년 치를 한 번에 편하게 이용하고 싶으신 분</p>
-                <div className="flex flex-col mb-3">
-                  <span className="text-lg text-gray-400 font-bold line-through mb-1">정상가 490,000원</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black text-[#5F0080]">178,800</span>
-                    <span className="text-lg font-bold text-gray-500">원 / 연</span>
-                  </div>
-                </div>
-                <p className="text-sm font-extrabold text-[#F43F5E] mb-8 bg-rose-50 inline-block px-3 py-1 rounded-md">
-                  월 14,900원 꼴 (정가 대비 311,200원 특별 할인)
-                </p>
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#5F0080] font-bold mt-0.5">✓</span>
-                    <span className="text-gray-600 font-medium break-keep">푸시 알림 평생 무제한 발송</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#5F0080] font-bold mt-0.5">✓</span>
-                    <span className="text-gray-600 font-medium break-keep">상품명에 맞는 스마트 아이콘 자동 매칭</span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#5F0080] font-bold mt-0.5">✓</span>
-                    <span className="text-gray-900 font-bold break-keep">소상공인 상생 응원가 12개월 일시불 혜택</span>
-                  </li>
-                </ul>
-              </div>
-              <Link href="/register" className="block w-full py-4 text-center rounded-xl font-black text-white bg-[#5F0080] hover:bg-purple-900 transition-colors shadow-lg">
                 1개월 무료로 시작하기
               </Link>
             </div>
