@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import VisitorTracker from "@/components/VisitorTracker";
 
 export const metadata: Metadata = {
   title: "NAO3 Sale Push Admin",
@@ -58,6 +59,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased min-h-screen bg-[#F9F9F9] font-sans pb-24">
+        <VisitorTracker />
         {children}
       </body>
     </html>

@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function HqStatisticsPage() {
   const [stats, setStats] = useState({
-    todayVisitors: 128, // 방문자 수는 별도 애널리틱스 연동 전까지 임시 더미데이터 노출
+    todayVisitors: 0,
     todaySignups: 0,
     monthSignups: 0,
     totalSignups: 0,
@@ -18,38 +18,45 @@ export default function HqStatisticsPage() {
 
   const fetchStats = async () => {
     try {
-      const { data, error } = await supabase
-        .from('nao3_stores')
-        .select('created_at');
+      const kstFormatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Seoul',
+      });
+      const todayStr = kstFormatter.format(new Date()); // YYYY-MM-DD (한국 시간 기준)
+      const currentYearMonth = todayStr.slice(0, 7); // YYYY-MM
 
-      if (error) throw error;
+      const [{ data: storesData, error: storesError }, { data: visitorRow }] = await Promise.all([
+        supabase.from('nao3_stores').select('created_at'),
+        supabase
+          .from('nao3_system_settings')
+          .select('setting_value')
+          .eq('setting_key', `DAILY_VISITORS_${todayStr}`)
+          .maybeSingle(),
+      ]);
 
-      if (data) {
-        const now = new Date();
-        const todayStr = now.toISOString().split('T')[0];
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
+      if (storesError) throw storesError;
 
-        let todayCount = 0;
-        let monthCount = 0;
+      const realTodayVisitors = parseInt(visitorRow?.setting_value || '0', 10) || 0;
 
-        data.forEach((store) => {
+      let todayCount = 0;
+      let monthCount = 0;
+
+      if (storesData) {
+        storesData.forEach((store) => {
           const createdDate = new Date(store.created_at);
-          const dateStr = createdDate.toISOString().split('T')[0];
-          
+          const dateStr = kstFormatter.format(createdDate);
           if (dateStr === todayStr) todayCount++;
-          if (createdDate.getMonth() === currentMonth && createdDate.getFullYear() === currentYear) {
+          if (dateStr.slice(0, 7) === currentYearMonth) {
             monthCount++;
           }
         });
-
-        setStats((prev) => ({
-          ...prev,
-          todaySignups: todayCount,
-          monthSignups: monthCount,
-          totalSignups: data.length,
-        }));
       }
+
+      setStats({
+        todayVisitors: realTodayVisitors,
+        todaySignups: todayCount,
+        monthSignups: monthCount,
+        totalSignups: storesData ? storesData.length : 0,
+      });
     } catch (err) {
       console.error('Failed to fetch statistics:', err);
     } finally {
@@ -75,7 +82,7 @@ export default function HqStatisticsPage() {
           </div>
           <div className="flex items-end justify-between">
             <div className="text-3xl font-black text-gray-900">{stats.todayVisitors}<span className="text-lg font-medium text-gray-400 ml-1">명</span></div>
-            <span className="text-[10px] text-blue-500 font-bold bg-blue-50 px-2 py-1 rounded-md mb-1">임시 데이터</span>
+            <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-md mb-1">실시간 집계</span>
           </div>
         </div>
 
