@@ -760,6 +760,46 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
               </div>
             </div>
           </div>
+
+          {/* 4. 사장님 & 직원 PIN 번호 설정 안내 */}
+          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 border-t-4 border-t-emerald-500 relative overflow-hidden">
+            <div className="absolute top-4 right-4 text-4xl opacity-20">🔐</div>
+            <h2 className="text-lg font-black text-gray-900 mb-2 flex items-center gap-2">
+              <span className="text-emerald-600">사장님 & 직원 6자리 PIN 번호 활용법</span>
+            </h2>
+            <p className="text-gray-500 text-[13px] mb-4 break-keep leading-relaxed">
+              매번 번거롭게 이메일과 비밀번호를 입력할 필요 없이, <strong>숫자 6자리 PIN 번호</strong>로 1초 접속과 안전한 직원 협업을 동시에 해결하세요!
+            </p>
+
+            <div className="space-y-3.5">
+              <div className="bg-purple-50/60 p-4 rounded-2xl border border-purple-100">
+                <strong className="text-[#5F0080] text-[14.5px] flex items-center gap-1.5 mb-1">
+                  👑 사장 PIN 번호 (6자리)
+                </strong>
+                <p className="text-gray-600 text-[13px] break-keep leading-snug">
+                  사장님 본인이 접속할 때 쓰는 번호입니다. 숫자 6자리만 누르면 <strong>전단지 등록 + 마이메뉴(결제·매장설정) 전체 권한</strong>으로 즉시 접속됩니다.
+                </p>
+              </div>
+
+              <div className="bg-emerald-50/60 p-4 rounded-2xl border border-emerald-100">
+                <strong className="text-emerald-800 text-[14.5px] flex items-center gap-1.5 mb-1">
+                  🧑‍💼 직원 PIN 번호 (6자리) — 내 아이디 공유 NO!
+                </strong>
+                <p className="text-gray-600 text-[13px] break-keep leading-snug">
+                  직원에게 사장님 아이디/비밀번호를 알려주지 마세요! 직원 전용 6자리 번호를 만들어 알려주면, 직원은 본인 휴대폰에서 <strong>행사 상품 등록과 품절 처리만 가능</strong>하고 <strong>마이메뉴(결제·중요 설정)는 아예 보이지 않아</strong> 안전합니다.<br/>
+                  <span className="text-emerald-700 font-bold text-[12px] mt-1 inline-block">Tip. 직원이 그만두면 직원 PIN 번호만 바꿔주면 즉시 접속이 차단됩니다!</span>
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setView('security')}
+                className="w-full mt-2 py-3.5 rounded-xl font-black text-white text-[14px] bg-emerald-600 hover:bg-emerald-700 transition-colors shadow-sm"
+              >
+                🔐 지금 PIN 번호 설정하러 가기
+              </button>
+            </div>
+          </div>
           
         </div>
       </div>
