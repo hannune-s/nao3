@@ -1,4 +1,5 @@
 import DemoButton from '@/components/DemoButton';
+import LandingPaymentButton from '@/components/LandingPaymentButton';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -681,9 +682,7 @@ export default function LandingPage() {
                   </li>
                 </ul>
               </div>
-              <Link href="/register" className="block w-full py-4 text-center rounded-xl font-black text-white bg-[#4F46E5] hover:bg-indigo-700 transition-colors shadow-md">
-                1개월 무료로 시작하기
-              </Link>
+              <LandingPaymentButton />
             </div>
 
           </div>

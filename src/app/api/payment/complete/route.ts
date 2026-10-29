@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       store_name: store.store_name,
       plan_type: planType === 'annual' ? '연간' : '월간',
       amount: expectedAmount,
-      method: '카드결제 (KCP)',
+      method: '카드결제 (KG이니시스)',
       status: '결제완료',
       imp_uid: impUid,
       merchant_uid: merchantUid,

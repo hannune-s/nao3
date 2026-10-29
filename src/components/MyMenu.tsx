@@ -286,95 +286,83 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     }
   };
 
-  const loadPortOne = () => {
+  const loadPortOneV2 = () => {
     return new Promise((resolve, reject) => {
-      if ((window as any).IMP) {
-        resolve((window as any).IMP);
+      if ((window as any).PortOne) {
+        resolve((window as any).PortOne);
         return;
       }
       const script = document.createElement('script');
-      script.src = 'https://cdn.iamport.kr/v1/iamport.js';
-      script.onload = () => resolve((window as any).IMP);
-      script.onerror = () => reject(new Error('포트원 결제 모듈을 불러오지 못했습니다.'));
+      script.src = 'https://cdn.portone.io/v2/browser-sdk.js';
+      script.onload = () => resolve((window as any).PortOne);
+      script.onerror = () => reject(new Error('포트원 V2 결제 모듈을 불러오지 못했습니다.'));
       document.head.appendChild(script);
     });
   };
 
   const handleSubscribe = async () => {
     try {
-      // 1. 기본 포트원(PortOne) KCP 테스트 연동 정보
-      let userCode = 'imp67773427';
-      let channelKey = 'channel-key-8aa11264-f4ca-4794-8b6e-58bd4a9ed614';
+      // 1. 포트원 V2 (PortOne V2) KG이니시스 연동 정보
+      const portOneStoreId = 'store-3b8b6f42-8b0f-4b2f-bd5a-e8472da95ea3';
+      const channelKey = 'channel-key-4370f11d-f43f-487b-b46d-e40dc2a1c600';
 
-      try {
-        const { data } = await supabase.from('nao3_system_settings').select('*');
-        if (data) {
-          const midRow = data.find((r: any) => r.setting_key === 'pg_mid');
-          const keyRow = data.find((r: any) => r.setting_key === 'pg_client_key');
-          if (midRow?.setting_value?.startsWith('imp')) userCode = midRow.setting_value;
-          if (keyRow?.setting_value?.startsWith('channel-key-')) channelKey = keyRow.setting_value;
-        }
-      } catch (err) {
-        console.warn('DB settings check skipped, using default PortOne keys.');
-      }
-
-      // 2. 포트원 SDK 로드 및 초기화
-      const IMP = (await loadPortOne()) as any;
-      IMP.init(userCode);
+      // 2. 포트원 V2 SDK 로드
+      const PortOne = (await loadPortOneV2()) as any;
 
       // 3. 결제 요청 정보 구성
       const price = subscriptionPlan === 'annual' ? 178800 : 14900;
       const orderName = subscriptionPlan === 'annual' ? 'NAO3 연간 구독권 (12개월)' : 'NAO3 월간 구독권 (1개월)';
-      const merchantUid = `nao3_${storeData.slug}_${Date.now()}`;
+      const paymentId = `nao3_${storeData.slug}_${Date.now()}`;
 
-      IMP.request_pay(
-        {
-          channelKey: channelKey,
-          pay_method: 'card',
-          merchant_uid: merchantUid,
-          name: orderName,
-          amount: price,
-          buyer_email: storeData.email || '',
-          buyer_name: ownerName || storeData.owner_name || storeData.store_name || '가맹점주',
-          buyer_tel: phone || storeData.phone || '010-0000-0000',
-          buyer_addr: address || storeData.address || '',
+      const response = await PortOne.requestPayment({
+        storeId: portOneStoreId,
+        channelKey: channelKey,
+        paymentId: paymentId,
+        orderName: orderName,
+        totalAmount: price,
+        currency: 'CURRENCY_KRW',
+        payMethod: 'CARD',
+        customer: {
+          fullName: ownerName || storeData.owner_name || storeData.store_name || '가맹점주',
+          phoneNumber: phone || storeData.phone || '010-0000-0000',
+          email: storeData.email || 'customer@nao3.kr',
         },
-        async (rsp: any) => {
-          if (rsp.success) {
-            try {
-              const res = await fetch('/api/payment/complete', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  storeId: storeData.id,
-                  planType: subscriptionPlan,
-                  impUid: rsp.imp_uid,
-                  merchantUid: rsp.merchant_uid,
-                }),
-              });
-              const result = await res.json();
+      });
 
-              if (!res.ok || !result?.success) {
-                throw new Error(result?.error || '결제 반영 중 서버 오류가 발생했습니다.');
-              }
+      if (response?.code != null) {
+        alert(`결제에 실패했습니다: ${response.message || response.pgMessage || '결제가 취소되었습니다.'}`);
+        return;
+      }
 
-              if (onStoreUpdate) {
-                onStoreUpdate({
-                  subscription_paid: true,
-                  expires_at: result.expires_at,
-                });
-              }
+      try {
+        const res = await fetch('/api/payment/complete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            storeId: storeData.id,
+            planType: subscriptionPlan,
+            impUid: response?.txId || paymentId,
+            merchantUid: response?.paymentId || paymentId,
+          }),
+        });
+        const result = await res.json();
 
-              alert(`결제가 정상적으로 완료되었습니다!\n(${orderName})`);
-            } catch (dbErr) {
-              console.warn('결제 후 DB 업데이트 경고:', dbErr);
-              alert('결제는 성공했으나 상태 반영 중 일부 경고가 발생했습니다.');
-            }
-          } else {
-            alert(`결제에 실패했습니다: ${rsp.error_msg}`);
-          }
+        if (!res.ok || !result?.success) {
+          throw new Error(result?.error || '결제 반영 중 서버 오류가 발생했습니다.');
         }
-      );
+
+        if (onStoreUpdate) {
+          onStoreUpdate({
+            subscription_paid: true,
+            expires_at: result.expires_at,
+          });
+        }
+
+        alert(`결제가 정상적으로 완료되었습니다!\n(${orderName})`);
+      } catch (dbErr) {
+        console.warn('결제 후 DB 업데이트 경고:', dbErr);
+        alert('결제는 성공했으나 상태 반영 중 일부 경고가 발생했습니다.');
+      }
     } catch (err: any) {
       alert('결제 준비 중 오류가 발생했습니다: ' + err.message);
     }
