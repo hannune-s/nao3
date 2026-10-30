@@ -354,9 +354,9 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
 
   const handleSubscribe = async () => {
     try {
-      // 1. 포트원 V2 (PortOne V2) KG이니시스 연동 정보
+      // 1. 포트원 V2 (PortOne V2) KG이니시스 실연동 정보
       const portOneStoreId = 'store-3b8b6f42-8b0f-4b2f-bd5a-e8472da95ea3';
-      const channelKey = 'channel-key-4370f11d-f43f-487b-b46d-e40dc2a1c600';
+      const channelKey = 'channel-key-b867525e-0c50-4aeb-8742-2b1f905ef6aa';
 
       // 2. 포트원 V2 SDK 로드
       const PortOne = (await loadPortOneV2()) as any;
