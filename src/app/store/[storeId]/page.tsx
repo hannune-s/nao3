@@ -42,8 +42,13 @@ export default function StoreAdminPage() {
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && !window.history.state?.nao3Tab) {
-      window.history.replaceState({ nao3Tab: 'home', nao3View: 'main' }, '');
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('payment_redirect') === 'true') {
+        setActiveTab('mymenu');
+      } else if (!window.history.state?.nao3Tab) {
+        window.history.replaceState({ nao3Tab: 'home', nao3View: 'main' }, '');
+      }
     }
     const handlePopState = (e: PopStateEvent) => {
       if (e.state?.nao3Tab === 'mymenu') {

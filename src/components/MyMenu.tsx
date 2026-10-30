@@ -300,6 +300,58 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     });
   };
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !storeData?.id) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment_redirect') !== 'true') return;
+
+    const paymentId = params.get('paymentId');
+    const txId = params.get('txId');
+    const code = params.get('code');
+    const message = params.get('message') || params.get('pgMessage');
+    const planParam = params.get('plan') === 'annual' ? 'annual' : 'monthly';
+
+    // Clean URL query params so refresh won't re-trigger
+    window.history.replaceState({ nao3Tab: 'mymenu', nao3View: 'subscription' }, '', window.location.pathname);
+    setViewState('subscription');
+
+    if (code != null) {
+      alert(`결제에 실패했습니다: ${message || '결제가 취소되었습니다.'}`);
+      return;
+    }
+
+    if (paymentId) {
+      const orderName = planParam === 'annual' ? 'NAO3 연간 구독권 (12개월)' : 'NAO3 월간 구독권 (1개월)';
+      fetch('/api/payment/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storeId: storeData.id,
+          planType: planParam,
+          impUid: txId || paymentId,
+          merchantUid: paymentId,
+        }),
+      })
+        .then((res) => res.json().then((result) => ({ ok: res.ok, result })))
+        .then(({ ok, result }) => {
+          if (!ok || !result?.success) {
+            throw new Error(result?.error || '결제 반영 중 서버 오류가 발생했습니다.');
+          }
+          if (onStoreUpdate) {
+            onStoreUpdate({
+              subscription_paid: true,
+              expires_at: result.expires_at,
+            });
+          }
+          alert(`결제가 정상적으로 완료되었습니다!\n(${orderName})`);
+        })
+        .catch((dbErr) => {
+          console.warn('모바일 결제 후 DB 업데이트 경고:', dbErr);
+          alert('결제는 성공했으나 상태 반영 중 일부 경고가 발생했습니다.');
+        });
+    }
+  }, [storeData?.id]);
+
   const handleSubscribe = async () => {
     try {
       // 1. 포트원 V2 (PortOne V2) KG이니시스 연동 정보
@@ -309,10 +361,11 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
       // 2. 포트원 V2 SDK 로드
       const PortOne = (await loadPortOneV2()) as any;
 
-      // 3. 결제 요청 정보 구성
+      // 3. 결제 요청 정보 구성 (모바일 이니시스 REDIRECTION 필수 파라미터 redirectUrl 포함)
       const price = subscriptionPlan === 'annual' ? 178800 : 14900;
       const orderName = subscriptionPlan === 'annual' ? 'NAO3 연간 구독권 (12개월)' : 'NAO3 월간 구독권 (1개월)';
       const paymentId = `nao3_${storeData.slug}_${Date.now()}`;
+      const redirectUrl = `${window.location.origin}${window.location.pathname}?payment_redirect=true&plan=${subscriptionPlan}`;
 
       const response = await PortOne.requestPayment({
         storeId: portOneStoreId,
@@ -322,6 +375,7 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
         totalAmount: price,
         currency: 'CURRENCY_KRW',
         payMethod: 'CARD',
+        redirectUrl: redirectUrl,
         customer: {
           fullName: ownerName || storeData.owner_name || storeData.store_name || '가맹점주',
           phoneNumber: phone || storeData.phone || '010-0000-0000',
