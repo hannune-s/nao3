@@ -74,7 +74,9 @@ export default function StoreAdminPage() {
         id: storeSlug,
         slug: storeSlug,
         name: '체험용 마트',
-        business_type: 'mart'
+        store_name: '체험용 마트',
+        business_type: 'mart',
+        expires_at: new Date(Date.now() + 27 * 86400000).toISOString(),
       });
       setAccessRole('owner');
       setLoading(false);

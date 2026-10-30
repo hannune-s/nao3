@@ -3,11 +3,45 @@ import { useEffect, useState } from 'react';
 import { matchSearch, sortBySearchRelevance } from '@/lib/hangul';
 import { supabase } from '@/lib/supabase';
 
+const emojiToTwemojiUrl = (emoji: string) => {
+  const cps = Array.from(emoji).map((c) => c.codePointAt(0)!.toString(16));
+  const code = cps.includes('200d') ? cps.join('-') : cps.filter((c) => c !== 'fe0f').join('-');
+  return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/${code}.svg`;
+};
+
+function EmojiIcon({ emoji, className = 'w-[18px] h-[18px]' }: { emoji: string; className?: string }) {
+  const [isMobileOs, setIsMobileOs] = useState(false);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') {
+      const ua = navigator.userAgent.toLowerCase();
+      if (/android|iphone|ipad|ipod/.test(ua)) {
+        setIsMobileOs(true);
+      }
+    }
+  }, []);
+
+  if (isMobileOs || imgError) {
+    return <span>{emoji}</span>;
+  }
+
+  return (
+    <img
+      src={emojiToTwemojiUrl(emoji)}
+      alt={emoji}
+      className={`${className} inline-block object-contain select-none`}
+      draggable={false}
+      onError={() => setImgError(true)}
+    />
+  );
+}
+
 const CATEGORIES = [
-  { id: '정육', icon: '🥩' },
-  { id: '청과', icon: '🍎' },
-  { id: '야채', label: '야채·수산', icon: '🥬🐟' },
-  { id: '공산품', icon: '🛒' },
+  { id: '정육', icon: '🥩', icons: ['🥩'] },
+  { id: '청과', icon: '🍎', icons: ['🍎'] },
+  { id: '야채', label: '야채·수산', icon: '🥬🐟', icons: ['🥬', '🐟'] },
+  { id: '공산품', icon: '🛒', icons: ['🛒'] },
 ];
 
 const ITEM_DICT: Record<string, string[]> = {
@@ -1592,58 +1626,62 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           </div>
 
           {/* 1단: 세일 진행 기간 */}
-          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2 flex-wrap">
-              <span className="text-2xl drop-shadow-sm">🗓️</span> 이번 세일 진행 기간
-              <span className="text-[13px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-1 tracking-normal leading-tight">(기간이 자동 계산되어 고객 화면에 예쁘게 노출됩니다)</span>
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-purple-200 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5F0080] to-[#C084FC]"></div>
+            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
+              <span className="w-1.5 h-5 rounded-full bg-[#5F0080] inline-block shrink-0"></span>
+              <span>이번 세일 진행 기간</span>
+              <span className="text-[13px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-0.5 tracking-normal leading-tight">(기간이 자동 계산되어 고객 화면에 예쁘게 노출됩니다)</span>
             </h3>
             <div className="flex flex-col gap-3 mt-1">
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-400 pointer-events-none">시작</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px] font-black text-white bg-[#5F0080] px-2 py-0.5 rounded-md pointer-events-none">시작</span>
                 <input 
                   type="datetime-local" 
                   value={saleStart} 
                   onChange={e => setSaleStart(e.target.value)} 
-                  className="w-full text-[15px] font-bold text-[#5F0080] border border-gray-200 pl-14 pr-4 py-3.5 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
+                  className="w-full text-[15px] font-extrabold text-[#5F0080] border-2 border-purple-200 pl-16 pr-4 py-3.5 rounded-xl bg-[#F5F0FF] focus:bg-white focus:outline-none focus:border-[#5F0080] focus:ring-2 focus:ring-[#5F0080]/20 transition-all shadow-inner" 
                 />
               </div>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[13px] font-black text-gray-400 pointer-events-none">종료</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px] font-black text-white bg-rose-600 px-2 py-0.5 rounded-md pointer-events-none">종료</span>
                 <input 
                   type="datetime-local" 
                   value={saleEnd} 
                   onChange={e => setSaleEnd(e.target.value)} 
-                  className="w-full text-[15px] font-bold text-[#5F0080] border border-gray-200 pl-14 pr-4 py-3.5 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 transition-all" 
+                  className="w-full text-[15px] font-extrabold text-[#5F0080] border-2 border-purple-200 pl-16 pr-4 py-3.5 rounded-xl bg-[#F5F0FF] focus:bg-white focus:outline-none focus:border-[#5F0080] focus:ring-2 focus:ring-[#5F0080]/20 transition-all shadow-inner" 
                 />
               </div>
             </div>
           </div>
           
           {/* 1.5단: 행사 타이틀 & 서브 문구 설정 */}
-          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2 flex-wrap">
-              <span className="text-2xl drop-shadow-sm">🎉</span> 행사 타이틀 & 서브 문구 설정
-              <span className="text-[12px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-1 tracking-normal leading-tight">(비워두면 기본 문구로 자동 노출 · 단어에 맞는 아이콘 자동 생성)</span>
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-amber-200 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-yellow-300"></div>
+            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
+              <span className="w-1.5 h-5 rounded-full bg-amber-500 inline-block shrink-0"></span>
+              <span>행사 타이틀 & 서브 문구 설정</span>
+              <span className="text-[12px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-0.5 tracking-normal leading-tight">(비워두면 기본 문구로 자동 노출 · 단어에 맞는 아이콘 자동 생성)</span>
             </h3>
-            <div className="flex flex-col gap-2.5 mt-1">
+            <div className="flex flex-col gap-3 mt-1">
               <div>
-                <label className="block text-[12px] font-extrabold text-gray-500 mb-1">행사 타이틀 (큰 제목 · 엔터로 줄바꿈 가능)</label>
+                <label className="block text-[12px] font-extrabold text-amber-900 mb-1.5">행사 타이틀 (큰 제목 · 엔터로 줄바꿈 가능)</label>
                 <textarea
                   rows={2}
                   value={eventTitle}
                   onChange={e => setEventTitle(e.target.value)}
                   placeholder="기본값: 오늘의 특가 찬스! (엔터를 치면 원하는 위치에서 줄바꿈됩니다)"
-                  className="w-full text-[15px] font-extrabold text-gray-900 border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug"
+                  className="w-full text-[15px] font-extrabold text-gray-900 border-2 border-amber-200 px-4 py-3 rounded-xl bg-[#FFFBEB] focus:bg-white focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug shadow-inner"
                 />
               </div>
               <div>
-                <label className="block text-[12px] font-extrabold text-gray-500 mb-1">서브 문구 (아래 설명 · 엔터로 줄바꿈 가능)</label>
+                <label className="block text-[12px] font-extrabold text-amber-900 mb-1.5">서브 문구 (아래 설명 · 엔터로 줄바꿈 가능)</label>
                 <textarea
                   rows={2}
                   value={eventSubtitle}
                   onChange={e => setEventSubtitle(e.target.value)}
                   placeholder="기본값: 단골 고객님을 위해 준비한 깜짝 한정 세일"
-                  className="w-full text-[14px] font-bold text-gray-800 border border-gray-200 px-4 py-3 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#5F0080]/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug"
+                  className="w-full text-[14px] font-bold text-gray-800 border-2 border-amber-200 px-4 py-3 rounded-xl bg-[#FFFBEB] focus:bg-white focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug shadow-inner"
                 />
               </div>
             </div>
@@ -1724,7 +1762,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                 activeTab === cat.id ? 'text-[#5F0080]' : 'text-gray-400 hover:text-gray-600'
               }`}
             >
-              <span className="text-lg leading-none">{cat.icon}</span>
+              <span className="text-lg leading-none flex items-center justify-center gap-0.5 h-[20px]">
+                {cat.icons.map((ic, idx) => (
+                  <EmojiIcon key={idx} emoji={ic} className="w-[18px] h-[18px]" />
+                ))}
+              </span>
               <span>{cat.label || cat.id}</span>
               {activeTab === cat.id && <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#5F0080]" />}
             </button>

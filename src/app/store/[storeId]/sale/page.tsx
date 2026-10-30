@@ -544,10 +544,10 @@ export default function CustomerSalePage() {
 
   // 출력할 카테고리 순서 정의
   const categoryOrder = [
-    { id: '정육', title: '프리미엄 미트 존', subtitle: 'Premium Meat' },
-    { id: '청과', title: '엄선된 신선 과일', subtitle: 'Fresh Fruits' },
-    { id: '야채', title: '신선채소 · 수산', subtitle: 'Vegetables & Seafood' },
-    { id: '공산품', title: '데일리 생필품', subtitle: 'Daily & Groceries' },
+    { id: '정육', title: '프리미엄 미트 존', subtitle: 'Premium Meat', subtitleColor: 'text-rose-600', barColor: 'bg-rose-600' },
+    { id: '청과', title: '엄선된 신선 과일', subtitle: 'Fresh Fruits', subtitleColor: 'text-amber-600', barColor: 'bg-amber-500' },
+    { id: '야채', title: '신선채소 · 수산', subtitle: 'Vegetables & Seafood', subtitleColor: 'text-emerald-600', barColor: 'bg-emerald-600' },
+    { id: '공산품', title: '데일리 생필품', subtitle: 'Daily & Groceries', subtitleColor: 'text-[#5F0080]', barColor: 'bg-[#5F0080]' },
   ];
 
   if (loading) {
@@ -867,7 +867,7 @@ export default function CustomerSalePage() {
                       <h3 className="text-[20px] font-extrabold text-gray-900 tracking-tight leading-none">
                         {cat.title}
                       </h3>
-                      <span className="text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1 block">
+                      <span className="text-[11px] font-medium text-[#222222] uppercase tracking-[0.2em] mt-1.5 block">
                         {cat.subtitle}
                       </span>
                     </div>
@@ -912,17 +912,17 @@ export default function CustomerSalePage() {
                           {/* 좌측: 상품명 & 품절 상태 */}
                             <div className="flex flex-col flex-1 min-w-0 pr-3">
                               <div className="flex items-center gap-2.5">
-                                {item.options.every((opt: any) => opt.is_sold_out) && (
-                                  <span className="text-[11px] font-black text-white bg-[#E52525] px-2 py-1 rounded shrink-0 leading-none shadow-sm tracking-wide">
-                                    품절
-                                  </span>
-                                )}
                                 <span className="flex-shrink-0 w-[26px] h-[26px] bg-[#F9F9F9] rounded-full flex items-center justify-center border border-gray-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)] text-[14px]">
                                   <EmojiIcon emoji={getIconForProduct(item.product_name)} className="w-[16px] h-[16px]" />
                                 </span>
                                 <h4 className={`text-[16px] font-bold text-gray-900 truncate ${item.options.every((opt: any) => opt.is_sold_out) ? 'line-through text-gray-400' : ''}`}>
                                   {item.product_name}
                                 </h4>
+                                {item.options.every((opt: any) => opt.is_sold_out) && (
+                                  <span className="text-[13px] font-black text-white bg-[#E52525] px-2.5 py-1 rounded-md shrink-0 leading-none shadow-sm tracking-wide">
+                                    품절
+                                  </span>
+                                )}
                               </div>
                               {(item.options[0]?.grade || item.options[0]?.origin) && (
                                 <div className="flex items-center gap-1.5 mt-1 ml-9">
@@ -982,39 +982,39 @@ export default function CustomerSalePage() {
               <div className="flex flex-col gap-4">
                 
                 {storeInfo.operating_hours && (
-                  <div className="flex items-start gap-4">
-                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">영업시간</span>
-                    <span className="text-[15px] font-black text-gray-900 leading-snug break-keep">{storeInfo.operating_hours}</span>
+                  <div className="flex items-start gap-3.5">
+                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">영업시간</span>
+                    <span className="text-[15px] font-black text-gray-900 leading-snug break-keep pt-0.5">{storeInfo.operating_hours}</span>
                   </div>
                 )}
 
                 {storeInfo.closed_days && (
-                  <div className="flex items-start gap-4">
-                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">휴무일</span>
-                    <span className="text-[15px] font-black text-[#E52525] leading-snug break-keep">{storeInfo.closed_days}</span>
+                  <div className="flex items-start gap-3.5">
+                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">휴무일</span>
+                    <span className="text-[15px] font-black text-[#E52525] leading-snug break-keep pt-0.5">{storeInfo.closed_days}</span>
                   </div>
                 )}
 
                 {storeInfo.address && (
-                  <div className="flex items-start gap-4">
-                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">오시는길</span>
-                    <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep">{storeInfo.address}</span>
+                  <div className="flex items-start gap-3.5">
+                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">오시는길</span>
+                    <span className="text-[14px] font-bold text-gray-800 leading-snug break-keep pt-0.5">{storeInfo.address}</span>
                   </div>
                 )}
                 
                 {storeInfo.phone && (
-                  <div className="flex items-start gap-4">
-                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">고객센터</span>
-                    <span className="text-[15px] font-black text-[#5F0080]">
+                  <div className="flex items-start gap-3.5">
+                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">고객센터</span>
+                    <span className="text-[15px] font-black text-[#5F0080] pt-0.5">
                       <a href={`tel:${storeInfo.phone}`} className="hover:underline">{storeInfo.phone}</a>
                     </span>
                   </div>
                 )}
 
                 {storeInfo.etc_info && (
-                  <div className="flex items-start gap-4">
-                    <span className="text-[13px] font-bold text-gray-400 w-[55px] shrink-0 pt-0.5 tracking-tight">기타안내</span>
-                    <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep whitespace-pre-line">{storeInfo.etc_info}</span>
+                  <div className="flex items-start gap-3.5">
+                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">기타안내</span>
+                    <span className="text-[14px] font-bold text-gray-800 leading-snug break-keep whitespace-pre-line pt-0.5">{storeInfo.etc_info}</span>
                   </div>
                 )}
 
