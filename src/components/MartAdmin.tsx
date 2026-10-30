@@ -44,6 +44,304 @@ const CATEGORIES = [
   { id: '공산품', icon: '🛒', icons: ['🛒'] },
 ];
 
+function DateTimeField({
+  label,
+  badgeClass,
+  value,
+  onChange,
+}: {
+  label: string;
+  badgeClass: string;
+  value: string;
+  onChange: (val: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const parseValue = (v: string) => {
+    const d = v ? new Date(v) : new Date();
+    const valid = !isNaN(d.getTime()) ? d : new Date();
+    return {
+      year: valid.getFullYear(),
+      month: valid.getMonth(), // 0-11
+      day: valid.getDate(),
+      hour24: valid.getHours(),
+    };
+  };
+
+  const [draft, setDraft] = useState(() => parseValue(value));
+  const [viewYear, setViewYear] = useState(() => parseValue(value).year);
+  const [viewMonth, setViewMonth] = useState(() => parseValue(value).month);
+
+  useEffect(() => {
+    if (open) {
+      const parsed = parseValue(value);
+      setDraft(parsed);
+      setViewYear(parsed.year);
+      setViewMonth(parsed.month);
+    }
+  }, [open, value]);
+
+  const formatDisplay = (v: string) => {
+    if (!v) return '날짜와 시간을 선택해주세요';
+    const d = new Date(v);
+    if (isNaN(d.getTime())) return v;
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const h24 = d.getHours();
+    const ampm = h24 < 12 ? '오전' : '오후';
+    const h12 = h24 % 12 === 0 ? 12 : h24 % 12;
+    return `${yyyy}-${mm}-${dd} ${ampm} ${h12}시`;
+  };
+
+  const commitDraft = (customDraft = draft) => {
+    const yyyy = customDraft.year;
+    const mm = String(customDraft.month + 1).padStart(2, '0');
+    const dd = String(customDraft.day).padStart(2, '0');
+    const hh = String(customDraft.hour24).padStart(2, '0');
+    // 종료 시간이 밤 11시(23시)일 때는 그날 자정까지 유지되도록 59분으로 저장, 그 외는 정각(00분)으로 저장
+    const min = label === '종료' && customDraft.hour24 === 23 ? '59' : '00';
+    onChange(`${yyyy}-${mm}-${dd}T${hh}:${min}`);
+    setOpen(false);
+  };
+
+  // Build calendar days for viewYear / viewMonth
+  const firstDayOfWeek = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
+
+  const calendarCells: { year: number; month: number; day: number; isCurrentMonth: boolean }[] = [];
+  for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+    const pm = viewMonth === 0 ? 11 : viewMonth - 1;
+    const py = viewMonth === 0 ? viewYear - 1 : viewYear;
+    calendarCells.push({ year: py, month: pm, day: daysInPrevMonth - i, isCurrentMonth: false });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    calendarCells.push({ year: viewYear, month: viewMonth, day: d, isCurrentMonth: true });
+  }
+  while (calendarCells.length % 7 !== 0) {
+    const nm = viewMonth === 11 ? 0 : viewMonth + 1;
+    const ny = viewMonth === 11 ? viewYear + 1 : viewYear;
+    const nextDay = calendarCells.length - (firstDayOfWeek + daysInMonth) + 1;
+    calendarCells.push({ year: ny, month: nm, day: nextDay, isCurrentMonth: false });
+  }
+
+  const isAm = draft.hour24 < 12;
+  const currentHour12 = draft.hour24 % 12 === 0 ? 12 : draft.hour24 % 12;
+
+  const setAmPm = (wantAm: boolean) => {
+    setDraft((prev) => {
+      let h = prev.hour24;
+      if (wantAm && h >= 12) h -= 12;
+      if (!wantAm && h < 12) h += 12;
+      return { ...prev, hour24: h };
+    });
+  };
+
+  const setHour12 = (h12: number) => {
+    setDraft((prev) => {
+      const am = prev.hour24 < 12;
+      let h24 = h12 % 12;
+      if (!am) h24 += 12;
+      return { ...prev, hour24: h24 };
+    });
+  };
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className={`w-full text-left text-[15px] font-extrabold text-[#5F0080] border-2 ${
+          open ? 'border-[#5F0080] bg-white ring-2 ring-[#5F0080]/20' : 'border-purple-200 bg-[#F5F0FF]'
+        } px-3.5 py-3.5 rounded-xl transition-all shadow-inner flex items-center justify-between cursor-pointer`}
+      >
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className={`text-[12px] font-black text-white ${badgeClass} px-2.5 py-1 rounded-md shrink-0 leading-none`}>
+            {label}
+          </span>
+          <span className="truncate">{formatDisplay(value)}</span>
+        </div>
+        <svg className="w-5 h-5 text-[#5F0080] shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute left-0 mt-2 z-50 bg-white border-2 border-[#5F0080]/30 rounded-2xl shadow-2xl p-4 w-full sm:w-[410px] animate-fade-in-up">
+            <div className="flex flex-col sm:flex-row gap-4">
+              {/* 좌측: 달력 */}
+              <div className="flex-1">
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <span className="text-[15px] font-black text-gray-900">
+                    {viewYear}년 {viewMonth + 1}월
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (viewMonth === 0) {
+                          setViewYear((y) => y - 1);
+                          setViewMonth(11);
+                        } else {
+                          setViewMonth((m) => m - 1);
+                        }
+                      }}
+                      className="w-7 h-7 rounded-lg hover:bg-purple-50 text-gray-600 font-black flex items-center justify-center"
+                    >
+                      ◀
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (viewMonth === 11) {
+                          setViewYear((y) => y + 1);
+                          setViewMonth(0);
+                        } else {
+                          setViewMonth((m) => m + 1);
+                        }
+                      }}
+                      className="w-7 h-7 rounded-lg hover:bg-purple-50 text-gray-600 font-black flex items-center justify-center"
+                    >
+                      ▶
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-7 text-center text-[11px] font-extrabold text-gray-400 mb-1">
+                  <span className="text-rose-500">일</span>
+                  <span>월</span>
+                  <span>화</span>
+                  <span>수</span>
+                  <span>목</span>
+                  <span>금</span>
+                  <span className="text-blue-500">토</span>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 text-center">
+                  {calendarCells.map((cell, idx) => {
+                    const isSelected =
+                      cell.year === draft.year && cell.month === draft.month && cell.day === draft.day;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setDraft((prev) => ({
+                            ...prev,
+                            year: cell.year,
+                            month: cell.month,
+                            day: cell.day,
+                          }));
+                          setViewYear(cell.year);
+                          setViewMonth(cell.month);
+                        }}
+                        className={`h-8 rounded-lg text-[13px] font-bold transition-colors ${
+                          isSelected
+                            ? 'bg-[#5F0080] text-white font-black shadow-sm'
+                            : cell.isCurrentMonth
+                            ? 'text-gray-800 hover:bg-purple-50'
+                            : 'text-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {cell.day}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 우측: 오전/오후 & 시간(1시~12시) 원클릭 선택 */}
+              <div className="w-full sm:w-[150px] border-t sm:border-t-0 sm:border-l border-gray-100 pt-3 sm:pt-0 sm:pl-3.5 flex flex-col justify-between">
+                <div>
+                  <div className="text-[11px] font-extrabold text-gray-400 mb-1.5 text-center">시간 선택 (시 단위)</div>
+                  <div className="grid grid-cols-2 gap-1 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => setAmPm(true)}
+                      className={`py-1.5 rounded-lg text-[12px] font-black transition-colors ${
+                        isAm ? 'bg-[#5F0080] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      오전
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAmPm(false)}
+                      className={`py-1.5 rounded-lg text-[12px] font-black transition-colors ${
+                        !isAm ? 'bg-[#5F0080] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      오후
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => (
+                      <button
+                        key={h}
+                        type="button"
+                        onClick={() => setHour12(h)}
+                        className={`py-1.5 rounded-lg text-[12px] font-extrabold border transition-colors ${
+                          currentHour12 === h
+                            ? 'bg-[#F5F0FF] border-[#5F0080] text-[#5F0080] font-black shadow-xs'
+                            : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-purple-50'
+                        }`}
+                      >
+                        {h}시
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 하단: 오늘 / 취소 / 설정 완료 버튼 바 */}
+            <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const now = new Date();
+                  const next = {
+                    year: now.getFullYear(),
+                    month: now.getMonth(),
+                    day: now.getDate(),
+                    hour24: draft.hour24,
+                  };
+                  setDraft(next);
+                  setViewYear(next.year);
+                  setViewMonth(next.month);
+                }}
+                className="px-3 py-2 rounded-xl text-[12px] font-extrabold text-[#5F0080] bg-purple-50 hover:bg-purple-100 transition-colors"
+              >
+                오늘 날짜로
+              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="px-3.5 py-2 rounded-xl text-[13px] font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={() => commitDraft()}
+                  className="px-5 py-2 rounded-xl text-[13px] font-black text-white bg-[#5F0080] hover:bg-purple-900 shadow-md transition-all active:scale-95"
+                >
+                  ✓ 설정 완료
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 const ITEM_DICT: Record<string, string[]> = {
   '정육': [
     // 한우 구이 / 스테이크 / 특수부위
@@ -1626,32 +1924,26 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           </div>
 
           {/* 1단: 세일 진행 기간 */}
-          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-purple-200 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5F0080] to-[#C084FC]"></div>
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-purple-200 shadow-sm relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5F0080] to-[#C084FC] rounded-t-2xl"></div>
             <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
               <span className="w-1.5 h-5 rounded-full bg-[#5F0080] inline-block shrink-0"></span>
               <span>이번 세일 진행 기간</span>
               <span className="text-[13px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-0.5 tracking-normal leading-tight">(기간이 자동 계산되어 고객 화면에 예쁘게 노출됩니다)</span>
             </h3>
             <div className="flex flex-col gap-3 mt-1">
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px] font-black text-white bg-[#5F0080] px-2 py-0.5 rounded-md pointer-events-none">시작</span>
-                <input 
-                  type="datetime-local" 
-                  value={saleStart} 
-                  onChange={e => setSaleStart(e.target.value)} 
-                  className="w-full text-[15px] font-extrabold text-[#5F0080] border-2 border-purple-200 pl-16 pr-4 py-3.5 rounded-xl bg-[#F5F0FF] focus:bg-white focus:outline-none focus:border-[#5F0080] focus:ring-2 focus:ring-[#5F0080]/20 transition-all shadow-inner" 
-                />
-              </div>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px] font-black text-white bg-rose-600 px-2 py-0.5 rounded-md pointer-events-none">종료</span>
-                <input 
-                  type="datetime-local" 
-                  value={saleEnd} 
-                  onChange={e => setSaleEnd(e.target.value)} 
-                  className="w-full text-[15px] font-extrabold text-[#5F0080] border-2 border-purple-200 pl-16 pr-4 py-3.5 rounded-xl bg-[#F5F0FF] focus:bg-white focus:outline-none focus:border-[#5F0080] focus:ring-2 focus:ring-[#5F0080]/20 transition-all shadow-inner" 
-                />
-              </div>
+              <DateTimeField
+                label="시작"
+                badgeClass="bg-[#5F0080]"
+                value={saleStart}
+                onChange={setSaleStart}
+              />
+              <DateTimeField
+                label="종료"
+                badgeClass="bg-rose-600"
+                value={saleEnd}
+                onChange={setSaleEnd}
+              />
             </div>
           </div>
           

@@ -450,12 +450,25 @@ export default function CustomerSalePage() {
             special_image_url: stagedSettings.special_image_url || prev?.special_image_url
           }));
           
+          const formatPeriodText = (start: Date, end: Date) => {
+            const fmtDate = (d: Date) => `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
+            const fmtHour = (d: Date) => {
+              const h = d.getHours();
+              const ampm = h < 12 ? '오전' : '오후';
+              const h12 = h % 12 === 0 ? 12 : h % 12;
+              return `${ampm} ${h12}시`;
+            };
+            const datePart =
+              fmtDate(start) === fmtDate(end)
+                ? `행사 기간 ${fmtDate(start)}`
+                : `행사 기간 ${fmtDate(start)} ~ ${fmtDate(end)}`;
+            return `${datePart}\n⏰ ${fmtHour(start)} ~ ${fmtHour(end)}`;
+          };
+
           if (stagedSettings.saleStart && stagedSettings.saleEnd) {
             const start = new Date(stagedSettings.saleStart);
             const end = new Date(stagedSettings.saleEnd);
-            const formattedStart = start.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-            const formattedEnd = end.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute:'2-digit' });
-            setPeriodText(formattedStart + ' ~ ' + formattedEnd);
+            setPeriodText(formatPeriodText(start, end));
             
             const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
             const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
@@ -500,8 +513,18 @@ export default function CustomerSalePage() {
             const start = new Date(latestPush.sale_start);
             setIsEnded(now > end);
             
-            const format = (d: Date) => `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}.`;
-            setPeriodText(`행사 기간 ${format(start)} ~ ${format(end)}`);
+            const fmtDate = (d: Date) => `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`;
+            const fmtHour = (d: Date) => {
+              const h = d.getHours();
+              const ampm = h < 12 ? '오전' : '오후';
+              const h12 = h % 12 === 0 ? 12 : h % 12;
+              return `${ampm} ${h12}시`;
+            };
+            const datePart =
+              fmtDate(start) === fmtDate(end)
+                ? `행사 기간 ${fmtDate(start)}`
+                : `행사 기간 ${fmtDate(start)} ~ ${fmtDate(end)}`;
+            setPeriodText(`${datePart}\n⏰ ${fmtHour(start)} ~ ${fmtHour(end)}`);
             
             const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
             const endDay = new Date(end.getFullYear(), end.getMonth(), end.getDate());
@@ -737,9 +760,9 @@ export default function CustomerSalePage() {
             </p>
             
             {periodText && (
-              <div className="mt-2 inline-flex bg-[#F8F0FF] text-[#5F0080] font-black text-[16px] sm:text-[18px] px-7 py-3.5 sm:px-9 sm:py-4 rounded-2xl shadow-[0_4px_12px_rgba(95,0,128,0.08)] border-2 border-[#D8B4FE] items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
-                <div className="flex items-center tracking-tight whitespace-nowrap">
-                  <span className="leading-tight">🗓️ {periodText}</span>
+              <div className="mt-2 inline-flex bg-[#F8F0FF] text-[#5F0080] font-black text-[15px] sm:text-[18px] px-5 py-3.5 sm:px-9 sm:py-4 rounded-2xl shadow-[0_4px_12px_rgba(95,0,128,0.08)] border-2 border-[#D8B4FE] items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
+                <div className="flex items-center justify-center tracking-tight text-center break-keep">
+                  <span className="leading-relaxed whitespace-pre-line">{periodText}</span>
                 </div>
               </div>
             )}
@@ -982,39 +1005,39 @@ export default function CustomerSalePage() {
               <div className="flex flex-col gap-4">
                 
                 {storeInfo.operating_hours && (
-                  <div className="flex items-start gap-3.5">
-                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">영업시간</span>
-                    <span className="text-[15px] font-black text-gray-900 leading-snug break-keep pt-0.5">{storeInfo.operating_hours}</span>
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13.5px] font-extrabold text-[#222222] w-[58px] shrink-0 pt-0.5 tracking-tight">영업시간</span>
+                    <span className="text-[15px] font-black text-gray-900 leading-snug break-keep">{storeInfo.operating_hours}</span>
                   </div>
                 )}
 
                 {storeInfo.closed_days && (
-                  <div className="flex items-start gap-3.5">
-                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">휴무일</span>
-                    <span className="text-[15px] font-black text-[#E52525] leading-snug break-keep pt-0.5">{storeInfo.closed_days}</span>
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13.5px] font-extrabold text-[#222222] w-[58px] shrink-0 pt-0.5 tracking-tight">휴무일</span>
+                    <span className="text-[15px] font-black text-[#E52525] leading-snug break-keep">{storeInfo.closed_days}</span>
                   </div>
                 )}
 
                 {storeInfo.address && (
-                  <div className="flex items-start gap-3.5">
-                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">오시는길</span>
-                    <span className="text-[14px] font-bold text-gray-800 leading-snug break-keep pt-0.5">{storeInfo.address}</span>
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13.5px] font-extrabold text-[#222222] w-[58px] shrink-0 pt-0.5 tracking-tight">오시는길</span>
+                    <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep">{storeInfo.address}</span>
                   </div>
                 )}
                 
                 {storeInfo.phone && (
-                  <div className="flex items-start gap-3.5">
-                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">고객센터</span>
-                    <span className="text-[15px] font-black text-[#5F0080] pt-0.5">
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13.5px] font-extrabold text-[#222222] w-[58px] shrink-0 pt-0.5 tracking-tight">고객센터</span>
+                    <span className="text-[15px] font-black text-[#5F0080]">
                       <a href={`tel:${storeInfo.phone}`} className="hover:underline">{storeInfo.phone}</a>
                     </span>
                   </div>
                 )}
 
                 {storeInfo.etc_info && (
-                  <div className="flex items-start gap-3.5">
-                    <span className="text-[12.5px] font-extrabold text-[#5F0080] bg-[#F5F0FF] border border-purple-200/80 px-2 py-0.5 rounded-md w-[66px] text-center shrink-0 tracking-tight">기타안내</span>
-                    <span className="text-[14px] font-bold text-gray-800 leading-snug break-keep whitespace-pre-line pt-0.5">{storeInfo.etc_info}</span>
+                  <div className="flex items-start gap-4">
+                    <span className="text-[13.5px] font-extrabold text-[#222222] w-[58px] shrink-0 pt-0.5 tracking-tight">기타안내</span>
+                    <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep whitespace-pre-line">{storeInfo.etc_info}</span>
                   </div>
                 )}
 
