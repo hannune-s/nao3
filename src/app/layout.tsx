@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/api/og',
+        url: '/api/og?v=2',
         width: 1200,
         height: 630,
         alt: '나오삼(NAO3) - 어머님들 지금 당장 나오삼! 매출 폭발 1초 전단지',
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: '나오삼(NAO3) - "어머님들~ 지금 당장 나오삼!" 매출 폭발 1초 전단지',
     description: "빨리 나오삼! 얼른 나오삼! 집에 계신 동네 손님들을 당장 우리 가게로 뛰어나오게 만드는 1초 스마트 전단지 (문자비 평생 0원)",
-    images: ['/api/og'],
+    images: ['/api/og?v=2'],
   },
 };
 

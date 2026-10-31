@@ -281,24 +281,26 @@ export async function GET(req: NextRequest) {
           </div>
           <div
             style={{
-              fontSize: '68px',
+              fontSize: '64px',
               fontWeight: 900,
               color: '#FFFFFF',
-              lineHeight: 1.18,
+              lineHeight: 1.22,
               letterSpacing: '-1.5px',
               display: 'flex',
+              whiteSpace: 'nowrap',
             }}
           >
             매출이 폭발하는 1초 전단지,
           </div>
           <div
             style={{
-              fontSize: '76px',
+              fontSize: '60px',
               fontWeight: 900,
               color: '#E5D7B7',
-              lineHeight: 1.18,
-              letterSpacing: '-1.5px',
+              lineHeight: 1.22,
+              letterSpacing: '-2px',
               display: 'flex',
+              whiteSpace: 'nowrap',
             }}
           >
             그래서 이름이 &lsquo;나오삼(NAO3)&rsquo;입니다!
