@@ -52,12 +52,20 @@ export default function LandingPage() {
             <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
             문자 발송 비용 평생 0원
           </div>
-          <h1 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl lg:text-7xl font-black text-gray-900 tracking-tight mb-8 leading-[1.1] break-keep animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <h1 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl lg:text-7xl font-black text-gray-900 tracking-tight mb-6 leading-[1.1] break-keep animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
             라이브 홈쇼핑을 내 매장으로.<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#5F0080] to-purple-500">
               매출이 폭발하는 1초 전단지
             </span>
           </h1>
+          <div className="mb-6 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-purple-50 via-yellow-50/80 to-purple-50 border border-purple-200/80 shadow-xs max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+            <p className="text-sm md:text-lg font-black text-[#5F0080] break-keep leading-snug">
+              📢 &ldquo;어머님들~~~ <span className="underline decoration-yellow-400 decoration-4 underline-offset-4">나오삼!</span> 빨리 나오삼! 얼른 나오삼! 지금 당장 나오삼!&rdquo;
+            </p>
+            <p className="text-xs md:text-sm text-gray-600 font-bold mt-1 break-keep">
+              집에 계신 동네 손님들을 당장 가게로 뛰어나오게 만든다 해서 이름이 <span className="text-[#5F0080] font-black">&lsquo;나오삼(NAO3)&rsquo;</span>입니다!
+            </p>
+          </div>
           <p className="text-lg md:text-2xl text-gray-500 mb-12 max-w-3xl mx-auto font-medium break-keep leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
             복잡한 앱 설치도, 값비싼 문자 비용도 필요 없습니다. 단 3초면 끝나는 상품 등록부터 고객의 지갑을 여는 실시간 품절 알림까지, NAO3가 동네 장사를 혁신합니다.
           </p>

@@ -3,11 +3,34 @@ import "./globals.css";
 import VisitorTracker from "@/components/VisitorTracker";
 
 export const metadata: Metadata = {
-  title: "NAO3 Sale Push Admin",
-  description: "마켓컬리 스타일 세일 푸시 어드민",
+  metadataBase: new URL('https://www.nao3.kr'),
+  title: '나오삼(NAO3) - "어머님들~ 지금 당장 나오삼!" 매출 폭발 1초 전단지',
+  description: "빨리 나오삼! 얼른 나오삼! 집에 계신 동네 손님들을 당장 우리 가게로 뛰어나오게 만드는 1초 스마트 전단지 (문자비 평생 0원)",
   icons: {
     icon: '/icon-192.png',
     apple: '/icon-192.png',
+  },
+  openGraph: {
+    title: '나오삼(NAO3) - "어머님들~ 지금 당장 나오삼!" 매출 폭발 1초 전단지',
+    description: "빨리 나오삼! 얼른 나오삼! 집에 계신 동네 손님들을 당장 우리 가게로 뛰어나오게 만드는 1초 스마트 전단지 (문자비 평생 0원)",
+    url: 'https://www.nao3.kr',
+    siteName: '나오삼(NAO3)',
+    locale: 'ko_KR',
+    type: 'website',
+    images: [
+      {
+        url: '/api/og',
+        width: 1200,
+        height: 630,
+        alt: '나오삼(NAO3) - 어머님들 지금 당장 나오삼! 매출 폭발 1초 전단지',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '나오삼(NAO3) - "어머님들~ 지금 당장 나오삼!" 매출 폭발 1초 전단지',
+    description: "빨리 나오삼! 얼른 나오삼! 집에 계신 동네 손님들을 당장 우리 가게로 뛰어나오게 만드는 1초 스마트 전단지 (문자비 평생 0원)",
+    images: ['/api/og'],
   },
 };
 
