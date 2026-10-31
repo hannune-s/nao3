@@ -1,6 +1,23 @@
 import DemoButton from '@/components/DemoButton';
 import Link from 'next/link';
 
+const emojiToTwemojiUrl = (emoji: string) => {
+  const cps = Array.from(emoji).map((c) => c.codePointAt(0)!.toString(16));
+  const code = cps.includes('200d') ? cps.join('-') : cps.filter((c) => c !== 'fe0f').join('-');
+  return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/svg/${code}.svg`;
+};
+
+function Twemoji({ emoji, className = 'w-[14px] h-[14px]' }: { emoji: string; className?: string }) {
+  return (
+    <img
+      src={emojiToTwemojiUrl(emoji)}
+      alt={emoji}
+      className={`${className} inline-block object-contain select-none align-middle`}
+      draggable={false}
+    />
+  );
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] font-sans text-gray-900 selection:bg-[#5F0080] selection:text-white">
@@ -282,6 +299,27 @@ export default function LandingPage() {
                     </div>
                   </div>
 
+                  {/* Search & Category Filter Preview in Customer Mockup */}
+                  <div className="px-4 pt-1 pb-2">
+                    <div className="bg-[#F4F5F7] border border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2 text-[12px] text-gray-500 font-semibold">
+                      <span>🔍</span>
+                      <span>사고 싶은 세일 상품을 검색해보세요</span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-2 overflow-hidden">
+                      <span className="px-2.5 py-1 rounded-lg bg-[#1A1A1A] text-white text-[11px] font-extrabold">전체</span>
+                      <span className="px-2 py-1 rounded-lg bg-[#F4F5F7] text-gray-700 text-[11px] font-extrabold inline-flex items-center gap-1">
+                        <Twemoji emoji="🥩" className="w-[13px] h-[13px]" /> 정육
+                      </span>
+                      <span className="px-2 py-1 rounded-lg bg-[#F4F5F7] text-gray-700 text-[11px] font-extrabold inline-flex items-center gap-1">
+                        <Twemoji emoji="🍎" className="w-[13px] h-[13px]" /> 청과
+                      </span>
+                      <span className="px-2 py-1 rounded-lg bg-[#F4F5F7] text-gray-700 text-[11px] font-extrabold inline-flex items-center gap-1">
+                        <Twemoji emoji="🥬" className="w-[13px] h-[13px]" />
+                        <Twemoji emoji="🐟" className="w-[13px] h-[13px]" /> 야채·수산
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Product List */}
                   <div className="p-4 flex-1 space-y-3">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden">
@@ -315,6 +353,120 @@ export default function LandingPage() {
                     </div>
                   </div>
 
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 2.5: Searchable Smart Flyer & Category Filter Tabs (NEW) */}
+      <section className="py-20 md:py-32 bg-gradient-to-b from-[#FAF7FF] to-white border-t border-purple-100/80 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
+            {/* Left: Visual Mockup of Customer Search & Corner Tabs */}
+            <div className="order-2 lg:order-1">
+              <div className="relative max-w-md mx-auto bg-white rounded-[2.2rem] shadow-[0_30px_70px_rgba(95,0,128,0.12)] border border-purple-100 overflow-hidden p-6 sm:p-7">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5F0080] text-white text-[11px] font-black tracking-wide">
+                    ✨ 대한민국 최초 검색형 전단지
+                  </span>
+                  <span className="text-[11px] font-bold text-gray-400">스크롤 제로 · 1초 검색</span>
+                </div>
+
+                {/* Search Input Demo */}
+                <div className="bg-[#F4F5F7] border-2 border-[#1A1A1A] rounded-2xl px-4 py-3.5 flex items-center justify-between shadow-inner mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">🔍</span>
+                    <span className="text-[15px] font-black text-gray-900">삼겹살</span>
+                    <span className="text-xs font-bold text-[#5F0080] bg-purple-100 px-2 py-0.5 rounded-md">초성 &apos;ㅅㄱㅅ&apos;도 OK!</span>
+                  </div>
+                  <span className="w-5 h-5 rounded-full bg-gray-300 text-white text-[11px] font-black flex items-center justify-center">✕</span>
+                </div>
+
+                {/* Category Filter Tabs Demo */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-4 mb-4 border-b border-gray-100">
+                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-600 text-[12px] font-extrabold shrink-0">전체</span>
+                  <span className="px-3 py-1.5 rounded-lg bg-[#1A1A1A] text-white text-[12px] font-extrabold shrink-0 shadow-sm inline-flex items-center gap-1">
+                    <Twemoji emoji="🥩" className="w-[14px] h-[14px]" /> 정육
+                  </span>
+                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1">
+                    <Twemoji emoji="🍎" className="w-[14px] h-[14px]" /> 청과
+                  </span>
+                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1">
+                    <Twemoji emoji="🥬" className="w-[14px] h-[14px]" />
+                    <Twemoji emoji="🐟" className="w-[14px] h-[14px]" /> 야채·수산
+                  </span>
+                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1">
+                    <Twemoji emoji="🛒" className="w-[14px] h-[14px]" /> 공산품
+                  </span>
+                </div>
+
+                {/* Instant Filtered Result Card */}
+                <div className="space-y-2.5">
+                  <div className="text-[11px] font-extrabold text-[#5F0080] px-1">
+                    ⚡ 100개 세일 품목 중 내가 찾는 상품만 1초 만에 표시!
+                  </div>
+                  <div className="bg-[#FAF8FF] border-2 border-[#5F0080]/20 rounded-2xl p-4 flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="w-9 h-9 rounded-full bg-white border border-purple-100 flex items-center justify-center text-lg shadow-xs">
+                        <Twemoji emoji="🥓" className="w-[18px] h-[18px]" />
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h4 className="font-black text-[15.5px] text-gray-900">한돈 생삼겹살</h4>
+                          <span className="text-[10px] font-bold text-gray-600 bg-white border border-gray-200 px-1.5 py-0.5 rounded">국산</span>
+                        </div>
+                        <span className="text-[11px] text-gray-500 font-semibold">프리미엄 미트 존</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[12px] font-black text-white bg-[#8B1818] px-2 py-0.5 rounded-md">35%</span>
+                      <span className="text-[12px] font-extrabold bg-white border border-gray-200 text-gray-900 px-2 py-0.5 rounded-md">100g</span>
+                      <span className="text-[16px] font-black text-[#8B1818]">1,980원</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Copywriting */}
+            <div className="order-1 lg:order-2">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-100 text-[#5F0080] text-xs font-black tracking-wide mb-4">
+                🔍 종이·사진 전단지에는 절대 없는 혁신 기능
+              </div>
+              <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+                손님이 사고 싶은 세일만<br />
+                <span className="text-[#5F0080]">1초 만에 검색하고 골라봅니다.</span>
+              </h3>
+              <p className="text-xl text-gray-600 mb-8 leading-relaxed break-keep">
+                기존 문자나 카톡으로 보내던 사진 전단지는 글씨가 작아 손가락으로 확대하며 한참을 찾아야 했습니다. NAO3는 세일 품목이 100개여도 손님이 <strong>검색창에 원하는 상품을 치거나 코너 탭만 누르면 스크롤 없이 1초 만에</strong> 찾아줍니다.
+              </p>
+
+              <div className="space-y-7 mt-8">
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-[#5F0080]/10 flex items-center justify-center text-2xl shadow-sm border border-purple-100">🔎</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-1.5">초성까지 지원하는 1초 상품 검색</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">
+                      &quot;오늘 삼겹살 세일하나? 계란은 얼마지?&quot; 손님이 검색창에 <strong>&apos;삼겹살&apos;</strong>이나 초성 <strong>&apos;ㅅㄱㅅ&apos;, &apos;ㄱㄹ&apos;</strong>만 입력해도 해당 세일 품목과 가격, 품절 여부가 그 자리에서 즉시 나타납니다.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 shrink-0 rounded-2xl bg-[#5F0080]/10 flex items-center justify-center text-2xl shadow-sm border border-purple-100">🗂️</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-1.5">코너별 원터치 필터 탭 (정육 · 청과 · 야채·수산 · 공산품)</h4>
+                    <p className="text-gray-600 leading-relaxed break-keep">
+                      대형 슈퍼처럼 세일 품목이 수십, 수백 개여도 끝까지 스크롤을 내릴 필요가 없습니다. 상단에 고정된{' '}
+                      <strong className="inline-flex items-center gap-0.5">[<Twemoji emoji="🥩" className="w-[14px] h-[14px] mx-0.5" /> 정육]</strong>{' '}
+                      <strong className="inline-flex items-center gap-0.5">[<Twemoji emoji="🍎" className="w-[14px] h-[14px] mx-0.5" /> 청과]</strong>{' '}
+                      <strong className="inline-flex items-center gap-0.5">[<Twemoji emoji="🥬" className="w-[14px] h-[14px]" /><Twemoji emoji="🐟" className="w-[14px] h-[14px] mr-0.5" /> 야채·수산]</strong>{' '}
+                      <strong className="inline-flex items-center gap-0.5">[<Twemoji emoji="🛒" className="w-[14px] h-[14px] mx-0.5" /> 공산품]</strong>{' '}
+                      탭을 누르면 원하는 코너의 상품만 깔끔하게 모아 보여줍니다.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -485,11 +637,15 @@ export default function LandingPage() {
               <div className="p-5 flex-1">
                 <div className="flex items-center gap-2 mb-3 px-1">
                   <span className="text-[18px]">🖋️</span>
-                  <span className="font-black text-[14px] text-gray-900 tracking-widest">한우 갈비 사전예약 🥩</span>
+                  <span className="font-black text-[14px] text-gray-900 tracking-widest inline-flex items-center gap-1">
+                    한우 갈비 사전예약 <Twemoji emoji="🥩" className="w-[15px] h-[15px]" />
+                  </span>
                 </div>
                 <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-2xl">🥩</div>
+                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-2xl">
+                      <Twemoji emoji="🥩" className="w-[24px] h-[24px]" />
+                    </div>
                     <div className="flex-1">
                       <div className="flex gap-1 mb-1">
                         <span className="text-[10px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded font-bold">1++</span>
@@ -670,6 +826,10 @@ export default function LandingPage() {
                   <li className="flex items-start gap-3">
                     <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>
                     <span className="text-gray-600 font-medium break-keep">모바일 전단지 무제한 생성 및 관리</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>
+                    <span className="text-gray-600 font-medium break-keep">고객용 1초 초성·단어 상품 검색 &amp; 코너별 탭 필터</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>

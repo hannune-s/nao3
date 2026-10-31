@@ -186,6 +186,15 @@ export default function HqAdminLayout({ children }: { children: React.ReactNode 
             </li>
             <li>
               <Link 
+                href="/hq-admin/dev-notes" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/dev-notes' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
+              >
+                개발 · 업그레이드 노트
+              </Link>
+            </li>
+            <li>
+              <Link 
                 href="/hq-admin/security" 
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center px-6 py-3 text-sm font-medium whitespace-nowrap transition-colors ${pathname === '/hq-admin/security' ? 'bg-[#333] text-white border-r-4 border-[#E5D7B7]' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
