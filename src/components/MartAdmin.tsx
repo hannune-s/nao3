@@ -1093,7 +1093,45 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       .order('created_at', { ascending: false });
     
     if (!error && data) {
-      setHistories(data);
+      const cleanedData = await Promise.all(
+        data.map(async (h: any) => {
+          const rawItems = [...(h.nao3_sale_items || [])].sort(
+            (a: any, b: any) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+          );
+          const byName = new Map<string, any[]>();
+          for (const item of rawItems) {
+            const list = byName.get(item.product_name) || [];
+            list.push(item);
+            byName.set(item.product_name, list);
+          }
+          const dedupedItems: any[] = [];
+          const dupIdsToDelete: string[] = [];
+
+          for (const [, group] of byName.entries()) {
+            const keeper = { ...group[group.length - 1] };
+            if (group.length > 1) {
+              dupIdsToDelete.push(...group.slice(0, -1).map((r: any) => r.id));
+              const anySoldOut = group.some((r: any) => r.is_sold_out);
+              if (keeper.is_sold_out !== anySoldOut) {
+                keeper.is_sold_out = anySoldOut;
+                await supabase.from('nao3_sale_items').update({ is_sold_out: anySoldOut }).eq('id', keeper.id);
+              }
+            }
+            dedupedItems.push(keeper);
+          }
+
+          if (dupIdsToDelete.length > 0) {
+            await supabase.from('nao3_sale_items').delete().in('id', dupIdsToDelete);
+          }
+
+          return {
+            ...h,
+            item_count: dedupedItems.length,
+            nao3_sale_items: dedupedItems
+          };
+        })
+      );
+      setHistories(cleanedData);
     }
   };
 
@@ -1347,16 +1385,36 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     setItems(items.filter(item => item.id !== id));
   };
 
-  // 이력 품절 처리/해제 (즉시 반영)
+  // 이력 품절 처리/해제 (즉시 반영 - 동일 상품명 중복 행까지 일괄 반영 및 정리)
   const handleHistoryToggleSoldOut = async (pushId: string, itemId: string, currentSoldOut: boolean) => {
     try {
+      const targetPush = histories.find(h => h.id === pushId);
+      const targetItem = targetPush?.nao3_sale_items?.find((i: any) => i.id === itemId);
+      const targetName = targetItem?.product_name;
+      const matchingItems = targetName && targetPush?.nao3_sale_items
+        ? targetPush.nao3_sale_items.filter((i: any) => i.product_name === targetName)
+        : [{ id: itemId }];
+      const targetIds = matchingItems.map((i: any) => i.id);
+
       if (!storeId.startsWith('demo-guest-')) {
-        const { error } = await supabase.from('nao3_sale_items').update({ is_sold_out: !currentSoldOut }).eq('id', itemId);
+        const { error } = await supabase
+          .from('nao3_sale_items')
+          .update({ is_sold_out: !currentSoldOut })
+          .in('id', targetIds);
         if (error) throw error;
+
+        // 만약 과거 버그로 인해 동일 상품명 중복 행이 2개 이상 존재한다면 마지막 1개만 남기고 정리
+        if (targetIds.length > 1) {
+          const duplicateIds = targetIds.slice(0, -1);
+          await supabase.from('nao3_sale_items').delete().in('id', duplicateIds);
+        }
       }
+      const duplicateIdsToRemove = targetIds.length > 1 ? targetIds.slice(0, -1) : [];
       const newHistories = histories.map(h => h.id === pushId ? {
         ...h,
-        nao3_sale_items: h.nao3_sale_items.map((i: any) => i.id === itemId ? { ...i, is_sold_out: !currentSoldOut } : i)
+        nao3_sale_items: h.nao3_sale_items
+          .filter((i: any) => !duplicateIdsToRemove.includes(i.id))
+          .map((i: any) => (i.id === itemId || (targetName && i.product_name === targetName)) ? { ...i, is_sold_out: !currentSoldOut } : i)
       } : h);
       setHistories(newHistories);
       if (storeId.startsWith('demo-guest-')) {
@@ -1371,20 +1429,29 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     }
   };
 
-  // 이력 아이템 삭제 (즉시 반영)
+  // 이력 아이템 삭제 (즉시 반영 - 동일 상품명 중복 행까지 한 번에 삭제)
   const handleHistoryDeleteItem = async (pushId: string, itemId: string) => {
     if (!confirm('정말 삭제하시겠습니까? 즉시 반영됩니다.')) return;
     try {
       const targetPush = histories.find(h => h.id === pushId);
-      const remainingItems = (targetPush?.nao3_sale_items || []).filter((i: any) => i.id !== itemId);
+      const targetItem = targetPush?.nao3_sale_items?.find((i: any) => i.id === itemId);
+      const targetName = targetItem?.product_name;
+      const deleteIds = targetName && targetPush?.nao3_sale_items
+        ? targetPush.nao3_sale_items.filter((i: any) => i.product_name === targetName).map((i: any) => i.id)
+        : [itemId];
+
+      const remainingItems = (targetPush?.nao3_sale_items || []).filter((i: any) => !deleteIds.includes(i.id));
+      const uniqueRemainingCount = new Set(remainingItems.map((i: any) => i.product_name)).size;
       const isLastItem = remainingItems.length === 0;
 
       if (!storeId.startsWith('demo-guest-')) {
-        const { error } = await supabase.from('nao3_sale_items').delete().eq('id', itemId);
+        const { error } = await supabase.from('nao3_sale_items').delete().in('id', deleteIds);
         if (error) throw error;
         // 마지막 품목이었으면 발송이력 자체도 삭제
         if (isLastItem) {
           await supabase.from('nao3_push_history').delete().eq('id', pushId);
+        } else {
+          await supabase.from('nao3_push_history').update({ item_count: uniqueRemainingCount }).eq('id', pushId);
         }
       }
 
@@ -1393,7 +1460,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         ? histories.filter(h => h.id !== pushId)
         : histories.map(h => h.id === pushId ? {
             ...h,
-            item_count: h.item_count - 1,
+            item_count: uniqueRemainingCount,
             nao3_sale_items: remainingItems
           } : h);
 
@@ -1645,8 +1712,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           .insert({ setting_key: `STORE_EVENT_BANNER_${storeId}`, setting_value: bannerPayload });
       }
 
-      // 1. 가장 최근 이력을 가져와서 기간 비교
-      const { data: latestPush } = await supabase.from('nao3_push_history').select('*').eq('store_id', storeId).order('created_at', { ascending: false })
+      // 1. 가장 최근 이력을 가져와서 기간 비교 (기존 품목 목록 포함 조회)
+      const { data: latestPush } = await supabase.from('nao3_push_history').select('*, nao3_sale_items(*)').eq('store_id', storeId).order('created_at', { ascending: false })
         .limit(1)
         .single();
 
@@ -1664,30 +1731,63 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         // 기존 그룹에 추가 (업데이트)
         pushId = latestPush.id;
         
-        const existingItemsInDb = latestPush.nao3_sale_items || [];
+        const existingItemsInDb = [...(latestPush.nao3_sale_items || [])].sort(
+          (a: any, b: any) => new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+        );
         const toUpdate: any[] = [];
         const toInsert: any[] = [];
+        const duplicateIdsToDelete: string[] = [];
 
         for (const item of validItems) {
-          const dbMatch = existingItemsInDb.find((dbItem: any) => dbItem.product_name === item.product_name);
-          if (dbMatch) {
-            toUpdate.push({ id: dbMatch.id, quantity: item.quantity, sale_price: item.sale_price, category: item.category, grade: item.grade, origin: item.origin });
+          const dbMatches = existingItemsInDb.filter((dbItem: any) => dbItem.product_name === item.product_name);
+          if (dbMatches.length > 0) {
+            const targetMatch = dbMatches[dbMatches.length - 1];
+            if (dbMatches.length > 1) {
+              duplicateIdsToDelete.push(...dbMatches.slice(0, -1).map((d: any) => d.id));
+            }
+            toUpdate.push({
+              id: targetMatch.id,
+              quantity: item.quantity,
+              sale_price: item.sale_price,
+              category: item.category,
+              discount_rate: item.discount_rate,
+              grade: item.grade,
+              origin: item.origin,
+              is_sold_out: item.is_sold_out ?? false
+            });
           } else {
             toInsert.push(item);
           }
         }
 
+        if (duplicateIdsToDelete.length > 0) {
+          await supabase.from('nao3_sale_items').delete().in('id', duplicateIdsToDelete);
+        }
+
         // Run updates for existing DB items
         for (const up of toUpdate) {
-           await supabase.from('nao3_sale_items').update({ quantity: up.quantity, sale_price: up.sale_price, category: up.category, discount_rate: up.discount_rate ? parseInt(up.discount_rate, 10) : null, grade: up.grade || null, origin: up.origin || null }).eq('id', up.id);
+          await supabase.from('nao3_sale_items').update({
+            quantity: up.quantity,
+            sale_price: up.sale_price,
+            category: up.category,
+            discount_rate: up.discount_rate ? parseInt(up.discount_rate, 10) : null,
+            grade: up.grade || null,
+            origin: up.origin || null,
+            is_sold_out: up.is_sold_out
+          }).eq('id', up.id);
         }
         
         // Update the validItems array to only contain the items we need to insert
         validItems.length = 0;
         validItems.push(...toInsert);
 
+        const uniqueTotalCount = new Set([
+          ...existingItemsInDb.map((i: any) => i.product_name),
+          ...toInsert.map((i: any) => i.product_name)
+        ]).size;
+
         const { data: updatedData, error: updateError } = await supabase.from('nao3_push_history').update({
-          item_count: latestPush.item_count + toInsert.length,
+          item_count: uniqueTotalCount,
           boss_message: bossMessage.trim() || null
         }).eq('id', pushId).select();
         

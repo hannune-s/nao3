@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { matchSearch } from '@/lib/hangul';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -174,6 +175,8 @@ export default function CustomerSalePage() {
   const [isStandaloneMode, setIsStandaloneMode] = useState(false);
   const [installGuideMode, setInstallGuideMode] = useState<'ios' | 'android' | null>(null);
   const [installCompleteModal, setInstallCompleteModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('전체');
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   // iOS 홈화면 타이틀 및 head 내 manifest 링크 보장
   useEffect(() => {
@@ -558,19 +561,20 @@ export default function CustomerSalePage() {
     fetchItems();
   }, []);
 
-  // 카테고리별로 그룹화
+  // 카테고리별로 그룹화 ('야채·수산' -> '야채' 정규화)
   const groupedItems = items.reduce((acc, item) => {
-    if (!acc[item.category]) acc[item.category] = [];
-    acc[item.category].push(item);
+    const catKey = item.category === '야채·수산' ? '야채' : item.category;
+    if (!acc[catKey]) acc[catKey] = [];
+    acc[catKey].push(item);
     return acc;
   }, {} as Record<string, SaleItem[]>);
 
   // 출력할 카테고리 순서 정의
   const categoryOrder = [
-    { id: '정육', title: '프리미엄 미트 존', subtitle: 'Premium Meat', subtitleColor: 'text-rose-600', barColor: 'bg-rose-600' },
-    { id: '청과', title: '엄선된 신선 과일', subtitle: 'Fresh Fruits', subtitleColor: 'text-amber-600', barColor: 'bg-amber-500' },
-    { id: '야채', title: '신선채소 · 수산', subtitle: 'Vegetables & Seafood', subtitleColor: 'text-emerald-600', barColor: 'bg-emerald-600' },
-    { id: '공산품', title: '데일리 생필품', subtitle: 'Daily & Groceries', subtitleColor: 'text-[#5F0080]', barColor: 'bg-[#5F0080]' },
+    { id: '정육', tabLabel: '정육', icons: ['🥩'], title: '프리미엄 미트 존', subtitle: 'Premium Meat', subtitleColor: 'text-rose-600', barColor: 'bg-rose-600' },
+    { id: '청과', tabLabel: '청과', icons: ['🍎'], title: '엄선된 신선 과일', subtitle: 'Fresh Fruits', subtitleColor: 'text-amber-600', barColor: 'bg-amber-500' },
+    { id: '야채', tabLabel: '야채·수산', icons: ['🥬', '🐟'], title: '신선채소 · 수산', subtitle: 'Vegetables & Seafood', subtitleColor: 'text-emerald-600', barColor: 'bg-emerald-600' },
+    { id: '공산품', tabLabel: '공산품', icons: ['🛒'], title: '데일리 생필품', subtitle: 'Daily & Groceries', subtitleColor: 'text-[#5F0080]', barColor: 'bg-[#5F0080]' },
   ];
 
   if (loading) {
@@ -862,77 +866,157 @@ export default function CustomerSalePage() {
             <p className="font-bold text-gray-500 text-[15px]">현재 진행 중인 세일 행사가 없습니다.</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-10">
-            {categoryOrder.map(cat => {
-              let catItems = groupedItems[cat.id];
-              if (!catItems || catItems.length === 0) return null;
+          <>
+            {/* 상단 고정: 세일 상품 검색창 & 코너별 바로가기 탭 */}
+            <div className={`sticky ${showInstallBanner ? 'top-12' : 'top-0'} z-30 bg-white/95 backdrop-blur-md border-y border-gray-200 px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.04)]`}>
+              {/* 실시간 검색바 (초성 검색 지원) */}
+              <div className="relative flex items-center bg-[#F4F5F7] focus-within:bg-white border border-gray-200 focus-within:border-[#1A1A1A] rounded-xl px-3.5 py-2.5 transition-all">
+                <svg className="w-4 h-4 text-gray-400 shrink-0 mr-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M21 21l-4.35-4.35M16.65 10.825a5.825 5.825 0 11-11.65 0 5.825 5.825 0 0111.65 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="사고 싶은 세일 상품을 검색해보세요 (초성 가능)"
+                  className="w-full bg-transparent text-[14px] font-bold text-gray-900 placeholder:text-gray-400 placeholder:font-medium focus:outline-none"
+                />
+                {searchQuery.trim() !== '' && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    aria-label="검색어 지우기"
+                    className="ml-2 w-5 h-5 rounded-full bg-gray-300 hover:bg-gray-400 text-white text-[11px] font-black flex items-center justify-center shrink-0 transition-colors"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
 
-              // 야채/수산 카테고리 내부 정렬 로직 (채소 먼저, 수산물 나중에)
-              if (cat.id === '야채' || cat.id === '야채·수산') {
-                const isSeafood = (name: string) => {
-                  const keywords = ['오징어', '갈치', '고등어', '전복', '바지락', '굴', '꽃게', '게', '새우', '주꾸미', '쭈꾸미', '동태', '생태', '명태', '미역', '다시마', '멸치', '낙지', '문어', '조개', '가리비', '해물', '수산', '연어', '광어', '우럭', '꽁치', '삼치', '장어', '홍합', '해파리', '꼬막', '미꾸라지', '대하', '소라'];
-                  return keywords.some(kw => name.includes(kw));
-                };
-                catItems = [...catItems].sort((a, b) => {
-                  const aIsSeafood = isSeafood(a.product_name) ? 1 : 0;
-                  const bIsSeafood = isSeafood(b.product_name) ? 1 : 0;
-                  return aIsSeafood - bIsSeafood;
-                });
-              }
-
-              return (
-                <section key={cat.id} className="animate-fade-in-up bg-white px-5 py-7 shadow-sm border-y border-gray-200">
-                  
-                  {/* 고급스러운 좌측 정렬 카테고리 헤더 */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-1.5 h-6 bg-[#1A1A1A] rounded-full"></div>
-                    <div className="flex flex-col">
-                      <h3 className="text-[20px] font-extrabold text-gray-900 tracking-tight leading-none">
-                        {cat.title}
-                      </h3>
-                      <span className="text-[11px] font-medium text-[#222222] uppercase tracking-[0.2em] mt-1.5 block">
-                        {cat.subtitle}
+              {/* 코너별 필터 탭 버튼 */}
+              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar mt-2.5 pb-0.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory('전체')}
+                  className={`px-3 py-1.5 rounded-lg text-[13px] font-extrabold shrink-0 transition-all ${
+                    selectedCategory === '전체'
+                      ? 'bg-[#1A1A1A] text-white shadow-sm'
+                      : 'bg-[#F4F5F7] text-gray-600 hover:bg-gray-200/70'
+                  }`}
+                >
+                  전체
+                </button>
+                {categoryOrder.map((cat) => {
+                  const isActive = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setSelectedCategory(cat.id)}
+                      className={`px-2.5 py-1.5 rounded-lg text-[13px] font-extrabold shrink-0 inline-flex items-center gap-1 transition-all ${
+                        isActive
+                          ? 'bg-[#1A1A1A] text-white shadow-sm'
+                          : 'bg-[#F4F5F7] text-gray-700 hover:bg-gray-200/70'
+                      }`}
+                    >
+                      <span className="inline-flex items-center gap-0.5 shrink-0">
+                        {cat.icons.map((ic, idx) => (
+                          <EmojiIcon key={idx} emoji={ic} className="w-[14px] h-[14px]" />
+                        ))}
                       </span>
-                    </div>
-                  </div>
-                  
-                  {/* 리스트: 깔끔한 라인 정렬 (옵션 병합 처리) */}
-                  <div className="flex flex-col">
-                    {(() => {
-                      const mergedItems: any[] = [];
-                      catItems.forEach(item => {
-                        const existing = mergedItems.find(mi => mi.product_name === item.product_name);
-                        if (existing) {
-                          // 기존 옵션을 배열에 추가하지 않고 완전히 최신값으로 덮어씌움 (단일 라인 유지)
-                          existing.options = [{
-                            id: item.id,
-                            quantity: item.quantity,
-                            sale_price: item.sale_price,
-                            discount_rate: item.discount_rate,
-                            grade: item.grade,
-                            origin: item.origin,
-                            is_sold_out: item.is_sold_out
-                          }];
-                        } else {
-                          mergedItems.push({
-                            ...item,
-                            options: [{
-                              id: item.id,
-                              quantity: item.quantity,
-                              sale_price: item.sale_price,
-                              discount_rate: item.discount_rate,
-                              grade: item.grade,
-                              origin: item.origin,
-                              is_sold_out: item.is_sold_out
-                            }]
-                          });
-                        }
-                      });
+                      <span>{cat.tabLabel}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-                      return mergedItems.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between py-3.5 border-b border-gray-200 last:border-b-0 transition-all">
-                          
-                          {/* 좌측: 상품명 & 품절 상태 */}
+            {(() => {
+              const q = searchQuery.trim();
+              const targetCategories =
+                selectedCategory === '전체'
+                  ? categoryOrder
+                  : categoryOrder.filter((cat) => cat.id === selectedCategory);
+
+              const renderedSections = targetCategories
+                .map((cat) => {
+                  let catItems = groupedItems[cat.id] || [];
+                  if (catItems.length === 0) return null;
+
+                  // 야채/수산 카테고리 내부 정렬 로직 (채소 먼저, 수산물 나중에)
+                  if (cat.id === '야채' || cat.id === '야채·수산') {
+                    const isSeafood = (name: string) => {
+                      const keywords = ['오징어', '갈치', '고등어', '전복', '바지락', '굴', '꽃게', '게', '새우', '주꾸미', '쭈꾸미', '동태', '생태', '명태', '미역', '다시마', '멸치', '낙지', '문어', '조개', '가리비', '해물', '수산', '연어', '광어', '우럭', '꽁치', '삼치', '장어', '홍합', '해파리', '꼬막', '미꾸라지', '대하', '소라'];
+                      return keywords.some((kw) => name.includes(kw));
+                    };
+                    catItems = [...catItems].sort((a, b) => {
+                      const aIsSeafood = isSeafood(a.product_name) ? 1 : 0;
+                      const bIsSeafood = isSeafood(b.product_name) ? 1 : 0;
+                      return aIsSeafood - bIsSeafood;
+                    });
+                  }
+
+                  const mergedItems: any[] = [];
+                  catItems.forEach((item) => {
+                    const existing = mergedItems.find((mi) => mi.product_name === item.product_name);
+                    if (existing) {
+                      existing.options = [{
+                        id: item.id,
+                        quantity: item.quantity,
+                        sale_price: item.sale_price,
+                        discount_rate: item.discount_rate,
+                        grade: item.grade,
+                        origin: item.origin,
+                        is_sold_out: item.is_sold_out
+                      }];
+                    } else {
+                      mergedItems.push({
+                        ...item,
+                        options: [{
+                          id: item.id,
+                          quantity: item.quantity,
+                          sale_price: item.sale_price,
+                          discount_rate: item.discount_rate,
+                          grade: item.grade,
+                          origin: item.origin,
+                          is_sold_out: item.is_sold_out
+                        }]
+                      });
+                    }
+                  });
+
+                  const filteredMerged = q
+                    ? mergedItems.filter(
+                        (item) =>
+                          matchSearch(q, item.product_name || '') ||
+                          matchSearch(q, item.origin || '') ||
+                          matchSearch(q, item.grade || '') ||
+                          matchSearch(q, cat.tabLabel)
+                      )
+                    : mergedItems;
+
+                  if (filteredMerged.length === 0) return null;
+
+                  return (
+                    <section key={cat.id} className="animate-fade-in-up bg-white px-5 py-7 shadow-sm border-y border-gray-200">
+                      {/* 고급스러운 좌측 정렬 카테고리 헤더 */}
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="w-1.5 h-6 bg-[#1A1A1A] rounded-full"></div>
+                        <div className="flex flex-col">
+                          <h3 className="text-[20px] font-extrabold text-gray-900 tracking-tight leading-none">
+                            {cat.title}
+                          </h3>
+                          <span className="text-[11px] font-medium text-[#222222] uppercase tracking-[0.2em] mt-1.5 block">
+                            {cat.subtitle}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* 리스트: 깔끔한 라인 정렬 (옵션 병합 처리) */}
+                      <div className="flex flex-col">
+                        {filteredMerged.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between py-3.5 border-b border-gray-200 last:border-b-0 transition-all">
+                            {/* 좌측: 상품명 & 품절 상태 */}
                             <div className="flex flex-col flex-1 min-w-0 pr-3">
                               <div className="flex items-center gap-2.5">
                                 <span className="flex-shrink-0 w-[26px] h-[26px] bg-[#F9F9F9] rounded-full flex items-center justify-center border border-gray-100 shadow-[inset_0_1px_2px_rgba(0,0,0,0.03)] text-[14px]">
@@ -962,34 +1046,62 @@ export default function CustomerSalePage() {
                                 </div>
                               )}
                             </div>
-                          
-                          {/* 우측: 중량 & 가격 옵션 그룹 */}
-                          <div className="text-right flex-shrink-0 flex flex-col items-end justify-center gap-1.5">
-                            {item.options.map((opt: any, idx: number) => (
-                              <div key={opt.id || idx} className={`flex items-center gap-2 ${opt.is_sold_out ? 'opacity-50' : ''}`}>
-                                {opt.discount_rate && !opt.is_sold_out && (
-                                  <span className="text-[13px] font-black text-white bg-[#8B1818] px-2 py-0.5 rounded-md shrink-0 tracking-tight shadow-sm">
-                                    {opt.discount_rate}%
+
+                            {/* 우측: 중량 & 가격 옵션 그룹 */}
+                            <div className="text-right flex-shrink-0 flex flex-col items-end justify-center gap-1.5">
+                              {item.options.map((opt: any, idx: number) => (
+                                <div key={opt.id || idx} className={`flex items-center gap-2 ${opt.is_sold_out ? 'opacity-50' : ''}`}>
+                                  {opt.discount_rate && !opt.is_sold_out && (
+                                    <span className="text-[13px] font-black text-white bg-[#8B1818] px-2 py-0.5 rounded-md shrink-0 tracking-tight shadow-sm">
+                                      {opt.discount_rate}%
+                                    </span>
+                                  )}
+                                  <span className={`text-[13px] font-extrabold tracking-tight px-2 py-0.5 rounded-md shrink-0 ${opt.is_sold_out ? 'bg-gray-100 text-gray-400' : 'bg-gray-100 text-[#1A1A1A]'}`}>
+                                    {opt.quantity}
                                   </span>
-                                )}
-                                <span className={`text-[13px] font-extrabold tracking-tight px-2 py-0.5 rounded-md shrink-0 ${opt.is_sold_out ? 'bg-gray-100 text-gray-400' : 'bg-gray-100 text-[#1A1A1A]'}`}>
-                                  {opt.quantity}
-                                </span>
-                                <span className={`text-[16px] font-black tracking-tight ${opt.is_sold_out ? 'text-gray-400 line-through decoration-gray-400 decoration-2' : 'text-[#8B1818]'}`}>
-                                  {opt.sale_price}
-                                </span>
-                              </div>
-                            ))}
+                                  <span className={`text-[16px] font-black tracking-tight ${opt.is_sold_out ? 'text-gray-400 line-through decoration-gray-400 decoration-2' : 'text-[#8B1818]'}`}>
+                                    {opt.sale_price}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          
-                        </div>
-                      ));
-                    })()}
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })
+                .filter(Boolean);
+
+              if (renderedSections.length === 0) {
+                const activeCatLabel = categoryOrder.find((c) => c.id === selectedCategory)?.tabLabel || selectedCategory;
+                return (
+                  <div className="text-center py-14 px-4 bg-white border-y border-gray-200 shadow-sm">
+                    <p className="font-bold text-gray-700 text-[15px] mb-1.5">
+                      {q
+                        ? `'${q}'에 해당하는 세일 품목이 없습니다.`
+                        : `현재 등록된 [${activeCatLabel}] 코너 세일 품목이 없습니다.`}
+                    </p>
+                    <p className="text-[12.5px] text-gray-400 mb-4">
+                      다른 검색어를 입력하거나 전체 코너를 확인해 보세요.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedCategory('전체');
+                      }}
+                      className="px-4 py-2 bg-[#1A1A1A] text-white text-[13px] font-bold rounded-xl hover:bg-gray-800 transition-colors"
+                    >
+                      전체 세일 품목 보기
+                    </button>
                   </div>
-                </section>
-              );
-            })}
-          </div>
+                );
+              }
+
+              return <div className="flex flex-col gap-6">{renderedSections}</div>;
+            })()}
+          </>
         )}
       </div>
 
