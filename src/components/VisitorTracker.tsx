@@ -4,16 +4,50 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
+let isTrackingInFlight = false;
+
 export default function VisitorTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
     if (typeof window === 'undefined' || !pathname) return;
-    // 본사 어드민(/hq-admin) 내부 이동은 방문자 집계 및 접속 기록에서 제외
-    if (pathname.startsWith('/hq-admin')) return;
+
+    // 1. 본사 어드민(/hq-admin)에 접속한 기기(대표님 PC/휴대폰)는 '관리자 기기'로 자동 기억하여 이후 테스트 접속 시 집계에서 제외
+    if (pathname.startsWith('/hq-admin')) {
+      try {
+        localStorage.setItem('nao3_hq_owner_device', 'true');
+      } catch {}
+      return;
+    }
+
+    // 2. 로컬 개발 서버(localhost), Vercel 테스트 주소, 미리보기/데모 페이지는 집계 제외
+    const host = window.location.hostname || '';
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host.endsWith('.vercel.app') ||
+      pathname.startsWith('/og-preview') ||
+      pathname.includes('demo-guest-')
+    ) {
+      return;
+    }
+
+    // 3. 대표님(관리자) 기기 또는 검색/카톡 로봇(Bot)은 실제 고객 통계에서 제외
+    try {
+      if (
+        localStorage.getItem('nao3_hq_owner_device') === 'true' ||
+        sessionStorage.getItem('nao3_hq_admin_auth') === 'verified'
+      ) {
+        return;
+      }
+    } catch {}
+
+    const ua = navigator.userAgent || '';
+    if (/bot|crawler|spider|crawling|kakaotalk-scrap|facebookexternalhit|slackbot|HeadlessChrome/i.test(ua)) {
+      return;
+    }
 
     const getVisitMeta = (visitType: '웹 방문' | '앱 설치') => {
-      const ua = navigator.userAgent || '';
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
       const device = isMobile ? '[Mobile Web]' : '[PC Web]';
       const ref = document.referrer ? document.referrer : '직접 접속 (Direct)';
@@ -58,6 +92,8 @@ export default function VisitorTracker() {
     };
 
     const trackVisit = async () => {
+      if (isTrackingInFlight) return;
+      isTrackingInFlight = true;
       try {
         const todayKst = new Intl.DateTimeFormat('en-CA', {
           timeZone: 'Asia/Seoul',
@@ -101,6 +137,8 @@ export default function VisitorTracker() {
         }
       } catch (e) {
         // 방문자 집계 오류 시 사용자 화면에 영향 없도록 무시
+      } finally {
+        isTrackingInFlight = false;
       }
     };
 

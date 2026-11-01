@@ -144,6 +144,38 @@ export default function HqStatisticsPage() {
     }
   };
 
+  const handleResetTodayVisitors = async () => {
+    if (!confirm('오늘 방문자 수를 0명으로 초기화하시겠습니까?')) return;
+    try {
+      const todayStr = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Seoul',
+      }).format(new Date());
+      await supabase
+        .from('nao3_system_settings')
+        .upsert(
+          { setting_key: `DAILY_VISITORS_${todayStr}`, setting_value: '0' },
+          { onConflict: 'setting_key' }
+        );
+      setStats((prev) => ({ ...prev, todayVisitors: 0 }));
+    } catch {
+      alert('초기화 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleClearAllLogs = async () => {
+    if (!confirm('테스트 접속 기록을 모두 비우시겠습니까?')) return;
+    try {
+      await supabase
+        .from('nao3_system_settings')
+        .delete()
+        .like('setting_key', 'VISIT_LOG_%');
+      setVisitLogs([]);
+      setCurrentPage(1);
+    } catch {
+      alert('전체 비우기 중 오류가 발생했습니다.');
+    }
+  };
+
   if (loading) return <div className="p-8 text-gray-500">통계 데이터를 불러오는 중...</div>;
 
   const totalPages = Math.max(1, Math.ceil(visitLogs.length / ITEMS_PER_PAGE));
@@ -154,9 +186,11 @@ export default function HqStatisticsPage() {
 
   return (
     <div className="max-w-6xl animate-fade-in-up space-y-8">
-      <div>
-        <h2 className="text-2xl font-black text-gray-900 tracking-tight">통계 요약</h2>
-        <p className="text-gray-500 mt-2 text-sm">복잡한 데이터 대신, 현재 비즈니스 현황에 꼭 필요한 핵심 지표만 확인하세요.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h2 className="text-2xl font-black text-gray-900 tracking-tight">통계 요약</h2>
+          <p className="text-gray-500 mt-1 text-sm">대표님(관리자) 기기 및 로컬 테스트 접속은 제외되고 실제 고객 방문만 집계됩니다.</p>
+        </div>
       </div>
       
       <div className="grid grid-cols-4 gap-2 sm:gap-4">
@@ -166,7 +200,16 @@ export default function HqStatisticsPage() {
             <h3 className="text-[11px] sm:text-xs font-extrabold text-blue-800 truncate">
               오늘 방문자
             </h3>
-            <span className="hidden sm:inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse shrink-0"></span>
+            {stats.todayVisitors > 0 && (
+              <button
+                type="button"
+                onClick={handleResetTodayVisitors}
+                className="text-[10px] font-bold text-blue-500 hover:text-blue-700 bg-blue-100/70 hover:bg-blue-200/70 px-1.5 py-0.5 rounded transition-colors shrink-0"
+                title="오늘 방문자 수 0으로 초기화"
+              >
+                0초기화
+              </button>
+            )}
           </div>
           <div className="flex items-baseline gap-0.5 sm:gap-1">
             <span className="text-2xl sm:text-3xl font-black text-blue-600 leading-none">{stats.todayVisitors}</span>
@@ -223,9 +266,20 @@ export default function HqStatisticsPage() {
           <h3 className="text-lg font-black text-gray-900 tracking-tight">
             최근 접속/설치 기록 (최대 {MAX_LOGS}건 · {MAX_PAGES}페이지)
           </h3>
-          <span className="text-xs text-gray-400 font-medium">
-            최근 25건(5줄×5페이지)만 표시되며, 이전 기록은 저장하지 않고 자동 삭제됩니다
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-400 font-medium">
+              최근 25건(5줄×5페이지)만 표시되며, 이전 기록은 저장하지 않고 자동 삭제됩니다
+            </span>
+            {visitLogs.length > 0 && (
+              <button
+                type="button"
+                onClick={handleClearAllLogs}
+                className="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap shrink-0"
+              >
+                기록 전체 비우기
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="overflow-x-auto">
