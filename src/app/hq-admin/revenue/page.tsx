@@ -260,64 +260,61 @@ export default function HqRevenuePage() {
         </button>
       </div>
 
-      {/* 대시보드 카드 영역 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* 대시보드 카드 영역 (모바일에서도 1줄에 3개 한눈에 표시) */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-5 sm:mb-8">
         {/* 구독자 수 */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-lg">👥</div>
-            <h3 className="text-sm font-bold text-gray-500">현재 활성 유료 구독 매장</h3>
-          </div>
+        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+            유료 구독 매장
+          </h3>
           <div>
-            <div className="text-4xl font-black text-gray-900">
-              {stats.activeSubscribers}
-              <span className="text-lg font-medium text-gray-400 ml-1">곳</span>
+            <div className="flex items-baseline gap-0.5 sm:gap-1">
+              <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.activeSubscribers}</span>
+              <span className="text-xs sm:text-base font-bold text-gray-400">곳</span>
             </div>
-            <p className="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md inline-block mt-2">
-              실제 구독료 납부 완료 매장
+            <p className="text-[10px] sm:text-xs text-blue-600 font-bold bg-blue-50 px-1.5 sm:px-2 py-0.5 rounded-md inline-block mt-1.5 sm:mt-2 truncate max-w-full">
+              납부 완료 매장
             </p>
           </div>
         </div>
 
         {/* 오늘 매출 */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center text-lg">💸</div>
-            <h3 className="text-sm font-bold text-gray-500">일별 구독 매출 (오늘)</h3>
-          </div>
+        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+            오늘 구독 매출
+          </h3>
           <div>
-            <div className="text-3xl font-black text-gray-900 mb-3">
-              {stats.todayRevenue.toLocaleString()}
-              <span className="text-lg font-medium text-gray-400 ml-1">원</span>
+            <div className="flex items-baseline gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
+              <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.todayRevenue.toLocaleString()}</span>
+              <span className="text-xs sm:text-base font-bold text-gray-400">원</span>
             </div>
-            <div className="flex gap-4 text-xs font-bold text-gray-500 border-t border-gray-50 pt-3">
-              <div>
-                월구독: <span className="text-green-600">{stats.todayMonthly.toLocaleString()}원</span>
+            <div className="flex flex-col sm:flex-row sm:gap-3 text-[10px] sm:text-xs font-bold text-gray-500 border-t border-gray-50 pt-1.5 sm:pt-2 leading-snug">
+              <div className="truncate">
+                월: <span className="text-green-600">{stats.todayMonthly.toLocaleString()}원</span>
               </div>
-              <div>
-                연구독: <span className="text-green-600">{stats.todayAnnual.toLocaleString()}원</span>
+              <div className="truncate">
+                연: <span className="text-green-600">{stats.todayAnnual.toLocaleString()}원</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* 이번 달 매출 */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-purple-50 text-[#5F0080] flex items-center justify-center text-lg">💰</div>
-            <h3 className="text-sm font-bold text-gray-500">월 누계 매출 (이번 달)</h3>
-          </div>
+        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+            이번 달 누계 매출
+          </h3>
           <div>
-            <div className="text-3xl font-black text-gray-900 mb-3">
-              {stats.monthRevenue.toLocaleString()}
-              <span className="text-lg font-medium text-gray-400 ml-1">원</span>
+            <div className="flex items-baseline gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
+              <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.monthRevenue.toLocaleString()}</span>
+              <span className="text-xs sm:text-base font-bold text-gray-400">원</span>
             </div>
-            <div className="flex gap-4 text-xs font-bold text-gray-500 border-t border-gray-50 pt-3">
-              <div>
-                월구독: <span className="text-[#5F0080]">{stats.monthMonthly.toLocaleString()}원</span>
+            <div className="flex flex-col sm:flex-row sm:gap-3 text-[10px] sm:text-xs font-bold text-gray-500 border-t border-gray-50 pt-1.5 sm:pt-2 leading-snug">
+              <div className="truncate">
+                월: <span className="text-[#5F0080]">{stats.monthMonthly.toLocaleString()}원</span>
               </div>
-              <div>
-                연구독: <span className="text-[#5F0080]">{stats.monthAnnual.toLocaleString()}원</span>
+              <div className="truncate">
+                연: <span className="text-[#5F0080]">{stats.monthAnnual.toLocaleString()}원</span>
               </div>
             </div>
           </div>

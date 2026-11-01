@@ -159,49 +159,48 @@ export default function HqStatisticsPage() {
         <p className="text-gray-500 mt-2 text-sm">복잡한 데이터 대신, 현재 비즈니스 현황에 꼭 필요한 핵심 지표만 확인하세요.</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-4 gap-2 sm:gap-4">
         {/* 오늘 방문자 */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-lg">🚶</div>
-            <h3 className="text-sm font-bold text-gray-500">오늘 방문자</h3>
-          </div>
-          <div className="flex items-end justify-between">
-            <div className="text-3xl font-black text-gray-900">{stats.todayVisitors}<span className="text-lg font-medium text-gray-400 ml-1">명</span></div>
-            <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-md mb-1">실시간 집계</span>
+        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+            오늘 방문자
+          </h3>
+          <div className="flex items-baseline gap-0.5 sm:gap-1">
+            <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.todayVisitors}</span>
+            <span className="text-xs sm:text-base font-bold text-gray-400">명</span>
           </div>
         </div>
 
         {/* 오늘 가입자 */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center text-lg">✨</div>
-            <h3 className="text-sm font-bold text-gray-500">오늘 신규 가입</h3>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-gray-900">{stats.todaySignups}<span className="text-lg font-medium text-gray-400 ml-1">곳</span></div>
+        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+            오늘 신규 가입
+          </h3>
+          <div className="flex items-baseline gap-0.5 sm:gap-1">
+            <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.todaySignups}</span>
+            <span className="text-xs sm:text-base font-bold text-gray-400">곳</span>
           </div>
         </div>
 
         {/* 이번 달 가입자 */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-purple-50 text-[#5F0080] flex items-center justify-center text-lg">📅</div>
-            <h3 className="text-sm font-bold text-gray-500">이번 달 가입자</h3>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-gray-900">{stats.monthSignups}<span className="text-lg font-medium text-gray-400 ml-1">곳</span></div>
+        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+            이번 달 가입자
+          </h3>
+          <div className="flex items-baseline gap-0.5 sm:gap-1">
+            <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.monthSignups}</span>
+            <span className="text-xs sm:text-base font-bold text-gray-400">곳</span>
           </div>
         </div>
 
         {/* 누적 가입자 */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition-shadow">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center text-lg">🏆</div>
-            <h3 className="text-sm font-bold text-gray-500">총 누적 가입자</h3>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-gray-900">{stats.totalSignups}<span className="text-lg font-medium text-gray-400 ml-1">곳</span></div>
+        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+            총 누적 가입자
+          </h3>
+          <div className="flex items-baseline gap-0.5 sm:gap-1">
+            <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.totalSignups}</span>
+            <span className="text-xs sm:text-base font-bold text-gray-400">곳</span>
           </div>
         </div>
       </div>
