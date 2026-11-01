@@ -160,47 +160,59 @@ export default function HqStatisticsPage() {
       </div>
       
       <div className="grid grid-cols-4 gap-2 sm:gap-4">
-        {/* 오늘 방문자 */}
-        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
-          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
-            오늘 방문자
-          </h3>
+        {/* 오늘 방문자 (Blue) */}
+        <div className="bg-gradient-to-br from-blue-50/90 via-white to-blue-50/40 rounded-2xl p-3 sm:p-5 shadow-sm border border-blue-200 border-t-4 border-t-blue-600 flex flex-col justify-between min-w-0">
+          <div className="flex items-center justify-between gap-1 mb-2">
+            <h3 className="text-[11px] sm:text-xs font-extrabold text-blue-800 truncate">
+              오늘 방문자
+            </h3>
+            <span className="hidden sm:inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse shrink-0"></span>
+          </div>
           <div className="flex items-baseline gap-0.5 sm:gap-1">
-            <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.todayVisitors}</span>
-            <span className="text-xs sm:text-base font-bold text-gray-400">명</span>
+            <span className="text-2xl sm:text-3xl font-black text-blue-600 leading-none">{stats.todayVisitors}</span>
+            <span className="text-xs sm:text-base font-extrabold text-blue-400">명</span>
           </div>
         </div>
 
-        {/* 오늘 가입자 */}
-        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
-          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
-            오늘 신규 가입
-          </h3>
+        {/* 오늘 신규 가입 (Emerald) */}
+        <div className="bg-gradient-to-br from-emerald-50/90 via-white to-emerald-50/40 rounded-2xl p-3 sm:p-5 shadow-sm border border-emerald-200 border-t-4 border-t-emerald-500 flex flex-col justify-between min-w-0">
+          <div className="flex items-center justify-between gap-1 mb-2">
+            <h3 className="text-[11px] sm:text-xs font-extrabold text-emerald-800 truncate">
+              오늘 신규 가입
+            </h3>
+            <span className="hidden sm:inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+          </div>
           <div className="flex items-baseline gap-0.5 sm:gap-1">
-            <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.todaySignups}</span>
-            <span className="text-xs sm:text-base font-bold text-gray-400">곳</span>
+            <span className="text-2xl sm:text-3xl font-black text-emerald-600 leading-none">{stats.todaySignups}</span>
+            <span className="text-xs sm:text-base font-extrabold text-emerald-400">곳</span>
           </div>
         </div>
 
-        {/* 이번 달 가입자 */}
-        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
-          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
-            이번 달 가입자
-          </h3>
+        {/* 이번 달 가입자 (Purple) */}
+        <div className="bg-gradient-to-br from-purple-50/90 via-white to-purple-50/40 rounded-2xl p-3 sm:p-5 shadow-sm border border-purple-200 border-t-4 border-t-[#5F0080] flex flex-col justify-between min-w-0">
+          <div className="flex items-center justify-between gap-1 mb-2">
+            <h3 className="text-[11px] sm:text-xs font-extrabold text-[#5F0080] truncate">
+              이번 달 가입자
+            </h3>
+            <span className="hidden sm:inline-block w-2 h-2 rounded-full bg-[#5F0080] shrink-0"></span>
+          </div>
           <div className="flex items-baseline gap-0.5 sm:gap-1">
-            <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.monthSignups}</span>
-            <span className="text-xs sm:text-base font-bold text-gray-400">곳</span>
+            <span className="text-2xl sm:text-3xl font-black text-[#5F0080] leading-none">{stats.monthSignups}</span>
+            <span className="text-xs sm:text-base font-extrabold text-purple-400">곳</span>
           </div>
         </div>
 
-        {/* 누적 가입자 */}
-        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
-          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
-            총 누적 가입자
-          </h3>
+        {/* 누적 가입자 (Amber) */}
+        <div className="bg-gradient-to-br from-amber-50/90 via-white to-amber-50/40 rounded-2xl p-3 sm:p-5 shadow-sm border border-amber-200 border-t-4 border-t-amber-500 flex flex-col justify-between min-w-0">
+          <div className="flex items-center justify-between gap-1 mb-2">
+            <h3 className="text-[11px] sm:text-xs font-extrabold text-amber-800 truncate">
+              총 누적 가입자
+            </h3>
+            <span className="hidden sm:inline-block w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+          </div>
           <div className="flex items-baseline gap-0.5 sm:gap-1">
-            <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.totalSignups}</span>
-            <span className="text-xs sm:text-base font-bold text-gray-400">곳</span>
+            <span className="text-2xl sm:text-3xl font-black text-amber-600 leading-none">{stats.totalSignups}</span>
+            <span className="text-xs sm:text-base font-extrabold text-amber-500">곳</span>
           </div>
         </div>
       </div>

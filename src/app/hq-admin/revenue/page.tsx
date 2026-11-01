@@ -262,59 +262,59 @@ export default function HqRevenuePage() {
 
       {/* 대시보드 카드 영역 (모바일에서도 1줄에 3개 한눈에 표시) */}
       <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-5 sm:mb-8">
-        {/* 구독자 수 */}
-        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
-          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+        {/* 구독자 수 (Blue) */}
+        <div className="bg-gradient-to-br from-blue-50/90 via-white to-blue-50/40 rounded-2xl p-3 sm:p-5 shadow-sm border border-blue-200 border-t-4 border-t-blue-600 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-extrabold text-blue-800 mb-2 truncate">
             유료 구독 매장
           </h3>
           <div>
             <div className="flex items-baseline gap-0.5 sm:gap-1">
-              <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.activeSubscribers}</span>
-              <span className="text-xs sm:text-base font-bold text-gray-400">곳</span>
+              <span className="text-2xl sm:text-3xl font-black text-blue-600 leading-none">{stats.activeSubscribers}</span>
+              <span className="text-xs sm:text-base font-extrabold text-blue-400">곳</span>
             </div>
-            <p className="text-[10px] sm:text-xs text-blue-600 font-bold bg-blue-50 px-1.5 sm:px-2 py-0.5 rounded-md inline-block mt-1.5 sm:mt-2 truncate max-w-full">
+            <p className="text-[10px] sm:text-xs text-blue-700 font-bold bg-blue-100/80 px-1.5 sm:px-2 py-0.5 rounded-md inline-block mt-1.5 sm:mt-2 truncate max-w-full">
               납부 완료 매장
             </p>
           </div>
         </div>
 
-        {/* 오늘 매출 */}
-        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
-          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+        {/* 오늘 매출 (Emerald) */}
+        <div className="bg-gradient-to-br from-emerald-50/90 via-white to-emerald-50/40 rounded-2xl p-3 sm:p-5 shadow-sm border border-emerald-200 border-t-4 border-t-emerald-500 flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-extrabold text-emerald-800 mb-2 truncate">
             오늘 구독 매출
           </h3>
           <div>
             <div className="flex items-baseline gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
-              <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.todayRevenue.toLocaleString()}</span>
-              <span className="text-xs sm:text-base font-bold text-gray-400">원</span>
+              <span className="text-2xl sm:text-3xl font-black text-emerald-600 leading-none">{stats.todayRevenue.toLocaleString()}</span>
+              <span className="text-xs sm:text-base font-extrabold text-emerald-400">원</span>
             </div>
-            <div className="flex flex-col sm:flex-row sm:gap-3 text-[10px] sm:text-xs font-bold text-gray-500 border-t border-gray-50 pt-1.5 sm:pt-2 leading-snug">
+            <div className="flex flex-col sm:flex-row sm:gap-3 text-[10px] sm:text-xs font-bold text-gray-600 border-t border-emerald-100 pt-1.5 sm:pt-2 leading-snug">
               <div className="truncate">
-                월: <span className="text-green-600">{stats.todayMonthly.toLocaleString()}원</span>
+                월: <span className="text-emerald-700 font-extrabold">{stats.todayMonthly.toLocaleString()}원</span>
               </div>
               <div className="truncate">
-                연: <span className="text-green-600">{stats.todayAnnual.toLocaleString()}원</span>
+                연: <span className="text-emerald-700 font-extrabold">{stats.todayAnnual.toLocaleString()}원</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 이번 달 매출 */}
-        <div className="bg-white rounded-2xl p-3 sm:p-5 shadow-sm border border-gray-100 flex flex-col justify-between min-w-0">
-          <h3 className="text-[11px] sm:text-xs font-bold text-gray-500 mb-2 truncate">
+        {/* 이번 달 매출 (Purple) */}
+        <div className="bg-gradient-to-br from-purple-50/90 via-white to-purple-50/40 rounded-2xl p-3 sm:p-5 shadow-sm border border-purple-200 border-t-4 border-t-[#5F0080] flex flex-col justify-between min-w-0">
+          <h3 className="text-[11px] sm:text-xs font-extrabold text-[#5F0080] mb-2 truncate">
             이번 달 누계 매출
           </h3>
           <div>
             <div className="flex items-baseline gap-0.5 sm:gap-1 mb-1.5 sm:mb-2">
-              <span className="text-xl sm:text-3xl font-black text-gray-900 leading-none">{stats.monthRevenue.toLocaleString()}</span>
-              <span className="text-xs sm:text-base font-bold text-gray-400">원</span>
+              <span className="text-2xl sm:text-3xl font-black text-[#5F0080] leading-none">{stats.monthRevenue.toLocaleString()}</span>
+              <span className="text-xs sm:text-base font-extrabold text-purple-400">원</span>
             </div>
-            <div className="flex flex-col sm:flex-row sm:gap-3 text-[10px] sm:text-xs font-bold text-gray-500 border-t border-gray-50 pt-1.5 sm:pt-2 leading-snug">
+            <div className="flex flex-col sm:flex-row sm:gap-3 text-[10px] sm:text-xs font-bold text-gray-600 border-t border-purple-100 pt-1.5 sm:pt-2 leading-snug">
               <div className="truncate">
-                월: <span className="text-[#5F0080]">{stats.monthMonthly.toLocaleString()}원</span>
+                월: <span className="text-[#5F0080] font-extrabold">{stats.monthMonthly.toLocaleString()}원</span>
               </div>
               <div className="truncate">
-                연: <span className="text-[#5F0080]">{stats.monthAnnual.toLocaleString()}원</span>
+                연: <span className="text-[#5F0080] font-extrabold">{stats.monthAnnual.toLocaleString()}원</span>
               </div>
             </div>
           </div>
