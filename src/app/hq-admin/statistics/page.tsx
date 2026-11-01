@@ -14,6 +14,8 @@ type VisitLog = {
 };
 
 const ITEMS_PER_PAGE = 5;
+const MAX_PAGES = 5;
+const MAX_LOGS = ITEMS_PER_PAGE * MAX_PAGES; // 최대 25건 (5줄 × 5페이지)
 
 export default function HqStatisticsPage() {
   const [stats, setStats] = useState({
@@ -102,7 +104,18 @@ export default function HqStatisticsPage() {
         }
       }
       parsedLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setVisitLogs(parsedLogs);
+
+      // 최신 25건(5줄 × 5페이지)을 초과하는 오래된 기록은 DB에서 즉시 삭제하고 저장하지 않음
+      if (parsedLogs.length > MAX_LOGS) {
+        const staleKeys = parsedLogs.slice(MAX_LOGS).map((l) => l.settingKey);
+        supabase
+          .from('nao3_system_settings')
+          .delete()
+          .in('setting_key', staleKeys)
+          .then(() => {});
+      }
+
+      setVisitLogs(parsedLogs.slice(0, MAX_LOGS));
     } catch (err) {
       console.error('Failed to fetch statistics:', err);
     } finally {
@@ -197,10 +210,10 @@ export default function HqStatisticsPage() {
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <h3 className="text-lg font-black text-gray-900 tracking-tight">
-            최근 접속/설치 기록 (총 {visitLogs.length}건)
+            최근 접속/설치 기록 (최대 {MAX_LOGS}건 · {MAX_PAGES}페이지)
           </h3>
           <span className="text-xs text-gray-400 font-medium">
-            불필요한 기록은 우측 삭제 버튼으로 지울 수 있습니다
+            최근 25건(5줄×5페이지)만 표시되며, 이전 기록은 저장하지 않고 자동 삭제됩니다
           </span>
         </div>
 

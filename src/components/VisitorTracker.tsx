@@ -33,6 +33,30 @@ export default function VisitorTracker() {
       };
     };
 
+    const saveVisitLogWithLimit = async (logMeta: ReturnType<typeof getVisitMeta>) => {
+      const logKey = `VISIT_LOG_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      await supabase.from('nao3_system_settings').insert({
+        setting_key: logKey,
+        setting_value: JSON.stringify(logMeta),
+      });
+
+      // 최신 25건(5줄 × 5페이지)만 유지하고 나머지는 DB에서 자동 삭제
+      const { data: allLogs } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_key')
+        .like('setting_key', 'VISIT_LOG_%')
+        .order('setting_key', { ascending: false })
+        .limit(200);
+
+      if (allLogs && allLogs.length > 25) {
+        const staleKeys = allLogs.slice(25).map((r) => r.setting_key);
+        await supabase
+          .from('nao3_system_settings')
+          .delete()
+          .in('setting_key', staleKeys);
+      }
+    };
+
     const trackVisit = async () => {
       try {
         const todayKst = new Intl.DateTimeFormat('en-CA', {
@@ -65,7 +89,7 @@ export default function VisitorTracker() {
             );
         }
 
-        // 2. 최근 접속 기록 저장 (세션당 1회 기록)
+        // 2. 최근 접속 기록 저장 (세션당 1회 기록, 최대 25건만 유지)
         const sessionLogKey = 'nao3_session_visit_logged';
         if (sessionStorage.getItem(sessionLogKey) !== 'true') {
           sessionStorage.setItem(sessionLogKey, 'true');
@@ -73,12 +97,7 @@ export default function VisitorTracker() {
             window.matchMedia('(display-mode: standalone)').matches ||
             (window.navigator as any).standalone === true;
           const logMeta = getVisitMeta(isStandalone ? '앱 설치' : '웹 방문');
-          const logKey = `VISIT_LOG_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-
-          await supabase.from('nao3_system_settings').insert({
-            setting_key: logKey,
-            setting_value: JSON.stringify(logMeta),
-          });
+          await saveVisitLogWithLimit(logMeta);
         }
       } catch (e) {
         // 방문자 집계 오류 시 사용자 화면에 영향 없도록 무시
@@ -90,11 +109,7 @@ export default function VisitorTracker() {
     const handleAppInstalled = async () => {
       try {
         const logMeta = getVisitMeta('앱 설치');
-        const logKey = `VISIT_LOG_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-        await supabase.from('nao3_system_settings').insert({
-          setting_key: logKey,
-          setting_value: JSON.stringify(logMeta),
-        });
+        await saveVisitLogWithLimit(logMeta);
       } catch {
         // ignore
       }

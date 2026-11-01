@@ -374,64 +374,64 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
             {/* Left: Visual Mockup of Customer Search & Corner Tabs */}
             <div className="order-2 lg:order-1">
-              <div className="relative max-w-md mx-auto bg-white rounded-[2.2rem] shadow-[0_30px_70px_rgba(95,0,128,0.12)] border border-purple-100 overflow-hidden p-6 sm:p-7">
+              <div className="relative max-w-md mx-auto bg-white rounded-[2.2rem] shadow-[0_30px_70px_rgba(95,0,128,0.12)] border border-purple-100 overflow-hidden p-3.5 sm:p-7">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5F0080] text-white text-[11px] font-black tracking-wide">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5F0080] text-white text-[11px] font-black tracking-wide whitespace-nowrap">
                     ✨ 대한민국 최초 검색형 전단지
                   </span>
-                  <span className="text-[11px] font-bold text-gray-400">스크롤 제로 · 1초 검색</span>
+                  <span className="text-[11px] font-bold text-gray-400 whitespace-nowrap">스크롤 제로 · 1초 검색</span>
                 </div>
 
                 {/* Search Input Demo */}
-                <div className="bg-[#F4F5F7] border-2 border-[#1A1A1A] rounded-2xl px-4 py-3.5 flex items-center justify-between shadow-inner mb-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-base">🔍</span>
-                    <span className="text-[15px] font-black text-gray-900">삼겹살</span>
-                    <span className="text-xs font-bold text-[#5F0080] bg-purple-100 px-2 py-0.5 rounded-md">초성 &apos;ㅅㄱㅅ&apos;도 OK!</span>
+                <div className="bg-[#F4F5F7] border-2 border-[#1A1A1A] rounded-2xl px-3.5 sm:px-4 py-3 sm:py-3.5 flex items-center justify-between shadow-inner mb-3">
+                  <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                    <span className="text-base shrink-0">🔍</span>
+                    <span className="text-[14px] sm:text-[15px] font-black text-gray-900 whitespace-nowrap">삼겹살</span>
+                    <span className="text-[11px] sm:text-xs font-bold text-[#5F0080] bg-purple-100 px-2 py-0.5 rounded-md whitespace-nowrap">초성 &apos;ㅅㄱㅅ&apos;도 OK!</span>
                   </div>
-                  <span className="w-5 h-5 rounded-full bg-gray-300 text-white text-[11px] font-black flex items-center justify-center">✕</span>
+                  <span className="w-5 h-5 rounded-full bg-gray-300 text-white text-[11px] font-black flex items-center justify-center shrink-0">✕</span>
                 </div>
 
                 {/* Category Filter Tabs Demo */}
                 <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-4 mb-4 border-b border-gray-100">
-                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-600 text-[12px] font-extrabold shrink-0">전체</span>
-                  <span className="px-3 py-1.5 rounded-lg bg-[#1A1A1A] text-white text-[12px] font-extrabold shrink-0 shadow-sm inline-flex items-center gap-1">
+                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-600 text-[12px] font-extrabold shrink-0 whitespace-nowrap">전체</span>
+                  <span className="px-3 py-1.5 rounded-lg bg-[#1A1A1A] text-white text-[12px] font-extrabold shrink-0 shadow-sm inline-flex items-center gap-1 whitespace-nowrap">
                     <Twemoji emoji="🥩" className="w-[14px] h-[14px]" /> 정육
                   </span>
-                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1">
+                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
                     <Twemoji emoji="🍎" className="w-[14px] h-[14px]" /> 청과
                   </span>
-                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1">
+                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
                     <Twemoji emoji="🥬" className="w-[14px] h-[14px]" />
                     <Twemoji emoji="🐟" className="w-[14px] h-[14px]" /> 야채·수산
                   </span>
-                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1">
+                  <span className="px-3 py-1.5 rounded-lg bg-[#F4F5F7] text-gray-700 text-[12px] font-extrabold shrink-0 inline-flex items-center gap-1 whitespace-nowrap">
                     <Twemoji emoji="🛒" className="w-[14px] h-[14px]" /> 공산품
                   </span>
                 </div>
 
                 {/* Instant Filtered Result Card */}
                 <div className="space-y-2.5">
-                  <div className="text-[11px] font-extrabold text-[#5F0080] px-1">
+                  <div className="text-[11px] font-extrabold text-[#5F0080] px-1 whitespace-nowrap">
                     ⚡ 100개 세일 품목 중 내가 찾는 상품만 1초 만에 표시!
                   </div>
-                  <div className="bg-[#FAF8FF] border-2 border-[#5F0080]/20 rounded-2xl p-4 flex items-center justify-between shadow-sm">
-                    <div className="flex items-center gap-3">
-                      <span className="w-9 h-9 rounded-full bg-white border border-purple-100 flex items-center justify-center text-lg shadow-xs">
-                        <Twemoji emoji="🥓" className="w-[18px] h-[18px]" />
+                  <div className="bg-[#FAF8FF] border-2 border-[#5F0080]/20 rounded-2xl px-2.5 py-3 sm:p-4 flex items-center justify-between gap-1.5 sm:gap-2 shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                      <span className="w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-white border border-purple-100 flex items-center justify-center text-lg shadow-xs shrink-0">
+                        <Twemoji emoji="🥓" className="w-[15px] h-[15px] sm:w-[18px] sm:h-[18px]" />
                       </span>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <h4 className="font-black text-[15.5px] text-gray-900">한돈 생삼겹살</h4>
-                          <span className="text-[10px] font-bold text-gray-600 bg-white border border-gray-200 px-1.5 py-0.5 rounded">국산</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1 sm:gap-1.5">
+                          <h4 className="font-black text-[13px] sm:text-[15.5px] text-gray-900 whitespace-nowrap tracking-tight">한돈 생삼겹살</h4>
+                          <span className="text-[9.5px] sm:text-[10px] font-bold text-gray-600 bg-white border border-gray-200 px-1 sm:px-1.5 py-0.5 rounded whitespace-nowrap shrink-0">국산</span>
                         </div>
-                        <span className="text-[11px] text-gray-500 font-semibold">프리미엄 미트 존</span>
+                        <span className="text-[10px] sm:text-[11px] text-gray-500 font-semibold whitespace-nowrap block">프리미엄 미트 존</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[12px] font-black text-white bg-[#8B1818] px-2 py-0.5 rounded-md">35%</span>
-                      <span className="text-[12px] font-extrabold bg-white border border-gray-200 text-gray-900 px-2 py-0.5 rounded-md">100g</span>
-                      <span className="text-[16px] font-black text-[#8B1818]">1,980원</span>
+                    <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                      <span className="text-[10.5px] sm:text-[12px] font-black text-white bg-[#8B1818] px-1.5 sm:px-2 py-0.5 rounded-md whitespace-nowrap">35%</span>
+                      <span className="text-[10.5px] sm:text-[12px] font-extrabold bg-white border border-gray-200 text-gray-900 px-1.5 sm:px-2 py-0.5 rounded-md whitespace-nowrap">100g</span>
+                      <span className="text-[13.5px] sm:text-[16px] font-black text-[#8B1818] whitespace-nowrap tracking-tight">1,980원</span>
                     </div>
                   </div>
                 </div>

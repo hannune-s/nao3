@@ -50,7 +50,9 @@ export default function RootLayout({
                   var path = window.location.pathname || '';
                   var m = path.match(/^\\/store\\/([^\\/]+)(\\/sale)?/);
                   var manifestHref = '/manifest.json';
-                  if (m) {
+                  if (path.indexOf('/hq-admin') === 0) {
+                    manifestHref = '/api/manifest?mode=hq&v=3';
+                  } else if (m) {
                     var slug = encodeURIComponent(m[1]);
                     var mode = m[2] ? 'sale' : 'admin';
                     manifestHref = '/api/manifest?mode=' + mode + '&slug=' + slug + '&v=3';

@@ -29,6 +29,49 @@ export async function GET(request: NextRequest) {
 
   const storeTitle = name || '우리 매장';
 
+  if (mode === 'hq') {
+    const hqManifest = {
+      id: '/hq-admin?mode=hq&v=3',
+      name: '나오삼본사',
+      short_name: '나오삼본사',
+      description: '나오삼(NAO3) 본사 최고 관리자 시스템',
+      display: 'standalone',
+      orientation: 'portrait',
+      start_url: '/hq-admin',
+      scope: '/hq-admin',
+      background_color: '#1A1A1A',
+      theme_color: '#1A1A1A',
+      icons: [
+        {
+          src: '/icon-admin-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icon-admin-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/icon-admin-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+    };
+
+    return new NextResponse(JSON.stringify(hqManifest), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/manifest+json; charset=utf-8',
+        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+      },
+    });
+  }
+
   if (mode === 'admin') {
     const startUrl = slug ? `/store/${slug}` : '/';
     const adminManifest = {
