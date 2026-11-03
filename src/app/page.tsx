@@ -28,15 +28,27 @@ export default function LandingPage() {
             <span className="text-2xl font-black text-[#5F0080] tracking-tight">NAO3</span>
             <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-[#5F0080]/10 text-[#5F0080] text-[10px] font-bold">사장님 필수앱</span>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link href="/login" className="text-[13px] sm:text-sm font-semibold text-gray-600 hover:text-[#5F0080] transition-colors whitespace-nowrap">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center h-8 sm:h-9 px-2.5 sm:px-4 rounded-full text-[11px] sm:text-[13px] font-bold text-gray-700 bg-white hover:bg-gray-50 border border-gray-200 transition-all whitespace-nowrap"
+            >
               로그인
             </Link>
-            <DemoButton className="text-[12px] sm:text-sm font-bold text-[#5F0080] bg-purple-50 hover:bg-purple-100 border border-purple-200 px-2.5 py-1.5 sm:px-4 sm:py-2.5 rounded-full transition-all whitespace-nowrap">
+            <DemoButton className="inline-flex items-center justify-center h-8 sm:h-9 px-2.5 sm:px-4 rounded-full text-[11px] sm:text-[13px] font-bold text-[#5F0080] bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all whitespace-nowrap">
               체험하기
             </DemoButton>
-            <Link href="/register" className="text-[12px] sm:text-sm font-bold text-white bg-[#5F0080] hover:bg-purple-900 px-3 py-1.5 sm:px-4 sm:py-2.5 rounded-full shadow-lg shadow-purple-900/20 transition-all hover:scale-105 whitespace-nowrap">
+            <Link
+              href="/register"
+              className="inline-flex items-center justify-center h-8 sm:h-9 px-3 sm:px-4 rounded-full text-[11px] sm:text-[13px] font-bold text-white bg-[#5F0080] hover:bg-purple-900 border border-[#5F0080] shadow-sm shadow-purple-900/15 transition-all whitespace-nowrap"
+            >
               스토어 개설
+            </Link>
+            <Link
+              href="/support"
+              className="inline-flex items-center justify-center h-8 sm:h-9 px-2.5 sm:px-4 rounded-full text-[11px] sm:text-[13px] font-bold text-gray-700 bg-gray-100 hover:bg-gray-200/80 border border-gray-200/80 transition-all whitespace-nowrap"
+            >
+              고객지원
             </Link>
           </div>
         </div>
@@ -948,6 +960,7 @@ export default function LandingPage() {
           </details>
 
           <div className="flex items-center gap-6 mb-6 text-sm">
+            <Link href="/support" className="hover:text-gray-300 transition-colors font-medium">고객지원</Link>
             <Link href="/terms" className="hover:text-gray-300 transition-colors font-medium">이용약관</Link>
             <Link href="/privacy" className="hover:text-gray-300 transition-colors font-bold text-gray-400">개인정보 처리방침</Link>
           </div>
