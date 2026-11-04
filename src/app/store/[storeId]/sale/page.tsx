@@ -1148,8 +1148,12 @@ export default function CustomerSalePage() {
 
                 {storeInfo.etc_info && (
                   <div className="flex items-start gap-4">
-                    <span className="text-[13.5px] font-extrabold text-[#222222] w-[58px] shrink-0 pt-0.5 tracking-tight">기타안내</span>
-                    <span className="text-[14px] font-bold text-gray-700 leading-snug break-keep whitespace-pre-line">{storeInfo.etc_info}</span>
+                    <span className="text-[13.5px] font-extrabold text-[#1E40AF] w-[58px] shrink-0 pt-2 tracking-tight">기타안내</span>
+                    <div className="flex-1 bg-[#F3F7FF] border border-[#DCE7FF] rounded-xl px-3.5 py-2.5">
+                      <span className="text-[14px] sm:text-[14.5px] font-extrabold text-[#1D4ED8] leading-relaxed break-keep whitespace-pre-line">
+                        {storeInfo.etc_info}
+                      </span>
+                    </div>
                   </div>
                 )}
 
