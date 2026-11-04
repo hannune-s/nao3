@@ -1712,28 +1712,95 @@ function InquiryView({ storeData, setView }: { storeData: any, setView: any }) {
         <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">1:1 문의</h1>
       </div>
 
-      <div className="p-5 space-y-6 max-w-lg mx-auto">
-        
+      <div className="p-5 space-y-5 max-w-lg mx-auto">
+        {/* 본사 고객센터 상담시간 및 연락처 안내 카드 */}
+        <div className="bg-gradient-to-br from-[#5F0080] via-[#4A0066] to-[#35004A] rounded-3xl p-6 text-white shadow-lg shadow-purple-900/15 relative overflow-hidden">
+          <div className="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none" />
+          <div className="absolute -left-6 -bottom-6 w-28 h-28 rounded-full bg-purple-400/10 pointer-events-none" />
+
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-xs text-[11px] font-extrabold tracking-wide text-purple-100 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              NAO3 가맹점 전담 고객센터
+            </div>
+
+            <h2 className="text-[19px] font-black tracking-tight mb-1.5 break-keep">
+              사장님, 도움이 필요하신가요?
+            </h2>
+            <p className="text-[12.5px] text-purple-100/90 leading-relaxed mb-5 break-keep">
+              나오삼(NAO3) 본사 팀이 사장님의 매장 운영을 든든하게 지원해 드립니다.
+            </p>
+
+            {/* 상담 시간 및 연락처 정보 박스 */}
+            <div className="bg-white/10 backdrop-blur-xs border border-white/15 rounded-2xl p-4 space-y-3 mb-4">
+              <div className="flex items-start justify-between gap-2 text-[13px]">
+                <span className="text-purple-200 font-bold shrink-0">🕒 상담시간</span>
+                <div className="text-right">
+                  <p className="font-extrabold text-white">월~금요일 10:00 ~ 16:00 (평일 영업)</p>
+                  <p className="text-[11.5px] text-purple-200 mt-0.5">점심시간 12:00 ~ 13:00 (주말·공휴일 휴무)</p>
+                </div>
+              </div>
+
+              <div className="h-[1px] bg-white/10" />
+
+              <div className="flex items-center justify-between gap-2 text-[13px]">
+                <span className="text-purple-200 font-bold shrink-0">📞 대표번호</span>
+                <a
+                  href="tel:070-4233-5553"
+                  className="font-black text-[16px] text-yellow-300 hover:underline tracking-tight"
+                >
+                  070-4233-5553
+                </a>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 text-[13px]">
+                <span className="text-purple-200 font-bold shrink-0">✉️ 공식이메일</span>
+                <a
+                  href="mailto:hangose7@gmail.com"
+                  className="font-bold text-white/95 hover:underline text-[12.5px]"
+                >
+                  hangose7@gmail.com
+                </a>
+              </div>
+            </div>
+
+            <a
+              href="tel:070-4233-5553"
+              className="w-full py-3 px-4 rounded-xl bg-white hover:bg-purple-50 text-[#5F0080] font-black text-[14px] transition-all flex items-center justify-center gap-2 shadow-sm"
+            >
+              📞 고객센터 전화 바로걸기 (070-4233-5553)
+            </a>
+          </div>
+        </div>
+
         {/* 새 문의 작성 */}
         <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-black text-gray-900 mb-2">무엇을 도와드릴까요?</h2>
-          <p className="text-[13px] text-gray-500 mb-4 break-keep">
-            이용 중 불편한 점이나 건의사항, 궁금한 점을 남겨주시면 본사에서 빠르게 답변해 드립니다.
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-lg font-black text-gray-900">무엇을 도와드릴까요?</h2>
+            <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-50 text-[#5F0080] border border-purple-100">
+              24시간 접수 가능
+            </span>
+          </div>
+          <p className="text-[13px] text-gray-500 mb-4 break-keep leading-relaxed">
+            이용 중 불편한 점이나 건의사항, 궁금한 점을 남겨주시면 본사에서 확인 후 빠르게 답변해 드립니다.
           </p>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="문의 내용을 자유롭게 적어주세요..."
               className="w-full h-32 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-[#5F0080] focus:ring-1 focus:ring-[#5F0080] text-[14px] resize-none"
             />
+            <p className="text-[11.5px] text-gray-400 leading-relaxed break-keep">
+              * 운영시간(평일 10:00~16:00, 점심 12:00~13:00 제외) 외 접수 건은 다음 영업일에 가장 먼저 답변해 드립니다.
+            </p>
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-[#1A1A1A] hover:bg-black text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50 text-[15px]"
+              className="w-full bg-[#5F0080] hover:bg-[#4A0066] text-white font-black py-3.5 rounded-xl transition-colors disabled:opacity-50 text-[15px] shadow-md shadow-purple-900/15"
             >
-              {submitting ? '접수 중...' : '문의 등록하기'}
+              {submitting ? '접수 중...' : '1:1 문의 등록하기'}
             </button>
           </form>
         </div>
