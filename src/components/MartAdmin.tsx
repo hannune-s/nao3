@@ -802,6 +802,97 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     return '';
   });
 
+  const DEFAULT_PAYMENT_PRESETS = [
+    '온누리상품권(지류)',
+    '온누리(모바일·카드)',
+    '농할상품권',
+    '이음카드',
+    '김포페이',
+    '경기지역화폐',
+    '서울사랑상품권',
+    '제로페이',
+    '민생회복지원금',
+  ];
+
+  const [paymentBadges, setPaymentBadges] = useState<string[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_draft_paymentBadges_${storeId}`);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed;
+        } catch {}
+      }
+      if (storeId === 'demo' || storeId.startsWith('demo-guest-')) {
+        return ['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '이음카드'];
+      }
+    }
+    return [];
+  });
+  const [customPaymentInput, setCustomPaymentInput] = useState('');
+
+  const persistBannerWithPaymentBadges = async (nextBadges: string[]) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(nextBadges));
+      const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeId}`) || '{}');
+      stagedSettings.paymentBadges = nextBadges;
+      localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
+      if (storeSlug) {
+        const slugSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeSlug}`) || '{}');
+        slugSettings.paymentBadges = nextBadges;
+        localStorage.setItem(`nao3_staging_settings_${storeSlug}`, JSON.stringify(slugSettings));
+      }
+    }
+
+    if (storeId.startsWith('demo-guest-') || storeId === 'demo') return;
+
+    try {
+      const bannerPayload = JSON.stringify({
+        eventTitle: eventTitle.trim(),
+        eventSubtitle: eventSubtitle.trim(),
+        paymentBadges: nextBadges,
+      });
+      const { data: existingBanner } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_key')
+        .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`)
+        .maybeSingle();
+
+      if (existingBanner) {
+        await supabase
+          .from('nao3_system_settings')
+          .update({ setting_value: bannerPayload })
+          .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`);
+      } else {
+        await supabase
+          .from('nao3_system_settings')
+          .insert({ setting_key: `STORE_EVENT_BANNER_${storeId}`, setting_value: bannerPayload });
+      }
+    } catch (e) {
+      console.warn('결제수단 자동 저장 실패:', e);
+    }
+  };
+
+  const handleTogglePaymentBadge = (badge: string) => {
+    setPaymentBadges((prev) => {
+      const next = prev.includes(badge) ? prev.filter((b) => b !== badge) : [...prev, badge];
+      persistBannerWithPaymentBadges(next);
+      return next;
+    });
+  };
+
+  const handleAddCustomPaymentBadge = () => {
+    const trimmed = customPaymentInput.trim();
+    if (!trimmed) return;
+    setPaymentBadges((prev) => {
+      if (prev.includes(trimmed)) return prev;
+      const next = [...prev, trimmed];
+      persistBannerWithPaymentBadges(next);
+      return next;
+    });
+    setCustomPaymentInput('');
+  };
+
   // 이미지 자동 리사이즈(최대 900px) 및 용량 압축(500KB 이하) 헬퍼
   const compressImageFile = (file: File, maxWidth = 900, maxBytes = 500 * 1024): Promise<File> => {
     return new Promise((resolve, reject) => {
@@ -1187,7 +1278,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         setBossMessage(prev => prev || latestPush.boss_message);
       }
 
-      // 행사 타이틀 & 서브 문구 불러오기
+      // 행사 타이틀 & 서브 문구 & 결제수단 뱃지 불러오기
       const { data: bannerRow } = await supabase
         .from('nao3_system_settings')
         .select('setting_value')
@@ -1198,6 +1289,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           const parsed = JSON.parse(bannerRow.setting_value);
           if (parsed.eventTitle) setEventTitle(prev => prev || parsed.eventTitle);
           if (parsed.eventSubtitle) setEventSubtitle(prev => prev || parsed.eventSubtitle);
+          if (Array.isArray(parsed.paymentBadges)) {
+            setPaymentBadges(parsed.paymentBadges);
+            localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(parsed.paymentBadges));
+          }
         } catch (e) {}
       }
 
@@ -1506,16 +1601,18 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         stagedSettings.bossMessage = bossMessage;
         stagedSettings.eventTitle = eventTitle.trim();
         stagedSettings.eventSubtitle = eventSubtitle.trim();
+        stagedSettings.paymentBadges = paymentBadges;
         localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
-        alert('체험 모드: 행사 문구, 기간, 사장님 이야기가 고객화면에 반영되었습니다! [고객 화면 보기]로 확인해보세요.');
+        alert('체험 모드: 행사 문구, 결제수단, 기간, 사장님 이야기가 고객화면에 반영되었습니다! [고객 화면 보기]로 확인해보세요.');
         setLoading(false);
         return;
       }
 
-      // 행사 타이틀 & 서브 문구 저장 (nao3_system_settings)
+      // 행사 타이틀 & 서브 문구 & 결제수단 뱃지 저장 (nao3_system_settings)
       const bannerPayload = JSON.stringify({
         eventTitle: eventTitle.trim(),
-        eventSubtitle: eventSubtitle.trim()
+        eventSubtitle: eventSubtitle.trim(),
+        paymentBadges
       });
       const { data: existingBanner } = await supabase
         .from('nao3_system_settings')
@@ -1553,7 +1650,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         if (!updatedData || updatedData.length === 0) {
            throw new Error("보안 정책(RLS) 문제로 업데이트가 차단되었습니다. 제공해드린 SQL을 Supabase에서 실행해주세요!");
         }
-        alert('진행 중인 세일에 행사 문구, 기간, 사장님 이야기가 즉시 반영되었습니다!');
+        alert('진행 중인 세일에 행사 문구, 결제수단, 기간, 사장님 이야기가 즉시 반영되었습니다!');
       } else {
         const { error } = await supabase.from('nao3_push_history').insert([{
           store_id: storeId,
@@ -1563,7 +1660,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           boss_message: bossMessage.trim() || null
         }]);
         if (error) throw error;
-        alert('새로운 세일 기본 정보(행사 문구, 기간, 멘트)가 성공적으로 저장되었습니다!');
+        alert('새로운 세일 기본 정보(행사 문구, 결제수단, 기간, 멘트)가 성공적으로 저장되었습니다!');
       }
     } catch (err: any) {
       console.error(err);
@@ -1581,6 +1678,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       bossMessage,
       eventTitle: eventTitle.trim(),
       eventSubtitle: eventSubtitle.trim(),
+      paymentBadges,
       special_title: specialForm.title,
       special_price: specialForm.price,
       special_message: specialForm.message,
@@ -1680,6 +1778,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         stagedSettings.bossMessage = bossMessage;
         stagedSettings.eventTitle = eventTitle.trim();
         stagedSettings.eventSubtitle = eventSubtitle.trim();
+        stagedSettings.paymentBadges = paymentBadges;
         stagedSettings.storeName = storeName;
         localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
 
@@ -1693,10 +1792,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         return;
       }
 
-      // 행사 타이틀 & 서브 문구 저장 (nao3_system_settings)
+      // 행사 타이틀 & 서브 문구 & 결제수단 뱃지 저장 (nao3_system_settings)
       const bannerPayload = JSON.stringify({
         eventTitle: eventTitle.trim(),
-        eventSubtitle: eventSubtitle.trim()
+        eventSubtitle: eventSubtitle.trim(),
+        paymentBadges
       });
       const { data: existingBanner } = await supabase
         .from('nao3_system_settings')
@@ -2119,6 +2219,71 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             </div>
           </div>
 
+          {/* 1.8단: 결제수단 · 상품권 · 지역화폐 안내 설정 */}
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-emerald-200 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-600 to-teal-400"></div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
+                <span className="w-1.5 h-5 rounded-full bg-emerald-600 inline-block shrink-0"></span>
+                <span>결제 가능 상품권 · 지역화폐 안내</span>
+                <span className="text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md tracking-normal leading-tight">
+                  클릭 시 고객 화면 상단에 즉시 반영
+                </span>
+              </h3>
+            </div>
+            <p className="text-[12.5px] font-bold text-gray-500 leading-relaxed -mt-1">
+              온누리상품권, 농할상품권, 지역화폐 등 매장에서 사용 가능한 결제수단을 터치해서 켜두시면 고객 전단지 상단에 깔끔한 카드 뱃지로 노출됩니다.
+            </p>
+
+            {/* 프리셋 + 직접 추가된 뱃지 목록 */}
+            <div className="flex flex-wrap gap-2 mt-1">
+              {Array.from(new Set([...DEFAULT_PAYMENT_PRESETS, ...paymentBadges])).map((badge) => {
+                const isSelected = paymentBadges.includes(badge);
+                return (
+                  <button
+                    key={badge}
+                    type="button"
+                    onClick={() => handleTogglePaymentBadge(badge)}
+                    className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold transition-all flex items-center gap-1.5 border ${
+                      isSelected
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-[0_3px_10px_rgba(5,150,105,0.25)] scale-[1.01]'
+                        : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                    }`}
+                  >
+                    <span className={`text-[12px] font-black ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                      {isSelected ? '✓' : '+'}
+                    </span>
+                    <span>{badge}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* 우리 동네 지역화폐 / 기타 결제수단 직접 입력 */}
+            <div className="flex gap-2 mt-1.5 pt-2.5 border-t border-gray-100">
+              <input
+                type="text"
+                value={customPaymentInput}
+                onChange={(e) => setCustomPaymentInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddCustomPaymentBadge();
+                  }
+                }}
+                placeholder="목록에 없는 결제수단 직접 입력 (예: 성남사랑상품권, 동백전, 제로페이 등)"
+                className="flex-1 text-[13.5px] font-bold text-gray-900 border border-gray-200 px-3.5 py-2.5 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 placeholder:font-normal"
+              />
+              <button
+                type="button"
+                onClick={handleAddCustomPaymentBadge}
+                className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[13px] font-extrabold rounded-xl shrink-0 shadow-sm transition-colors"
+              >
+                + 직접 추가
+              </button>
+            </div>
+          </div>
+
           {/* 2단: 사장님 이야기 */}
           <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-purple-100 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5F0080] to-[#E8D4FF]"></div>
@@ -2136,7 +2301,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
               disabled={loading}
               className="w-full py-4 mt-3 bg-[#5F0080] text-white hover:bg-purple-900 font-extrabold rounded-xl shadow-[0_4px_14px_rgba(95,0,128,0.25)] transition-all text-[16px] tracking-tight"
             >
-              행사문구 · 기간 · 멘트 즉시 반영하기
+              행사문구 · 결제수단 · 기간 · 멘트 즉시 반영하기
             </button>
           </div>
         </div>

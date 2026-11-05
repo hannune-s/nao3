@@ -167,6 +167,7 @@ export default function CustomerSalePage() {
   const [bossMessage, setBossMessage] = useState('');
   const [eventTitle, setEventTitle] = useState('');
   const [eventSubtitle, setEventSubtitle] = useState('');
+  const [paymentBadges, setPaymentBadges] = useState<string[]>([]);
   const [storeName, setStoreName] = useState('');
   const [storeInfo, setStoreInfo] = useState<any>(null);
   const [isStoreInfoOpen, setIsStoreInfoOpen] = useState(false);
@@ -429,6 +430,7 @@ export default function CustomerSalePage() {
                 const parsed = JSON.parse(bannerRow.setting_value);
                 if (parsed.eventTitle) setEventTitle(parsed.eventTitle);
                 if (parsed.eventSubtitle) setEventSubtitle(parsed.eventSubtitle);
+                if (Array.isArray(parsed.paymentBadges)) setPaymentBadges(parsed.paymentBadges);
               } catch (e) {}
             }
           }
@@ -443,6 +445,20 @@ export default function CustomerSalePage() {
           if (stagedSettings.storeName) setStoreName(stagedSettings.storeName);
           if (stagedSettings.eventTitle !== undefined) setEventTitle(stagedSettings.eventTitle);
           if (stagedSettings.eventSubtitle !== undefined) setEventSubtitle(stagedSettings.eventSubtitle);
+          if (Array.isArray(stagedSettings.paymentBadges)) {
+            setPaymentBadges(stagedSettings.paymentBadges);
+          } else {
+            const rawDraftBadges = localStorage.getItem(`nao3_draft_paymentBadges_${storeSlug}`) ||
+                                   (storeIdForQuery ? localStorage.getItem(`nao3_draft_paymentBadges_${storeIdForQuery}`) : null);
+            if (rawDraftBadges) {
+              try {
+                const parsedBadges = JSON.parse(rawDraftBadges);
+                if (Array.isArray(parsedBadges)) setPaymentBadges(parsedBadges);
+              } catch {}
+            } else if (storeSlug.startsWith('demo-guest-')) {
+              setPaymentBadges(['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '이음카드']);
+            }
+          }
           
           setStoreInfo((prev: any) => ({
             ...prev,
@@ -765,9 +781,35 @@ export default function CustomerSalePage() {
             </p>
             
             {periodText && (
-              <div className="mt-2 inline-flex bg-[#F8F0FF] text-[#5F0080] font-black text-[15px] sm:text-[18px] px-5 py-3.5 sm:px-9 sm:py-4 rounded-2xl shadow-[0_4px_12px_rgba(95,0,128,0.08)] border-2 border-[#D8B4FE] items-center justify-center w-auto max-w-[96%] mx-auto transition-all">
+              <div className="mt-2 inline-flex bg-[#F8F0FF] text-[#5F0080] font-black text-[17.5px] sm:text-[19px] px-5 py-4 sm:px-9 sm:py-4 rounded-2xl shadow-[0_4px_12px_rgba(95,0,128,0.08)] border-2 border-[#D8B4FE] items-center justify-center w-full sm:w-auto max-w-[96%] mx-auto transition-all">
                 <div className="flex items-center justify-center tracking-tight text-center break-keep">
-                  <span className="leading-relaxed whitespace-pre-line">{periodText}</span>
+                  <span className="leading-[1.6] whitespace-pre-line">{periodText}</span>
+                </div>
+              </div>
+            )}
+
+            {/* 결제 가능 상품권 · 지역화폐 안내 (통일감 있는 깔끔한 카드 뱃지) */}
+            {paymentBadges.length > 0 && (
+              <div className="mt-5 max-w-md mx-auto bg-white border border-gray-200/90 rounded-2xl px-4 py-3.5 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
+                <div className="flex items-center justify-center gap-1.5 mb-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#5F0080]"></span>
+                  <span className="text-[12px] sm:text-[12.5px] font-extrabold text-gray-600 tracking-tight">
+                    우리 매장 사용 가능 결제수단 · 상품권
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#5F0080]"></span>
+                </div>
+                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+                  {paymentBadges.map((badge) => (
+                    <span
+                      key={badge}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8F5FF] border border-[#E2D4F8] text-[#4A0066] text-[13px] sm:text-[13.5px] font-extrabold tracking-tight shadow-[0_1px_2px_rgba(95,0,128,0.05)]"
+                    >
+                      <svg className="w-3.5 h-3.5 text-[#5F0080] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>{badge}</span>
+                    </span>
+                  ))}
                 </div>
               </div>
             )}

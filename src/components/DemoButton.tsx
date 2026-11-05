@@ -25,12 +25,13 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
     saleEnd.setDate(saleEnd.getDate() + 2);
     saleEnd.setHours(23, 59, 0, 0);
 
-    // 1. 가게 설정 (상호명, 기간, 사장님 이야기)
+    // 1. 가게 설정 (상호명, 기간, 사장님 이야기, 결제수단 뱃지)
     const demoSettings: any = {
       storeName: '나오삼마트',
       saleStart: toLocalStr(now),
       saleEnd: toLocalStr(saleEnd),
-      bossMessage: '어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~'
+      bossMessage: '어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~',
+      paymentBadges: ['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '이음카드']
     };
     localStorage.setItem(`nao3_staging_settings_${demoId}`, JSON.stringify(demoSettings));
 
@@ -39,6 +40,7 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
     localStorage.setItem(`nao3_draft_saleStart_${demoId}`, demoSettings.saleStart);
     localStorage.setItem(`nao3_draft_saleEnd_${demoId}`, demoSettings.saleEnd);
     localStorage.setItem(`nao3_draft_bossMessage_${demoId}`, demoSettings.bossMessage);
+    localStorage.setItem(`nao3_draft_paymentBadges_${demoId}`, JSON.stringify(demoSettings.paymentBadges));
 
     // 2. 추천 특가 (특가 이미지 및 상품)
     const demoSpecial = {
