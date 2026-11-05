@@ -3,11 +3,17 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
-export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockPin }: { storeData: any; onStoreUpdate?: (updated: any) => void; onPinUpdated?: () => void; onLockPin?: () => void }) {
+export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockPin, initialView = 'main' }: { storeData: any; onStoreUpdate?: (updated: any) => void; onPinUpdated?: () => void; onLockPin?: () => void; initialView?: 'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry' }) {
   const router = useRouter();
 
   type MenuView = 'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry';
-  const [view, setViewState] = useState<MenuView>('main');
+  const [view, setViewState] = useState<MenuView>(initialView);
+
+  useEffect(() => {
+    if (initialView) {
+      setViewState(initialView);
+    }
+  }, [initialView]);
 
   const setView = (nextView: MenuView) => {
     if (typeof window !== 'undefined') {

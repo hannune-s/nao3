@@ -692,9 +692,11 @@ interface MartAdminProps {
   storeSlug?: string;
   expiresAt?: string;
   subscriptionPaid?: boolean;
+  onOpenSubscription?: () => void;
+  isStaffMode?: boolean;
 }
 
-export default function MartAdmin({ storeId, initialStoreName, storeSlug, expiresAt, subscriptionPaid }: MartAdminProps) {
+export default function MartAdmin({ storeId, initialStoreName, storeSlug, expiresAt, subscriptionPaid, onOpenSubscription, isStaffMode = false }: MartAdminProps) {
   const [activeTab, setActiveTab] = useState('정육');
   
   // 특가 폼 상태
@@ -1874,7 +1876,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     (storeSlug ? storeSlug === 'demo' || storeSlug.startsWith('demo-guest-') : false);
 
   let statusBadge = null;
-  if (expiresAt) {
+  if (!isStaffMode && expiresAt) {
     const expiresDate = new Date(expiresAt);
     const now = new Date();
     // 자정 기준으로 날짜 차이 계산
@@ -1888,7 +1890,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             <span className="text-base drop-shadow-sm">⚠️</span>
             <span>이용 기간이 만료되었습니다</span>
           </div>
-          <button className="text-xs font-black bg-red-600 text-white px-2.5 py-1 rounded-lg shadow-sm hover:bg-red-700 transition-colors whitespace-nowrap">
+          <button
+            type="button"
+            onClick={onOpenSubscription}
+            className="text-xs font-black bg-red-600 text-white px-2.5 py-1 rounded-lg shadow-sm hover:bg-red-700 transition-colors whitespace-nowrap cursor-pointer"
+          >
             구독 연장하기
           </button>
         </div>
@@ -1922,7 +1928,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                 무료 스토어 개설하기
               </Link>
             ) : (
-              <button className="text-[12px] font-black bg-gradient-to-r from-amber-400 to-orange-400 text-white px-2.5 py-1 rounded-lg shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap">
+              <button
+                type="button"
+                onClick={onOpenSubscription}
+                className="text-[12px] font-black bg-gradient-to-r from-amber-400 to-orange-400 text-white px-2.5 py-1 rounded-lg shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap cursor-pointer"
+              >
                 정식 구독 신청
               </button>
             )}

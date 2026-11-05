@@ -22,14 +22,29 @@ export default function StoreAdminPage() {
 
   // Navigation State
   const [activeTab, setActiveTab] = useState<'home' | 'mymenu'>('home');
+  const [myMenuInitialView, setMyMenuInitialView] = useState<'main' | 'subscription'>('main');
+
+  const handleOpenSubscription = () => {
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ nao3Tab: 'mymenu', nao3View: 'subscription' }, '');
+    }
+    setIsExpired(false);
+    setMyMenuInitialView('subscription');
+    setActiveTab('mymenu');
+  };
 
   const handleSwitchTab = (tab: 'home' | 'mymenu') => {
+    if (tab === 'home' && storeData?.expires_at && new Date() > new Date(storeData.expires_at)) {
+      setIsExpired(true);
+      return;
+    }
     if (typeof window !== 'undefined') {
       if (tab === 'home') {
         if (activeTab === 'mymenu') {
           window.history.pushState({ nao3Tab: 'home', nao3View: 'main' }, '');
         }
       } else {
+        setMyMenuInitialView('main');
         if (activeTab !== 'mymenu') {
           window.history.pushState({ nao3Tab: 'mymenu', nao3View: 'main' }, '');
         } else if (window.history.state?.nao3View && window.history.state.nao3View !== 'main') {
@@ -45,9 +60,13 @@ export default function StoreAdminPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       if (params.get('payment_redirect') === 'true') {
+        setMyMenuInitialView('subscription');
         setActiveTab('mymenu');
       } else if (!window.history.state?.nao3Tab) {
         window.history.replaceState({ nao3Tab: 'home', nao3View: 'main' }, '');
+      }
+      if (params.get('expired_preview') === 'true') {
+        setIsExpired(true);
       }
     }
     const handlePopState = (e: PopStateEvent) => {
@@ -68,6 +87,10 @@ export default function StoreAdminPage() {
   }, [storeSlug]);
 
   const checkUserAndStore = async () => {
+    const isExpiredPreview =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('expired_preview') === 'true';
+
     // Demo Mode Bypass
     if (storeSlug.startsWith('demo-guest-')) {
       setStoreData({
@@ -79,6 +102,7 @@ export default function StoreAdminPage() {
         expires_at: new Date(Date.now() + 27 * 86400000).toISOString(),
       });
       setAccessRole('owner');
+      if (isExpiredPreview) setIsExpired(true);
       setLoading(false);
       return;
     }
@@ -101,7 +125,9 @@ export default function StoreAdminPage() {
       localStorage.setItem('nao3_last_store_slug', store.slug);
     }
 
-    if (store.expires_at) {
+    if (isExpiredPreview) {
+      setIsExpired(true);
+    } else if (store.expires_at) {
       const expiresAt = new Date(store.expires_at);
       if (new Date() > expiresAt) {
         setIsExpired(true);
@@ -311,8 +337,8 @@ export default function StoreAdminPage() {
           구독을 진행하시면 앱의 핵심 기능 및<br/>알림 전송 기능을 다시 정상적으로 이용하실 수 있습니다.
         </p>
         <button 
-          onClick={() => alert('구독 결제 시스템 연동 준비 중입니다.')}
-          className="w-full max-w-sm py-4 bg-yellow-400 text-black font-extrabold text-lg rounded-xl shadow-lg hover:bg-yellow-300 transition-colors"
+          onClick={handleOpenSubscription}
+          className="w-full max-w-sm py-4 bg-yellow-400 text-black font-extrabold text-lg rounded-xl shadow-lg hover:bg-yellow-300 transition-colors cursor-pointer"
         >
           구독 연장하기
         </button>
@@ -352,6 +378,8 @@ export default function StoreAdminPage() {
             storeSlug={storeData.slug} 
             expiresAt={storeData.expires_at}
             subscriptionPaid={storeData.subscription_paid}
+            onOpenSubscription={handleOpenSubscription}
+            isStaffMode={accessRole === 'staff'}
           />
         ) : (
           <MyMenu 
@@ -359,6 +387,7 @@ export default function StoreAdminPage() {
             onStoreUpdate={(updated: any) => setStoreData((prev: any) => ({ ...prev, ...updated }))} 
             onPinUpdated={() => checkUserAndStore()}
             onLockPin={handleLockPin}
+            initialView={myMenuInitialView}
           />
         )}
       </div>
