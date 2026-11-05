@@ -365,25 +365,45 @@ export default function StoreAdminPage() {
 
       {/* 하단 고정 네비게이션 바 (사장님 모드일 때만 마이메뉴 노출, 직원 모드는 숨김) */}
       {accessRole === 'owner' && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex items-center h-16 shadow-[0_-4px_20px_rgba(0,0,0,0.03)] z-50">
-          <button 
-            onClick={() => handleSwitchTab('home')}
-            className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'home' ? 'text-[#5F0080]' : 'text-gray-400 hover:text-gray-600'}`}
-          >
-            <svg className="w-6 h-6" fill={activeTab === 'home' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span className="text-[10px] font-extrabold tracking-tight">홈</span>
-          </button>
-          <button 
-            onClick={() => handleSwitchTab('mymenu')}
-            className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${activeTab === 'mymenu' ? 'text-[#5F0080]' : 'text-gray-400 hover:text-gray-600'}`}
-          >
-            <svg className="w-6 h-6" fill={activeTab === 'mymenu' ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            <span className="text-[10px] font-extrabold tracking-tight">마이메뉴</span>
-          </button>
+        <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t-2 border-gray-200 shadow-[0_-8px_28px_rgba(0,0,0,0.08)] z-50">
+          <div className="max-w-2xl mx-auto flex items-center h-[68px] px-3 gap-2">
+            <button
+              onClick={() => handleSwitchTab('home')}
+              className={`relative flex flex-col items-center justify-center w-full h-[54px] rounded-2xl transition-all cursor-pointer ${
+                activeTab === 'home'
+                  ? 'bg-purple-50/90 text-[#5F0080]'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+              }`}
+            >
+              {activeTab === 'home' && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-[#5F0080]" />
+              )}
+              <svg className="w-6 h-6 mb-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.47 3.841a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.061l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 1 0 1.061 1.06l8.69-8.689Z" />
+                <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
+              </svg>
+              <span className="text-[12.5px] font-black tracking-tight">홈 (전단지 관리)</span>
+            </button>
+
+            <div className="w-[1px] h-8 bg-gray-200 shrink-0" />
+
+            <button
+              onClick={() => handleSwitchTab('mymenu')}
+              className={`relative flex flex-col items-center justify-center w-full h-[54px] rounded-2xl transition-all cursor-pointer ${
+                activeTab === 'mymenu'
+                  ? 'bg-purple-50/90 text-[#5F0080]'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+              }`}
+            >
+              {activeTab === 'mymenu' && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-1 rounded-full bg-[#5F0080]" />
+              )}
+              <svg className="w-6 h-6 mb-0.5" fill="currentColor" viewBox="0 0 24 24">
+                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
+              </svg>
+              <span className="text-[12.5px] font-black tracking-tight">마이메뉴 (매장설정)</span>
+            </button>
+          </div>
         </div>
       )}
     </div>
