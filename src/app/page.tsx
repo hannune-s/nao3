@@ -303,18 +303,28 @@ export default function LandingPage() {
                   <div className="bg-[#5F0080] py-10 text-center">
                     <h1 className="text-[#E5D7B7] font-bold text-[10px] tracking-[0.3em] uppercase mb-2 border border-[#E5D7B7]/30 px-3 py-1 rounded-full inline-block">NAO3</h1>
                     <h2 className="text-white font-black text-3xl tracking-tight">나오삼마트</h2>
-                    <div className="mt-5 inline-block bg-[#F8F0FF] text-[#5F0080] text-[13px] font-black px-4 py-2 rounded-full border border-[#E8D4FF] shadow-sm">
+                    <div className="mt-4 inline-block bg-[#F8F0FF] text-[#5F0080] text-[13px] font-black px-4 py-1.5 rounded-full border border-[#E8D4FF] shadow-sm">
                       행사 기간 2026.9.6 ~ 2026.9.7
+                    </div>
+                  </div>
+
+                  {/* Payment Badges in Customer Mockup */}
+                  <div className="px-4 pt-3">
+                    <div className="bg-emerald-50/90 border border-emerald-200 rounded-xl px-3 py-2 flex flex-wrap items-center justify-center gap-1">
+                      <span className="text-[10px] font-black text-emerald-950 mr-1">💳 결제가능</span>
+                      <span className="px-1.5 py-0.5 rounded bg-white border border-emerald-300 text-emerald-900 text-[10px] font-black">✓ 온누리(지류·모바일)</span>
+                      <span className="px-1.5 py-0.5 rounded bg-white border border-emerald-300 text-emerald-900 text-[10px] font-black">✓ 농할상품권</span>
+                      <span className="px-1.5 py-0.5 rounded bg-white border border-emerald-300 text-emerald-900 text-[10px] font-black">✓ 이음카드</span>
                     </div>
                   </div>
                   
                   {/* Boss Story */}
-                  <div className="p-4 mt-2">
-                    <div className="flex items-center gap-2 mb-2 px-1">
-                      <span className="text-[16px]">🖋️</span>
-                      <span className="font-black text-[14px] text-gray-900 uppercase tracking-widest">오늘의 사장님 이야기</span>
+                  <div className="px-4 pt-2.5 pb-2">
+                    <div className="flex items-center gap-2 mb-1.5 px-1">
+                      <span className="text-[15px]">🖋️</span>
+                      <span className="font-black text-[13px] text-gray-900 uppercase tracking-widest">오늘의 사장님 이야기</span>
                     </div>
-                    <div className="bg-[#F5F0E6] p-5 border border-[#E8DFD1] text-[14px] font-medium leading-[1.6] text-gray-800 shadow-sm">
+                    <div className="bg-[#F5F0E6] p-3.5 border border-[#E8DFD1] text-[13px] font-medium leading-[1.5] text-gray-800 shadow-sm">
                       어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~
                     </div>
                   </div>
@@ -633,6 +643,149 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Feature 4.5: Local Currency / Voucher Badges & Regular Customer Dashboard (NEW) */}
+      <section className="py-20 md:py-32 bg-gradient-to-b from-emerald-50/40 via-white to-purple-50/40 border-t border-gray-100 overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black tracking-wide mb-4">
+              🔥 사장님들이 가장 극찬하는 매출 직결 기능 2가지
+            </div>
+            <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
+              상품권·지역화폐 안내부터<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-[#5F0080]">
+                매일 늘어나는 단골 수 확인까지 한눈에.
+              </span>
+            </h3>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium break-keep">
+              동네 마트·정육점·전통시장 사장님들의 현장 목소리를 그대로 반영했습니다. 손님이 가장 궁금해하는 결제수단을 전단지 최상단에 띄워주고, 우리 가게 단골이 매일 몇 명씩 늘어나는지 실시간 숫자로 보여드립니다.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-12 items-stretch">
+            {/* Card 1: Payment Methods & Local Currency Badges */}
+            <div className="bg-white rounded-[2.2rem] p-6 sm:p-10 shadow-[0_25px_60px_rgba(5,150,105,0.08)] border border-emerald-200/80 flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 to-teal-400"></div>
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-black mb-4">
+                  💳 결제 가능 상품권 · 지역화폐 원터치 표시
+                </div>
+                <h4 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 tracking-tight break-keep">
+                  &ldquo;사장님, 온누리 상품권 되나요?&rdquo;<br />
+                  묻기 전에 전단지에서 바로 알려줍니다.
+                </h4>
+                <p className="text-gray-600 text-[15.5px] leading-relaxed mb-6 break-keep">
+                  온누리상품권(지류·모바일·카드), 농할상품권, 제로페이, 이음카드, 민생지원금은 물론 <strong>김포페이·동백전·경기지역화폐 등 우리 동네 지역화폐</strong>까지 직접 추가해 두면 고객 전단지 상단에 선명하게 노출되어 방문 결정과 객단가를 폭발시킵니다.
+                </p>
+              </div>
+
+              {/* UI Mockup: Admin 3x2 Grid + Customer Flyer Preview */}
+              <div className="bg-gray-50 rounded-2xl p-4 sm:p-5 border border-gray-200/80 space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[12px] font-black text-gray-800 flex items-center gap-1.5">
+                    <span className="w-1.5 h-3.5 rounded-full bg-emerald-600 inline-block"></span>
+                    사장님 어드민 (1회 설정 시 계속 유지)
+                  </span>
+                  <span className="text-[10.5px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                    터치 한 번으로 ON/OFF
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <span className="py-1.5 px-1 rounded-lg bg-emerald-600 text-white text-[11px] sm:text-[12px] font-extrabold text-center tracking-tighter whitespace-nowrap shadow-xs">
+                    ✓ 온누리상품권(지류)
+                  </span>
+                  <span className="py-1.5 px-1 rounded-lg bg-emerald-600 text-white text-[11px] sm:text-[12px] font-extrabold text-center tracking-tighter whitespace-nowrap shadow-xs">
+                    ✓ 온누리(모바일·카드)
+                  </span>
+                  <span className="py-1.5 px-1 rounded-lg bg-emerald-600 text-white text-[11px] sm:text-[12px] font-extrabold text-center tracking-tighter whitespace-nowrap shadow-xs">
+                    ✓ 농할상품권
+                  </span>
+                  <span className="py-1.5 px-1 rounded-lg bg-emerald-600 text-white text-[11px] sm:text-[12px] font-extrabold text-center tracking-tighter whitespace-nowrap shadow-xs">
+                    ✓ 제로페이
+                  </span>
+                  <span className="py-1.5 px-1 rounded-lg bg-emerald-600 text-white text-[11px] sm:text-[12px] font-extrabold text-center tracking-tighter whitespace-nowrap shadow-xs">
+                    ✓ 이음카드
+                  </span>
+                  <span className="py-1.5 px-1 rounded-lg bg-white border border-gray-200 text-gray-600 text-[11px] sm:text-[12px] font-extrabold text-center tracking-tighter whitespace-nowrap">
+                    + 민생지원금
+                  </span>
+                </div>
+                <div className="bg-emerald-50/90 border border-emerald-200 rounded-xl p-3 text-center">
+                  <div className="text-[11px] font-black text-emerald-950 mb-1.5">
+                    👇 고객 전단지 상단에 이렇게 즉시 표시됩니다
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-1">
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-emerald-900 text-[11px] font-black shadow-2xs">✓ 온누리상품권(지류)</span>
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-emerald-900 text-[11px] font-black shadow-2xs">✓ 온누리(모바일·카드)</span>
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-emerald-900 text-[11px] font-black shadow-2xs">✓ 농할상품권</span>
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-emerald-900 text-[11px] font-black shadow-2xs">✓ 이음카드</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: Regular Customer (App Install) Dashboard */}
+            <div className="bg-white rounded-[2.2rem] p-6 sm:p-10 shadow-[0_25px_60px_rgba(95,0,128,0.08)] border border-purple-200/80 flex flex-col justify-between relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#5F0080] to-purple-400"></div>
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-50 border border-purple-200 text-[#5F0080] text-xs font-black mb-4">
+                  📊 실시간 단골 고객 (어플 설치) 현황 대시보드
+                </div>
+                <h4 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 tracking-tight break-keep">
+                  우리 가게 앱을 설치한 진짜 단골이<br />
+                  매일 몇 명씩 느는지 숫자로 확인하세요.
+                </h4>
+                <p className="text-gray-600 text-[15.5px] leading-relaxed mb-6 break-keep">
+                  뿌리고 나면 몇 명이 봤는지 알 수 없는 종이 전단지와 다릅니다. <strong>현재 총 단골 수부터 오늘·최근 7일·이번 달 신규 설치 수, 날짜별 증가 내역</strong>까지 실시간으로 집계되어 장사하는 재미와 확신을 드립니다.
+                </p>
+              </div>
+
+              {/* UI Mockup: Regular Customer Stats Dashboard */}
+              <div className="space-y-3">
+                <div className="bg-gradient-to-br from-[#5F0080] to-[#3B0054] rounded-2xl p-4 sm:p-5 text-white shadow-md">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <p className="text-purple-200 text-[11px] font-bold">현재 푸시 알림을 받는 총 단골 고객</p>
+                      <div className="flex items-baseline gap-1 mt-0.5">
+                        <span className="text-3xl sm:text-4xl font-black tracking-tight text-yellow-300">318</span>
+                        <span className="text-sm font-bold text-purple-100">명</span>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded-full bg-white/15 text-[11px] font-extrabold text-yellow-200">
+                      실시간 집계 중 ⚡
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/15 text-center">
+                    <div className="bg-white/10 rounded-xl py-2 px-1">
+                      <p className="text-[10px] text-purple-200 font-bold">오늘 신규</p>
+                      <p className="text-base font-black text-yellow-300">+14명</p>
+                    </div>
+                    <div className="bg-white/10 rounded-xl py-2 px-1">
+                      <p className="text-[10px] text-purple-200 font-bold">최근 7일</p>
+                      <p className="text-base font-black text-white">+68명</p>
+                    </div>
+                    <div className="bg-white/10 rounded-xl py-2 px-1">
+                      <p className="text-[10px] text-purple-200 font-bold">이번 달</p>
+                      <p className="text-base font-black text-white">+152명</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-xl p-3 border border-gray-200/80 space-y-1.5">
+                  <div className="flex items-center justify-between text-[12px] font-bold px-2 py-1 bg-white rounded-lg border border-purple-100">
+                    <span className="text-gray-800">📅 2026. 11. 05 (목) <span className="text-[10px] text-[#5F0080] bg-purple-50 px-1.5 py-0.5 rounded ml-1 font-black">오늘</span></span>
+                    <span className="text-[#5F0080] font-black">+14명 설치</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[12px] font-bold px-2 py-1 bg-white rounded-lg border border-gray-100">
+                    <span className="text-gray-600">📅 2026. 11. 04 (수)</span>
+                    <span className="text-gray-900 font-black">+19명 설치</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
             {/* Feature 5: Industry Previews (NEW) */}
       <section className="py-20 md:py-32 bg-gray-50 border-t border-gray-100 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-16">
@@ -854,6 +1007,14 @@ export default function LandingPage() {
                   <li className="flex items-start gap-3">
                     <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>
                     <span className="text-gray-600 font-medium break-keep">상품명에 맞는 스마트 아이콘 자동 매칭</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>
+                    <span className="text-gray-600 font-medium break-keep">온누리·농할·지역화폐 결제 가능 뱃지 원터치 안내</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>
+                    <span className="text-gray-600 font-medium break-keep">실시간 단골 고객 (어플 설치) 증가 현황 대시보드</span>
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-[#4F46E5] font-bold mt-0.5">✓</span>

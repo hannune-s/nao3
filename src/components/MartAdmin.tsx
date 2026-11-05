@@ -807,8 +807,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     '온누리(모바일·카드)',
     '농할상품권',
     '제로페이',
-    '민생회복지원금',
+    '이음카드',
+    '민생지원금',
   ];
+
+  const normalizePaymentBadges = (list: string[]) =>
+    Array.from(new Set(list.map((b) => (b === '민생회복지원금' ? '민생지원금' : b))));
 
   const [paymentBadges, setPaymentBadges] = useState<string[]>(() => {
     if (typeof window !== 'undefined') {
@@ -816,11 +820,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) return parsed;
+          if (Array.isArray(parsed)) return normalizePaymentBadges(parsed);
         } catch {}
       }
       if (storeId === 'demo' || storeId.startsWith('demo-guest-')) {
-        return ['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '제로페이'];
+        return ['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '제로페이', '이음카드'];
       }
     }
     return [];
@@ -1353,13 +1357,15 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         try {
           const parsedBadges = JSON.parse(badgeRow.setting_value);
           if (Array.isArray(parsedBadges)) {
-            setPaymentBadges(parsedBadges);
-            localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(parsedBadges));
+            const normalized = normalizePaymentBadges(parsedBadges);
+            setPaymentBadges(normalized);
+            localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(normalized));
           }
         } catch (e) {}
       } else if (fallbackBadges) {
-        setPaymentBadges(fallbackBadges);
-        localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(fallbackBadges));
+        const normalized = normalizePaymentBadges(fallbackBadges);
+        setPaymentBadges(normalized);
+        localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(normalized));
       }
 
       fetchHistories();
@@ -2228,30 +2234,27 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           </div>
 
           {/* 0단 (상단 독립): 결제수단 · 상품권 · 지역화폐 안내 설정 */}
-          <div className="flex flex-col gap-2.5 bg-white p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-sm relative overflow-hidden">
+          <div className="flex flex-col gap-2 bg-white p-3.5 sm:p-4 rounded-2xl border border-emerald-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-600 to-teal-400"></div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-              <h3 className="text-[16px] sm:text-[18px] font-black text-gray-900 tracking-tight flex items-center gap-2 flex-wrap">
+            <div className="flex items-center justify-between gap-1.5">
+              <h3 className="text-[14.5px] sm:text-[17px] font-black text-gray-900 tracking-tight flex items-center gap-1.5 min-w-0">
                 <span className="w-1.5 h-4 rounded-full bg-emerald-600 inline-block shrink-0"></span>
-                <span>결제 가능 상품권 · 지역화폐 안내</span>
-                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md tracking-normal leading-tight">
-                  한 번 설정해 두면 계속 유지됩니다
-                </span>
+                <span className="truncate">결제 가능 상품권 · 지역화폐 안내</span>
               </h3>
+              <span className="text-[10.5px] sm:text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md tracking-tight leading-tight shrink-0">
+                한 번 설정 시 계속 유지
+              </span>
             </div>
-            <p className="text-[12px] font-bold text-gray-500 leading-snug -mt-0.5">
-              사용 가능한 결제수단을 선택(또는 직접 추가)하신 뒤 아래 <span className="text-emerald-700 font-extrabold">[결제수단 설정 저장하기]</span> 버튼을 눌러주세요.
-            </p>
 
-            {/* 프리셋 5종 + 직접 추가된 뱃지 목록 (컴팩트 사이즈) */}
-            <div className="flex flex-wrap gap-1.5 mt-0.5">
+            {/* 프리셋 6종 (1줄: 온누리2개+농할 / 2줄: 제로페이+이음카드+민생지원금) 3열 그리드 정렬 */}
+            <div className="grid grid-cols-3 gap-1.5">
               {Array.from(new Set([...DEFAULT_PAYMENT_PRESETS, ...paymentBadges])).map((badge) => {
                 const isSelected = paymentBadges.includes(badge);
                 const isPreset = DEFAULT_PAYMENT_PRESETS.includes(badge);
                 return (
                   <div
                     key={badge}
-                    className={`inline-flex items-center rounded-lg text-[12px] font-extrabold transition-all border ${
+                    className={`w-full flex items-center justify-center rounded-lg text-[11px] sm:text-[12.5px] font-extrabold transition-all border ${
                       isSelected
                         ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
                         : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
@@ -2260,12 +2263,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                     <button
                       type="button"
                       onClick={() => handleTogglePaymentBadge(badge)}
-                      className="px-2.5 py-1.5 flex items-center gap-1 cursor-pointer"
+                      className="flex-1 py-1.5 px-1 flex items-center justify-center gap-0.5 cursor-pointer tracking-tighter whitespace-nowrap min-w-0"
                     >
-                      <span className={`text-[11px] font-black ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                      <span className={`text-[10px] font-black shrink-0 ${isSelected ? 'text-white' : 'text-gray-400'}`}>
                         {isSelected ? '✓' : '+'}
                       </span>
-                      <span>{badge}</span>
+                      <span className="truncate">{badge}</span>
                     </button>
                     {!isPreset && (
                       <button
@@ -2275,7 +2278,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                           handleRemoveCustomPaymentBadge(badge);
                         }}
                         title="뱃지 삭제"
-                        className="pr-2 pl-0.5 py-1.5 text-white/80 hover:text-white text-[11px] font-black leading-none cursor-pointer"
+                        className="pr-1.5 pl-0.5 py-1.5 text-white/80 hover:text-white text-[10px] font-black leading-none cursor-pointer shrink-0"
                       >
                         ✕
                       </button>
@@ -2286,7 +2289,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             </div>
 
             {/* 우리 동네 지역화폐 / 기타 결제수단 직접 입력 */}
-            <div className="flex gap-2 mt-1 pt-2 border-t border-gray-100">
+            <div className="flex gap-1.5 pt-1 border-t border-gray-100">
               <input
                 type="text"
                 value={customPaymentInput}
@@ -2297,13 +2300,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                     handleAddCustomPaymentBadge();
                   }
                 }}
-                placeholder="지역화폐·기타 결제수단 직접 입력 (예: 김포페이, 이음카드, 동백전 등)"
-                className="flex-1 text-[12.5px] font-bold text-gray-900 border border-gray-200 px-3 py-2 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 placeholder:font-normal"
+                placeholder="기타 지역화폐 직접 입력 (예: 김포페이, 동백전)"
+                className="flex-1 min-w-0 text-[12px] font-bold text-gray-900 border border-gray-200 px-2.5 py-1.5 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 placeholder:font-normal"
               />
               <button
                 type="button"
                 onClick={handleAddCustomPaymentBadge}
-                className="px-3.5 py-2 bg-gray-800 hover:bg-gray-900 text-white text-[12.5px] font-extrabold rounded-xl shrink-0 shadow-xs transition-colors"
+                className="px-2.5 py-1.5 bg-gray-800 hover:bg-gray-900 text-white text-[12px] font-extrabold rounded-lg shrink-0 shadow-xs transition-colors"
               >
                 + 직접 추가
               </button>
@@ -2314,7 +2317,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
               type="button"
               onClick={handleSavePaymentBadges}
               disabled={isSavingPaymentBadges}
-              className="w-full py-3 mt-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-extrabold rounded-xl shadow-[0_3px_10px_rgba(5,150,105,0.22)] transition-all text-[14.5px] tracking-tight"
+              className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-extrabold rounded-xl shadow-[0_3px_10px_rgba(5,150,105,0.22)] transition-all text-[13.5px] sm:text-[14px] tracking-tight"
             >
               {isSavingPaymentBadges ? '저장 중...' : '결제수단 설정 저장하기'}
             </button>
