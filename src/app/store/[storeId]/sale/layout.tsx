@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { supabase } from '@/lib/supabase';
+import { resolveStoreIconTheme } from '@/lib/storeIconColor';
 
 export async function generateMetadata({
   params,
@@ -25,6 +26,7 @@ export async function generateMetadata({
     // fallback to decodedSlug
   }
 
+  const iconTheme = await resolveStoreIconTheme(supabase, decodedSlug);
   const title = `[${storeName}] "어머님들~ 빨리 나오삼!" 오늘의 특가 전단지 도착`;
   const description = '얼른 나오삼! 지금 당장 나오삼! 사고 싶은 세일 상품을 1초 만에 검색해 보세요.';
   const ogImageUrl = `/api/og?store=${encodeURIComponent(storeName)}`;
@@ -32,6 +34,10 @@ export async function generateMetadata({
   return {
     title,
     description,
+    icons: {
+      icon: iconTheme.icon192,
+      apple: iconTheme.icon192,
+    },
     openGraph: {
       title,
       description,

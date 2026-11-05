@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { resolveStoreIconTheme } from '@/lib/storeIconColor';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
@@ -117,6 +118,7 @@ export async function GET(request: NextRequest) {
   }
 
   // 고객용 세일 전단지 매니페스트 (mode === 'sale')
+  const iconTheme = await resolveStoreIconTheme(supabase, slug);
   const startUrl = slug ? `/store/${slug}/sale` : '/';
   const saleManifest = {
     id: `${startUrl}?mode=sale&v=3`,
@@ -128,22 +130,22 @@ export async function GET(request: NextRequest) {
     start_url: startUrl,
     scope: startUrl,
     background_color: '#FFFFFF',
-    theme_color: '#5F0080',
+    theme_color: iconTheme.hex,
     icons: [
       {
-        src: '/icon-192.png',
+        src: iconTheme.icon192,
         sizes: '192x192',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: '/icon-512.png',
+        src: iconTheme.icon512,
         sizes: '512x512',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: '/icon-512.png',
+        src: iconTheme.icon512,
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
