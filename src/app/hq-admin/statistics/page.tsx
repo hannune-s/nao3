@@ -5,12 +5,14 @@ import { supabase } from '@/lib/supabase';
 
 type VisitLog = {
   settingKey: string;
-  type: '웹 방문' | '앱 설치';
+  type: string;
   createdAt: string;
   device: string;
   referrer: string;
   isInstagram: boolean;
   page: string;
+  visitCount: number;
+  actions: string[];
 };
 
 const ITEMS_PER_PAGE = 5;
@@ -31,6 +33,54 @@ export default function HqStatisticsPage() {
   useEffect(() => {
     fetchStats();
   }, []);
+
+  // 이모지 제거 및 '스마트폰(모바일)' -> '모바일' 정리 헬퍼
+  const stripEmojiAndClean = (str: string) =>
+    str
+      .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}]/gu, '')
+      .replace(/스마트폰\(모바일\)/g, '모바일')
+      .replace(/스마트폰/g, '모바일')
+      .replace(/갤럭시·안드로이드/g, '모바일')
+      .replace(/아이폰/g, '모바일(iOS)')
+      .replace(/데스크톱/g, '')
+      .trim();
+
+  // 기존 DB 기록 중 기기 문자열('[Mobile Web]' 등)을 깔끔한 텍스트('모바일 · 네이버' 등)로 보정
+  const formatDeviceDisplay = (rawDevice: string, referrer: string, isInstagram: boolean) => {
+    if (rawDevice && !rawDevice.startsWith('[')) {
+      return stripEmojiAndClean(rawDevice);
+    }
+    const isMobile = /Mobile/i.test(rawDevice);
+    const base = isMobile ? '모바일' : 'PC';
+    if (isInstagram || /instagram/i.test(referrer)) return `${base} · 인스타그램`;
+    if (/naver\.com/i.test(referrer)) return `${base} · 네이버`;
+    if (/kakao/i.test(referrer)) return `${base} · 카카오톡`;
+    return `${base} · 웹`;
+  };
+
+  // 페이지 경로로부터 기본 행동 발자취 배열 추론 (아이콘 없는 깔끔한 텍스트)
+  const inferActionsFromPage = (page: string, type: string, existingActions?: string[]): string[] => {
+    if (Array.isArray(existingActions) && existingActions.length > 0) {
+      return existingActions.map((a) => stripEmojiAndClean(a));
+    }
+    const cleanPath = (page || '/').split('?')[0];
+    const steps: string[] = ['메인 랜딩 열람'];
+    if (cleanPath.includes('demo-guest-') && cleanPath.includes('/sale')) {
+      steps.push('무료 어드민 체험', '체험 전단지(손님화면) 확인');
+    } else if (cleanPath.includes('demo-guest-') || type === '어드민 체험') {
+      steps.push('무료 어드민 체험');
+    } else if (cleanPath.startsWith('/register')) {
+      steps.push('스토어 개설(가입화면) 진입');
+    } else if (cleanPath.startsWith('/support')) {
+      steps.push('고객지원·문의 확인');
+    } else if (cleanPath.startsWith('/login')) {
+      steps.push('로그인 화면');
+    }
+    if (type === '앱 설치' && !steps.includes('앱 설치 완료')) {
+      steps.push('앱 설치 완료');
+    }
+    return steps;
+  };
 
   const fetchStats = async () => {
     try {
@@ -67,7 +117,7 @@ export default function HqStatisticsPage() {
       let monthCount = 0;
 
       if (storesData) {
-        storesData.forEach((store) => {
+        storesData.forEach((store: any) => {
           const createdDate = new Date(store.created_at);
           const dateStr = kstFormatter.format(createdDate);
           if (dateStr === todayStr) todayCount++;
@@ -85,29 +135,48 @@ export default function HqStatisticsPage() {
       });
 
       const parsedLogs: VisitLog[] = [];
+      const storeNoiseKeysToDelete: string[] = [];
+
       if (logRows) {
         for (const row of logRows) {
           try {
             const parsed = JSON.parse(row.setting_value || '{}');
+            const pageStr: string = parsed.page || '/';
+
+            // 가맹점 손님 전단지(/store/j49533/sale 등) 및 가맹점 어드민 기록은 본사 통계에서 즉시 제외 & DB 정리
+            if (pageStr.startsWith('/store/') && !pageStr.includes('demo-guest-')) {
+              storeNoiseKeysToDelete.push(row.setting_key);
+              continue;
+            }
+
+            const refStr = parsed.referrer || '직접 접속 (Direct)';
+            const isInsta = !!parsed.isInstagram;
+
             parsedLogs.push({
               settingKey: row.setting_key,
-              type: parsed.type === '앱 설치' ? '앱 설치' : '웹 방문',
+              type: parsed.type || '웹 방문',
               createdAt: parsed.createdAt || new Date().toISOString(),
-              device: parsed.device || '[Web]',
-              referrer: parsed.referrer || '직접 접속 (Direct)',
-              isInstagram: !!parsed.isInstagram,
-              page: parsed.page || '/',
+              device: formatDeviceDisplay(parsed.device || '[Mobile Web]', refStr, isInsta),
+              referrer: refStr,
+              isInstagram: isInsta,
+              page: pageStr,
+              visitCount: Number(parsed.visitCount) > 0 ? Number(parsed.visitCount) : 1,
+              actions: inferActionsFromPage(pageStr, parsed.type || '웹 방문', parsed.actions),
             });
           } catch {
             // ignore malformed row
           }
         }
       }
+
       parsedLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-      // 최신 25건(5줄 × 5페이지)을 초과하는 오래된 기록은 DB에서 즉시 삭제하고 저장하지 않음
-      if (parsedLogs.length > MAX_LOGS) {
-        const staleKeys = parsedLogs.slice(MAX_LOGS).map((l) => l.settingKey);
+      // 가맹점 손님 노이즈 기록 및 최신 25건을 초과하는 오래된 기록은 DB에서 자동 삭제
+      const staleKeys = [
+        ...storeNoiseKeysToDelete,
+        ...parsedLogs.slice(MAX_LOGS).map((l) => l.settingKey),
+      ];
+      if (staleKeys.length > 0) {
         supabase
           .from('nao3_system_settings')
           .delete()
@@ -121,6 +190,101 @@ export default function HqStatisticsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // 유입 경로(Referrer) + URL 파라미터를 분석하여 [왜·어디서 들어왔나] 깔끔한 텍스트로 반환
+  const resolveChannelInfo = (log: VisitLog) => {
+    const ref = log.referrer || '';
+    const page = log.page || '';
+
+    let campaignHint = '';
+    const qIdx = page.indexOf('?');
+    if (qIdx !== -1) {
+      try {
+        const params = new URLSearchParams(page.slice(qIdx));
+        const src = params.get('from') || params.get('utm_source') || params.get('ref') || params.get('keyword');
+        if (src) campaignHint = `광고/출처: ${src}`;
+      } catch {}
+    }
+
+    if (
+      log.isInstagram ||
+      /instagram\.com|ig\.me/i.test(ref) ||
+      /utm_source=instagram|igshid=/i.test(page)
+    ) {
+      return {
+        title: '인스타그램 유입',
+        subText: campaignHint || (ref && !ref.includes('직접 접속') ? ref : ''),
+      };
+    }
+
+    if (/search\.naver\.com/i.test(ref)) {
+      return {
+        title: '네이버 키워드 검색',
+        subText: campaignHint || ref,
+      };
+    }
+
+    if (/blog\.naver\.com|cafe\.naver\.com/i.test(ref)) {
+      return {
+        title: '네이버 블로그·카페',
+        subText: campaignHint || ref,
+      };
+    }
+
+    if (/naver\.com/i.test(ref)) {
+      return {
+        title: '네이버 검색·모바일',
+        subText: campaignHint || ref,
+      };
+    }
+
+    if (/kakao|daum\.net/i.test(ref) || /카카오톡/i.test(log.device)) {
+      return {
+        title: '카카오톡 링크 공유',
+        subText: campaignHint || '',
+      };
+    }
+
+    if (/google\.|youtube\.|youtu\.be/i.test(ref)) {
+      return {
+        title: '구글·유튜브 검색',
+        subText: campaignHint || ref,
+      };
+    }
+
+    if (/facebook\.com|fb\.me|threads\.net/i.test(ref)) {
+      return {
+        title: '페이스북·스레드',
+        subText: campaignHint || ref,
+      };
+    }
+
+    if (!ref || ref.includes('직접 접속')) {
+      return {
+        title: '주소 직접 입력·북마크',
+        subText: campaignHint || '',
+      };
+    }
+
+    return {
+      title: '외부 웹사이트 유입',
+      subText: campaignHint || ref,
+    };
+  };
+
+  // 각 행동 단계(발자취)별 텍스트 강조 색상 (뱃지 없이 텍스트로만)
+  const getStepTextStyle = (step: string) => {
+    if (step.includes('가입화면')) {
+      return 'text-rose-600 font-black';
+    }
+    if (step.includes('체험')) {
+      return 'text-[#5F0080] font-black';
+    }
+    if (step.includes('설치')) {
+      return 'text-emerald-600 font-black';
+    }
+    return 'text-gray-800 font-bold';
   };
 
   const handleDeleteLog = async (settingKey: string) => {
@@ -163,7 +327,7 @@ export default function HqStatisticsPage() {
   };
 
   const handleClearAllLogs = async () => {
-    if (!confirm('테스트 접속 기록을 모두 비우시겠습니까?')) return;
+    if (!confirm('접속 기록을 모두 비우시겠습니까?')) return;
     try {
       await supabase
         .from('nao3_system_settings')
@@ -179,9 +343,10 @@ export default function HqStatisticsPage() {
   if (loading) return <div className="p-8 text-gray-500">통계 데이터를 불러오는 중...</div>;
 
   const totalPages = Math.max(1, Math.ceil(visitLogs.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
   const paginatedLogs = visitLogs.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
   );
 
   return (
@@ -189,7 +354,9 @@ export default function HqStatisticsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h2 className="text-2xl font-black text-gray-900 tracking-tight">통계 요약</h2>
-          <p className="text-gray-500 mt-1 text-sm">대표님(관리자) 기기 및 로컬 테스트 접속은 제외되고 실제 고객 방문만 집계됩니다.</p>
+          <p className="text-gray-500 mt-1 text-sm">
+            가맹점 손님(전단지) 및 대표님 기기는 제외되며, 오직 <strong>NAO3 본사에 유입된 예비 사장님</strong>만 집계됩니다.
+          </p>
         </div>
       </div>
       
@@ -260,21 +427,18 @@ export default function HqStatisticsPage() {
         </div>
       </div>
 
-      {/* 최근 접속/설치 기록 */}
+      {/* 최근 접속 기록 */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-2">
           <h3 className="text-lg font-black text-gray-900 tracking-tight">
-            최근 접속/설치 기록 (최대 {MAX_LOGS}건 · {MAX_PAGES}페이지)
+            최근 접속 기록
           </h3>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-400 font-medium">
-              최근 25건(5줄×5페이지)만 표시되며, 이전 기록은 저장하지 않고 자동 삭제됩니다
-            </span>
+          <div className="flex items-center gap-3 shrink-0">
             {visitLogs.length > 0 && (
               <button
                 type="button"
                 onClick={handleClearAllLogs}
-                className="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded-lg transition-colors whitespace-nowrap shrink-0"
+                className="text-xs font-bold text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1.5 rounded-lg transition-colors whitespace-nowrap"
               >
                 기록 전체 비우기
               </button>
@@ -286,10 +450,10 @@ export default function HqStatisticsPage() {
           <table className="w-full text-sm text-left min-w-[780px]">
             <thead className="bg-gray-50/70 text-gray-500 font-bold text-xs border-b border-gray-100">
               <tr>
-                <th className="px-6 py-3.5 whitespace-nowrap">분류 / 접속 시간</th>
-                <th className="px-6 py-3.5 whitespace-nowrap">유입 경로 (Referrer)</th>
-                <th className="px-6 py-3.5 text-center whitespace-nowrap">인스타그램 여부</th>
-                <th className="px-6 py-3.5 whitespace-nowrap">접속 페이지</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">방문자 구분 / 접속 시간</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">기기 · 실행 앱</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">유입 경로</th>
+                <th className="px-6 py-3.5 whitespace-nowrap">열람 기록</th>
                 <th className="px-6 py-3.5 text-center whitespace-nowrap">관리</th>
               </tr>
             </thead>
@@ -303,39 +467,64 @@ export default function HqStatisticsPage() {
               ) : (
                 paginatedLogs.map((log) => {
                   const timeStr = new Date(log.createdAt).toLocaleString('ko-KR');
-                  const isInstall = log.type === '앱 설치';
+                  const isRepeat = log.visitCount > 1;
+                  const channel = resolveChannelInfo(log);
+                  const steps = log.actions && log.actions.length > 0 ? log.actions : ['메인 랜딩 열람'];
 
                   return (
                     <tr key={log.settingKey} className="hover:bg-gray-50/60 transition-colors">
+                      {/* 1. 방문자 구분 (첫 방문 / 재방문만 카드 형태) + 접속 시간 */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex flex-col items-start gap-1">
-                          <span
-                            className={`px-2 py-0.5 text-[11px] font-extrabold rounded ${
-                              isInstall
-                                ? 'bg-emerald-50 text-emerald-600'
-                                : 'bg-blue-50 text-blue-600'
-                            }`}
-                          >
-                            {log.type}
-                          </span>
+                          {isRepeat ? (
+                            <span className="px-2.5 py-0.5 text-[11px] font-extrabold rounded-md bg-orange-50 text-orange-700 border border-orange-200">
+                              재방문 ({log.visitCount}회째)
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-0.5 text-[11px] font-extrabold rounded-md bg-blue-50 text-blue-600 border border-blue-100">
+                              첫 방문
+                            </span>
+                          )}
                           <span className="text-xs text-gray-400 font-medium">{timeStr}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-800 font-medium text-sm break-all max-w-md">
-                        {log.device} {log.referrer}
+
+                      {/* 2. 기기 · 실행 앱 (텍스트로만 표기) */}
+                      <td className="px-6 py-4 whitespace-nowrap text-gray-800 font-bold text-[13.5px]">
+                        {log.device}
                       </td>
-                      <td className="px-6 py-4 text-center whitespace-nowrap">
-                        {log.isInstagram ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-pink-50 text-pink-600 border border-pink-200">
-                            📸 인스타그램
+
+                      {/* 3. 유입 경로 (텍스트로만 표기) */}
+                      <td className="px-6 py-4 max-w-xs">
+                        <div className="flex flex-col items-start gap-0.5">
+                          <span className="text-[13.5px] font-bold text-gray-800">
+                            {channel.title}
                           </span>
-                        ) : (
-                          <span className="text-gray-400">-</span>
-                        )}
+                          {channel.subText && (
+                            <span className="text-[11px] text-gray-400 truncate max-w-[240px]" title={channel.subText}>
+                              {channel.subText}
+                            </span>
+                          )}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 text-gray-600 font-mono text-xs whitespace-nowrap">
-                        {log.page}
+
+                      {/* 4. 예비 사장님 행동 발자취 (텍스트로만 표기) */}
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap items-center gap-1.5 text-[13.5px]">
+                          {steps.map((step, idx) => (
+                            <div key={`${log.settingKey}-step-${idx}`} className="flex items-center gap-1.5">
+                              {idx > 0 && (
+                                <span className="text-gray-400 font-bold text-xs select-none">→</span>
+                              )}
+                              <span className={`whitespace-nowrap ${getStepTextStyle(step)}`}>
+                                {step}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </td>
+
+                      {/* 5. 관리 */}
                       <td className="px-6 py-4 text-center whitespace-nowrap">
                         <button
                           type="button"
@@ -359,7 +548,7 @@ export default function HqStatisticsPage() {
             <button
               type="button"
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
+              disabled={safePage === 1}
               className="px-2.5 py-1.5 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               이전
@@ -370,7 +559,7 @@ export default function HqStatisticsPage() {
                 type="button"
                 onClick={() => setCurrentPage(pageNum)}
                 className={`w-8 h-8 text-xs font-extrabold rounded-lg border transition-colors ${
-                  currentPage === pageNum
+                  safePage === pageNum
                     ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}
@@ -381,7 +570,7 @@ export default function HqStatisticsPage() {
             <button
               type="button"
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
+              disabled={safePage === totalPages}
               className="px-2.5 py-1.5 text-xs font-bold text-gray-500 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               다음
