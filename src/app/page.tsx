@@ -317,14 +317,24 @@ export default function LandingPage() {
                       <span className="px-1.5 py-0.5 rounded bg-white border border-emerald-300 text-emerald-900 text-[10px] font-black">✓ 이음카드</span>
                     </div>
                   </div>
+
+                  {/* First-Come-First-Served Notice in Customer Mockup */}
+                  <div className="px-4 pt-2">
+                    <div className="bg-[#FFFDF5] border border-amber-300 rounded-xl px-3 py-1.5 flex items-center justify-center gap-1.5 shadow-2xs">
+                      <span className="text-[12px] shrink-0">📢</span>
+                      <span className="text-[10.5px] font-extrabold text-amber-950 tracking-tight break-keep">
+                        초특가 상품은 <strong className="text-[#B81D5C] underline">현장 방문 선착순 판매</strong> (전화 예약 불가)
+                      </span>
+                    </div>
+                  </div>
                   
                   {/* Boss Story */}
-                  <div className="px-4 pt-2.5 pb-2">
-                    <div className="flex items-center gap-2 mb-1.5 px-1">
-                      <span className="text-[15px]">🖋️</span>
-                      <span className="font-black text-[13px] text-gray-900 uppercase tracking-widest">오늘의 사장님 이야기</span>
+                  <div className="px-4 pt-2 pb-1.5">
+                    <div className="flex items-center gap-2 mb-1 px-1">
+                      <span className="text-[14px]">🖋️</span>
+                      <span className="font-black text-[12px] text-gray-900 uppercase tracking-widest">오늘의 사장님 이야기</span>
                     </div>
-                    <div className="bg-[#F5F0E6] p-3.5 border border-[#E8DFD1] text-[13px] font-medium leading-[1.5] text-gray-800 shadow-sm">
+                    <div className="bg-[#F5F0E6] p-3 border border-[#E8DFD1] text-[12.5px] font-medium leading-[1.45] text-gray-800 shadow-sm">
                       어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~
                     </div>
                   </div>
@@ -351,35 +361,43 @@ export default function LandingPage() {
                   </div>
 
                   {/* Product List */}
-                  <div className="p-4 flex-1 space-y-3">
-                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden">
+                  <div className="p-4 flex-1 space-y-2.5 relative">
+                    <div className="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden">
                       <div>
-                        <div className="flex items-center gap-1.5 mb-1.5">
-                          <span className="text-[11px] bg-red-50 text-red-500 border border-red-100 px-1.5 py-0.5 rounded font-bold">1++</span>
-                          <span className="text-[11px] bg-gray-100 text-gray-500 border border-gray-200 px-1.5 py-0.5 rounded font-bold">국산</span>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] bg-red-50 text-red-500 border border-red-100 px-1.5 py-0.5 rounded font-bold">1++</span>
+                          <span className="text-[10px] bg-gray-100 text-gray-500 border border-gray-200 px-1.5 py-0.5 rounded font-bold">국산</span>
                         </div>
-                        <h4 className="font-black text-[15px] text-gray-800">한우 등심 200g</h4>
+                        <h4 className="font-black text-[14.5px] text-gray-800">한우 등심 200g</h4>
                       </div>
-                      <div className="text-right flex items-center gap-3">
-                        <div className="bg-red-500 text-white font-black text-sm px-2 py-1 rounded">30%</div>
+                      <div className="text-right flex items-center gap-2.5">
+                        <div className="bg-red-500 text-white font-black text-xs px-2 py-0.5 rounded">30%</div>
                         <div>
-                          <div className="text-red-500 font-black text-xl">10,000원</div>
-                          <div className="text-xs text-gray-400 line-through text-right">15,000원</div>
+                          <div className="text-red-500 font-black text-lg leading-tight">10,000원</div>
+                          <div className="text-[11px] text-gray-400 line-through text-right">15,000원</div>
                         </div>
                       </div>
                     </div>
 
                     {/* Sold out item */}
-                    <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden opacity-50 grayscale-[0.5]">
+                    <div className="bg-white p-3.5 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center relative overflow-hidden opacity-50 grayscale-[0.5]">
                       <div className="absolute inset-0 bg-white/40 backdrop-blur-[1.5px] z-10 flex items-center justify-center">
-                        <span className="text-3xl font-black text-red-600 border-4 border-red-600 px-4 py-1 transform -rotate-12 rounded-lg opacity-90 tracking-widest drop-shadow-md">품절</span>
+                        <span className="text-2xl font-black text-red-600 border-4 border-red-600 px-3 py-0.5 transform -rotate-12 rounded-lg opacity-90 tracking-widest drop-shadow-md">품절</span>
                       </div>
                       <div>
-                        <h4 className="font-black text-[15px] text-gray-800 mt-2">샤인머스켓 1박스</h4>
+                        <h4 className="font-black text-[14.5px] text-gray-800 mt-1">샤인머스켓 1박스</h4>
                       </div>
                       <div className="text-right">
-                        <div className="text-gray-500 font-black text-xl">18,000원</div>
+                        <div className="text-gray-500 font-black text-lg">18,000원</div>
                       </div>
+                    </div>
+
+                    {/* Floating Store Phone Call Badge inside Customer Mockup */}
+                    <div className="absolute bottom-3 right-3 z-20 w-[54px] h-[54px] rounded-full bg-gradient-to-br from-[#5F0080] to-[#3B0054] text-white shadow-[0_6px_18px_rgba(95,0,128,0.45)] border-2 border-white flex flex-col items-center justify-center gap-0.5">
+                      <svg className="w-4 h-4 text-[#FFD700]" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.61 21 3 13.39 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z" />
+                      </svg>
+                      <span className="text-[9.5px] font-black tracking-tight leading-none">매장전화</span>
                     </div>
                   </div>
 
@@ -643,21 +661,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature 4.5: Local Currency / Voucher Badges & Regular Customer Dashboard (NEW) */}
+      {/* Feature 4.5: Local Currency / Voucher Badges, Regular Customer Dashboard & Smart Store Phone Call (NEW) */}
       <section className="py-20 md:py-32 bg-gradient-to-b from-emerald-50/40 via-white to-purple-50/40 border-t border-gray-100 overflow-hidden relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black tracking-wide mb-4">
-              🔥 사장님들이 가장 극찬하는 매출 직결 기능 2가지
+              🔥 사장님들이 가장 극찬하는 동네 장사 현장 밀착 기능
             </div>
             <h3 className="text-2xl md:text-3xl lg:text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight leading-[1.2] break-keep">
-              상품권·지역화폐 안내부터<br />
+              상품권 안내·매장 전화 연결부터<br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-[#5F0080]">
                 매일 늘어나는 단골 수 확인까지 한눈에.
               </span>
             </h3>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto font-medium break-keep">
-              동네 마트·정육점·전통시장 사장님들의 현장 목소리를 그대로 반영했습니다. 손님이 가장 궁금해하는 결제수단을 전단지 최상단에 띄워주고, 우리 가게 단골이 매일 몇 명씩 늘어나는지 실시간 숫자로 보여드립니다.
+              동네 마트·정육점·전통시장 사장님들의 현장 목소리를 그대로 반영했습니다. 결제 가능 상품권 안내와 선착순 판매 원칙이 적용된 스마트 매장 전화 버튼, 그리고 매일 늘어나는 단골 수 대시보드까지 모두 기본 제공됩니다.
             </p>
           </div>
 
@@ -778,6 +796,57 @@ export default function LandingPage() {
                   <div className="flex items-center justify-between text-[12px] font-bold px-2 py-1 bg-white rounded-lg border border-gray-100">
                     <span className="text-gray-600">📅 2026. 11. 04 (수)</span>
                     <span className="text-gray-900 font-black">+19명 설치</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3 (Full-Width Banner): Smart Store Phone Call + First-Come-First-Served Notice */}
+          <div className="mt-10 lg:mt-12 bg-white rounded-[2.2rem] p-6 sm:p-10 shadow-[0_25px_60px_rgba(184,29,92,0.07)] border border-amber-200/90 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#5F0080] via-[#B81D5C] to-amber-500"></div>
+            <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+              <div className="lg:col-span-7">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-900 text-xs font-black mb-4">
+                  📞 선착순 원칙 안내 + 원터치 매장 전화 연결 (ON/OFF 지원)
+                </div>
+                <h4 className="text-2xl sm:text-3xl font-black text-gray-900 mb-3 tracking-tight break-keep leading-snug">
+                  &ldquo;지금 갈 테니 빼놔 주세요!&rdquo; 곤란한 전화 예약은 막고,<br />
+                  <span className="text-[#5F0080]">대량 주문·위치 문의 전화는 터치 한 번으로 연결합니다.</span>
+                </h4>
+                <p className="text-gray-600 text-[15.5px] leading-relaxed mb-5 break-keep">
+                  초특가 세일 때 전화로 &ldquo;하나 빼놔 주세요(킵)&rdquo; 요청이 오면 사장님도, 현장에 먼저 오신 손님도 난감해집니다. NAO3는 전단지 상단과 전화 연결 직전 팝업에 <strong>&lsquo;현장 방문 선착순 판매로 전화 예약이 어렵다&rsquo;는 안내를 자동으로 띄워</strong> 사장님의 곤란한 거절 부담을 덜어드립니다.
+                </p>
+                <div className="flex flex-wrap gap-2.5 text-[12.5px] font-extrabold">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FFFDF5] border border-amber-300 text-amber-950">
+                    📢 전단지 상단 &lsquo;현장 방문 선착순 판매&rsquo; 상시 명시
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-[#5F0080]">
+                    🎚️ 바쁜 시간엔 어드민에서 전화 버튼 1초 ON/OFF
+                  </span>
+                </div>
+              </div>
+
+              {/* Right Mockup: Floating Button + Confirmation Modal Preview */}
+              <div className="lg:col-span-5">
+                <div className="bg-gray-50 rounded-3xl p-4 sm:p-5 border border-gray-200/80 relative">
+                  <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-md border-2 border-[#5F0080] text-center">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-50 text-[#5F0080] text-[11px] font-black mb-2">
+                      📞 우측 하단 [매장전화] 터치 시 자동 안내 팝업
+                    </div>
+                    <h5 className="text-[16px] font-black text-gray-900 mb-0.5">나오삼마트 전화 연결</h5>
+                    <p className="text-[13px] font-extrabold text-[#5F0080] mb-3">02-1234-5678</p>
+                    <div className="bg-[#FFFDF5] border border-amber-300 rounded-xl p-3 mb-3.5 text-left">
+                      <p className="text-[12px] font-extrabold text-amber-950 leading-relaxed break-keep">
+                        📢 초특가 세일 상품은 <span className="text-[#B81D5C] underline">현장 방문 선착순 판매</span>로 전화 예약(킵)이 어려울 수 있습니다.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <span className="py-2 rounded-xl bg-gray-100 text-gray-600 font-extrabold text-[12.5px]">취소</span>
+                      <span className="py-2 rounded-xl bg-[#5F0080] text-white font-black text-[12.5px] flex items-center justify-center gap-1 shadow-xs">
+                        <span>📞</span> 전화 걸기
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

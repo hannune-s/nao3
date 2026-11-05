@@ -831,6 +831,54 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
   });
   const [customPaymentInput, setCustomPaymentInput] = useState('');
   const [isSavingPaymentBadges, setIsSavingPaymentBadges] = useState(false);
+  const [showPhoneButton, setShowPhoneButton] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(`nao3_draft_showPhoneButton_${storeId}`);
+      if (saved !== null) return saved !== 'false';
+    }
+    return true;
+  });
+
+  const handleTogglePhoneButton = async () => {
+    const nextVal = !showPhoneButton;
+    setShowPhoneButton(nextVal);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`nao3_draft_showPhoneButton_${storeId}`, String(nextVal));
+      const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeId}`) || '{}');
+      stagedSettings.showPhoneButton = nextVal;
+      localStorage.setItem(`nao3_staging_settings_${storeId}`, JSON.stringify(stagedSettings));
+      if (storeSlug) {
+        localStorage.setItem(`nao3_draft_showPhoneButton_${storeSlug}`, String(nextVal));
+        const slugSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeSlug}`) || '{}');
+        slugSettings.showPhoneButton = nextVal;
+        localStorage.setItem(`nao3_staging_settings_${storeSlug}`, JSON.stringify(slugSettings));
+      }
+    }
+
+    if (!storeId.startsWith('demo-guest-') && storeId !== 'demo') {
+      try {
+        const key = `STORE_PHONE_BUTTON_${storeId}`;
+        const { data: existingRow } = await supabase
+          .from('nao3_system_settings')
+          .select('setting_key')
+          .eq('setting_key', key)
+          .maybeSingle();
+
+        if (existingRow) {
+          await supabase
+            .from('nao3_system_settings')
+            .update({ setting_value: String(nextVal) })
+            .eq('setting_key', key);
+        } else {
+          await supabase
+            .from('nao3_system_settings')
+            .insert({ setting_key: key, setting_value: String(nextVal) });
+        }
+      } catch (e) {
+        console.error('Failed to save phone button setting', e);
+      }
+    }
+  };
 
   const syncLocalPaymentBadges = (nextBadges: string[]) => {
     if (typeof window !== 'undefined') {
@@ -1322,7 +1370,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
 
       // 2. 행사 타이틀 & 서브 문구 최신 DB 값으로 덮어쓰기 (STORE_EVENT_BANNER)
       //    결제수단 뱃지는 별도 키(STORE_PAYMENT_BADGES)에서 독립 로드 (하위호환 fallback 포함)
-      const [{ data: bannerRow }, { data: badgeRow }] = await Promise.all([
+      const [{ data: bannerRow }, { data: badgeRow }, { data: phoneBtnRow }] = await Promise.all([
         supabase
           .from('nao3_system_settings')
           .select('setting_value')
@@ -1333,7 +1381,18 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           .select('setting_value')
           .eq('setting_key', `STORE_PAYMENT_BADGES_${storeId}`)
           .maybeSingle(),
+        supabase
+          .from('nao3_system_settings')
+          .select('setting_value')
+          .eq('setting_key', `STORE_PHONE_BUTTON_${storeId}`)
+          .maybeSingle(),
       ]);
+
+      if (phoneBtnRow?.setting_value !== undefined && phoneBtnRow?.setting_value !== null) {
+        const isEnabled = phoneBtnRow.setting_value !== 'false';
+        setShowPhoneButton(isEnabled);
+        localStorage.setItem(`nao3_draft_showPhoneButton_${storeId}`, String(isEnabled));
+      }
 
       let fallbackBadges: string[] | null = null;
       if (bannerRow?.setting_value) {
@@ -1750,6 +1809,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       eventTitle: eventTitle.trim(),
       eventSubtitle: eventSubtitle.trim(),
       paymentBadges,
+      showPhoneButton,
       special_title: specialForm.title,
       special_price: specialForm.price,
       special_message: specialForm.message,
@@ -2321,6 +2381,33 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             >
               {isSavingPaymentBadges ? '저장 중...' : '결제수단 설정 저장하기'}
             </button>
+
+            {/* 고객 화면 우측 하단 [매장 전화] 버튼 노출 ON/OFF 스위치 */}
+            <div className="pt-2.5 mt-1 border-t border-gray-100 flex items-center justify-between gap-2">
+              <div className="flex flex-col min-w-0">
+                <span className="text-[12.5px] sm:text-[13px] font-black text-gray-800 tracking-tight truncate">
+                  고객 화면 우측 하단 [매장전화] 버튼 표시
+                </span>
+                <span className="text-[11px] font-medium text-gray-400 tracking-tight truncate">
+                  켜두면 손님이 세일 전단지에서 바로 매장으로 전화할 수 있습니다
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleTogglePhoneButton}
+                className={`relative inline-flex h-7 w-13 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  showPhoneButton ? 'bg-[#5F0080]' : 'bg-gray-300'
+                }`}
+                role="switch"
+                aria-checked={showPhoneButton}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    showPhoneButton ? 'translate-x-6' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* 1단: 세일 진행 기간 */}

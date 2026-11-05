@@ -179,6 +179,8 @@ export default function CustomerSalePage() {
   const [installCompleteModal, setInstallCompleteModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('전체');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showPhoneButton, setShowPhoneButton] = useState<boolean>(true);
+  const [showCallConfirmModal, setShowCallConfirmModal] = useState<boolean>(false);
 
   // iOS 홈화면 타이틀 및 head 내 manifest 링크 보장
   useEffect(() => {
@@ -409,7 +411,7 @@ export default function CustomerSalePage() {
         let storeIdForQuery = storeSlug;
         if (storeSlug.startsWith('demo-guest-')) {
           setStoreName('체험용 마트');
-          setStoreInfo({ id: storeSlug, store_name: '체험용 마트' });
+          setStoreInfo({ id: storeSlug, store_name: '체험용 마트', phone: '02-1234-5678' });
         } else {
           const isUuidSlug = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(storeSlug);
           const { data: store } = await supabase
@@ -431,7 +433,7 @@ export default function CustomerSalePage() {
               .maybeSingle();
             setStoreInfo({ ...store, etc_info: etcRow?.setting_value || '' });
 
-            const [{ data: bannerRow }, { data: badgeRow }] = await Promise.all([
+            const [{ data: bannerRow }, { data: badgeRow }, { data: phoneBtnRow }] = await Promise.all([
               supabase
                 .from('nao3_system_settings')
                 .select('setting_value')
@@ -442,6 +444,11 @@ export default function CustomerSalePage() {
                 .select('setting_value')
                 .eq('setting_key', `STORE_PAYMENT_BADGES_${store.id}`)
                 .maybeSingle(),
+              supabase
+                .from('nao3_system_settings')
+                .select('setting_value')
+                .eq('setting_key', `STORE_PHONE_BUTTON_${store.id}`)
+                .maybeSingle(),
             ]);
             let fallbackBadges: string[] | null = null;
             if (bannerRow?.setting_value) {
@@ -450,7 +457,16 @@ export default function CustomerSalePage() {
                 if (parsed.eventTitle) setEventTitle(parsed.eventTitle);
                 if (parsed.eventSubtitle) setEventSubtitle(parsed.eventSubtitle);
                 if (Array.isArray(parsed.paymentBadges)) fallbackBadges = parsed.paymentBadges;
+                if (typeof parsed.showPhoneButton === 'boolean') setShowPhoneButton(parsed.showPhoneButton);
               } catch (e) {}
+            }
+            if (phoneBtnRow?.setting_value !== undefined && phoneBtnRow?.setting_value !== null) {
+              setShowPhoneButton(phoneBtnRow.setting_value !== 'false');
+            } else {
+              const localPhoneBtn = localStorage.getItem(`nao3_draft_showPhoneButton_${store.id}`) ?? localStorage.getItem(`nao3_draft_showPhoneButton_${storeSlug}`);
+              if (localPhoneBtn !== null) {
+                setShowPhoneButton(localPhoneBtn !== 'false');
+              }
             }
             if (badgeRow?.setting_value) {
               try {
@@ -472,6 +488,15 @@ export default function CustomerSalePage() {
           if (stagedSettings.storeName) setStoreName(stagedSettings.storeName);
           if (stagedSettings.eventTitle !== undefined) setEventTitle(stagedSettings.eventTitle);
           if (stagedSettings.eventSubtitle !== undefined) setEventSubtitle(stagedSettings.eventSubtitle);
+          if (typeof stagedSettings.showPhoneButton === 'boolean') {
+            setShowPhoneButton(stagedSettings.showPhoneButton);
+          } else {
+            const rawDraftPhoneBtn = localStorage.getItem(`nao3_draft_showPhoneButton_${storeSlug}`) ??
+                                     (storeIdForQuery ? localStorage.getItem(`nao3_draft_showPhoneButton_${storeIdForQuery}`) : null);
+            if (rawDraftPhoneBtn !== null) {
+              setShowPhoneButton(rawDraftPhoneBtn !== 'false');
+            }
+          }
           if (Array.isArray(stagedSettings.paymentBadges)) {
             setPaymentBadges(stagedSettings.paymentBadges);
           } else {
@@ -491,6 +516,7 @@ export default function CustomerSalePage() {
             ...prev,
             id: prev?.id || storeIdForQuery || storeSlug,
             store_name: stagedSettings.storeName || prev?.store_name || storeSlug,
+            phone: prev?.phone || (storeSlug.startsWith('demo-guest-') ? '02-1234-5678' : ''),
             special_title: stagedSettings.special_title || prev?.special_title,
             special_price: stagedSettings.special_price || prev?.special_price,
             special_message: stagedSettings.special_message || prev?.special_message,
@@ -840,6 +866,14 @@ export default function CustomerSalePage() {
                 </div>
               </div>
             )}
+
+            {/* 선착순 현장 판매 및 전화 예약(킵) 불가 상시 고정 안내 */}
+            <div className="mt-3 max-w-md mx-auto bg-[#FFFDF5] border border-amber-300/90 rounded-xl px-3.5 py-2.5 shadow-[0_2px_8px_rgba(217,119,6,0.08)] flex items-center justify-center gap-2 text-left sm:text-center">
+              <span className="text-[15px] leading-none shrink-0">📢</span>
+              <p className="text-[12.5px] sm:text-[13px] font-extrabold text-amber-950 leading-snug tracking-tight break-keep">
+                초특가 세일 상품은 <span className="text-[#B81D5C] underline decoration-[#B81D5C]/40 underline-offset-2">현장 방문 선착순 판매</span>로 전화 예약(킵)이 어려울 수 있습니다.
+              </p>
+            </div>
           </div>
 
           {/* 오늘의 사장님 이야기 */}
@@ -1239,6 +1273,75 @@ export default function CustomerSalePage() {
                 NAO3
               </DemoButton>
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* 우측 하단 플로팅 [매장 전화] 버튼 (톡상담 스타일 원형 뱃지) */}
+      {showPhoneButton && storeInfo?.phone && (
+        <button
+          type="button"
+          onClick={() => setShowCallConfirmModal(true)}
+          aria-label="매장 전화 연결"
+          className="fixed bottom-5 right-4 z-40 w-[62px] h-[62px] rounded-full bg-gradient-to-br from-[#5F0080] to-[#3B0054] text-white shadow-[0_8px_24px_rgba(95,0,128,0.45)] border-2 border-white/90 flex flex-col items-center justify-center gap-0.5 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+        >
+          <svg className="w-5 h-5 text-[#FFD700] drop-shadow-xs" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.61 21 3 13.39 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z" />
+          </svg>
+          <span className="text-[11px] font-black tracking-tight leading-none text-white">
+            매장전화
+          </span>
+        </button>
+      )}
+
+      {/* 매장 전화 연결 전 1초 선착순 안내 확인 모달 */}
+      {showCallConfirmModal && storeInfo?.phone && (
+        <div
+          className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-fade-in-up"
+          onClick={() => setShowCallConfirmModal(false)}
+        >
+          <div
+            className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border-2 border-[#5F0080] text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-13 h-13 bg-purple-50 text-[#5F0080] rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
+              <svg className="w-6 h-6 text-[#5F0080]" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.61 21 3 13.39 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z" />
+              </svg>
+            </div>
+
+            <h3 className="text-[18px] font-black text-gray-900 leading-snug break-keep mb-1">
+              {storeName || '매장'} 전화 연결
+            </h3>
+            <p className="text-[15px] font-extrabold text-[#5F0080] tracking-tight mb-3.5">
+              {storeInfo.phone}
+            </p>
+
+            <div className="bg-[#FFFDF5] border border-amber-300 rounded-2xl p-3.5 mb-5 text-left">
+              <p className="text-[13px] font-extrabold text-amber-950 leading-relaxed break-keep">
+                📢 초특가 세일 상품은 <span className="text-[#B81D5C] underline decoration-[#B81D5C]/40 underline-offset-2">현장 방문 선착순 판매</span>로 전화 예약(킵)이 어려울 수 있습니다.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setShowCallConfirmModal(false)}
+                className="py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold text-[14px] transition-colors cursor-pointer"
+              >
+                취소
+              </button>
+              <a
+                href={`tel:${storeInfo.phone}`}
+                onClick={() => setShowCallConfirmModal(false)}
+                className="py-3 rounded-xl bg-[#5F0080] hover:bg-purple-900 text-white font-black text-[14px] shadow-md flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <svg className="w-4 h-4 text-[#FFD700] shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2a1 1 0 011.01-.24c1.12.37 2.33.57 3.58.57a1 1 0 011 1V20a1 1 0 01-1 1C10.61 21 3 13.39 3 4a1 1 0 011-1h3.5a1 1 0 011 1c0 1.25.2 2.46.57 3.58a1 1 0 01-.25 1.01l-2.2 2.2z" />
+                </svg>
+                <span>전화 걸기</span>
+              </a>
+            </div>
           </div>
         </div>
       )}
