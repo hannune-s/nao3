@@ -431,18 +431,34 @@ export default function CustomerSalePage() {
               .maybeSingle();
             setStoreInfo({ ...store, etc_info: etcRow?.setting_value || '' });
 
-            const { data: bannerRow } = await supabase
-              .from('nao3_system_settings')
-              .select('setting_value')
-              .eq('setting_key', `STORE_EVENT_BANNER_${store.id}`)
-              .maybeSingle();
+            const [{ data: bannerRow }, { data: badgeRow }] = await Promise.all([
+              supabase
+                .from('nao3_system_settings')
+                .select('setting_value')
+                .eq('setting_key', `STORE_EVENT_BANNER_${store.id}`)
+                .maybeSingle(),
+              supabase
+                .from('nao3_system_settings')
+                .select('setting_value')
+                .eq('setting_key', `STORE_PAYMENT_BADGES_${store.id}`)
+                .maybeSingle(),
+            ]);
+            let fallbackBadges: string[] | null = null;
             if (bannerRow?.setting_value) {
               try {
                 const parsed = JSON.parse(bannerRow.setting_value);
                 if (parsed.eventTitle) setEventTitle(parsed.eventTitle);
                 if (parsed.eventSubtitle) setEventSubtitle(parsed.eventSubtitle);
-                if (Array.isArray(parsed.paymentBadges)) setPaymentBadges(parsed.paymentBadges);
+                if (Array.isArray(parsed.paymentBadges)) fallbackBadges = parsed.paymentBadges;
               } catch (e) {}
+            }
+            if (badgeRow?.setting_value) {
+              try {
+                const parsedBadges = JSON.parse(badgeRow.setting_value);
+                if (Array.isArray(parsedBadges)) setPaymentBadges(parsedBadges);
+              } catch (e) {}
+            } else if (fallbackBadges) {
+              setPaymentBadges(fallbackBadges);
             }
           }
         }

@@ -826,8 +826,9 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     return [];
   });
   const [customPaymentInput, setCustomPaymentInput] = useState('');
+  const [isSavingPaymentBadges, setIsSavingPaymentBadges] = useState(false);
 
-  const persistBannerWithPaymentBadges = async (nextBadges: string[]) => {
+  const syncLocalPaymentBadges = (nextBadges: string[]) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(nextBadges));
       const stagedSettings = JSON.parse(localStorage.getItem(`nao3_staging_settings_${storeId}`) || '{}');
@@ -839,40 +840,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         localStorage.setItem(`nao3_staging_settings_${storeSlug}`, JSON.stringify(slugSettings));
       }
     }
-
-    if (storeId.startsWith('demo-guest-') || storeId === 'demo') return;
-
-    try {
-      const bannerPayload = JSON.stringify({
-        eventTitle: eventTitle.trim(),
-        eventSubtitle: eventSubtitle.trim(),
-        paymentBadges: nextBadges,
-      });
-      const { data: existingBanner } = await supabase
-        .from('nao3_system_settings')
-        .select('setting_key')
-        .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`)
-        .maybeSingle();
-
-      if (existingBanner) {
-        await supabase
-          .from('nao3_system_settings')
-          .update({ setting_value: bannerPayload })
-          .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`);
-      } else {
-        await supabase
-          .from('nao3_system_settings')
-          .insert({ setting_key: `STORE_EVENT_BANNER_${storeId}`, setting_value: bannerPayload });
-      }
-    } catch (e) {
-      console.warn('결제수단 자동 저장 실패:', e);
-    }
   };
 
   const handleTogglePaymentBadge = (badge: string) => {
     setPaymentBadges((prev) => {
       const next = prev.includes(badge) ? prev.filter((b) => b !== badge) : [...prev, badge];
-      persistBannerWithPaymentBadges(next);
+      syncLocalPaymentBadges(next);
       return next;
     });
   };
@@ -880,7 +853,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
   const handleRemoveCustomPaymentBadge = (badge: string) => {
     setPaymentBadges((prev) => {
       const next = prev.filter((b) => b !== badge);
-      persistBannerWithPaymentBadges(next);
+      syncLocalPaymentBadges(next);
       return next;
     });
   };
@@ -891,10 +864,48 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     setPaymentBadges((prev) => {
       if (prev.includes(trimmed)) return prev;
       const next = [...prev, trimmed];
-      persistBannerWithPaymentBadges(next);
+      syncLocalPaymentBadges(next);
       return next;
     });
     setCustomPaymentInput('');
+  };
+
+  // 결제수단 안내 전용 저장 버튼 (행사 타이틀/서브문구와 완전히 독립 저장)
+  const handleSavePaymentBadges = async () => {
+    syncLocalPaymentBadges(paymentBadges);
+    if (storeId.startsWith('demo-guest-') || storeId === 'demo') {
+      alert('체험 모드: 결제 가능 상품권 · 지역화폐 설정이 저장되었습니다! [고객 화면 보기]로 확인해보세요.');
+      return;
+    }
+
+    setIsSavingPaymentBadges(true);
+    try {
+      const badgeKey = `STORE_PAYMENT_BADGES_${storeId}`;
+      const badgePayload = JSON.stringify(paymentBadges);
+      const { data: existingRow } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_key')
+        .eq('setting_key', badgeKey)
+        .maybeSingle();
+
+      if (existingRow) {
+        const { error } = await supabase
+          .from('nao3_system_settings')
+          .update({ setting_value: badgePayload })
+          .eq('setting_key', badgeKey);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('nao3_system_settings')
+          .insert({ setting_key: badgeKey, setting_value: badgePayload });
+        if (error) throw error;
+      }
+      alert('결제 가능 상품권 · 지역화폐 설정이 고객 화면에 저장되었습니다!');
+    } catch (e: any) {
+      alert('결제수단 저장 중 오류가 발생했습니다: ' + (e.message || ''));
+    } finally {
+      setIsSavingPaymentBadges(false);
+    }
   };
 
   // 이미지 자동 리사이즈(최대 900px) 및 용량 압축(500KB 이하) 헬퍼
@@ -1305,12 +1316,22 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
       }
 
-      // 2. 행사 타이틀 & 서브 문구 & 결제수단 뱃지 최신 DB 값으로 덮어쓰기
-      const { data: bannerRow } = await supabase
-        .from('nao3_system_settings')
-        .select('setting_value')
-        .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`)
-        .maybeSingle();
+      // 2. 행사 타이틀 & 서브 문구 최신 DB 값으로 덮어쓰기 (STORE_EVENT_BANNER)
+      //    결제수단 뱃지는 별도 키(STORE_PAYMENT_BADGES)에서 독립 로드 (하위호환 fallback 포함)
+      const [{ data: bannerRow }, { data: badgeRow }] = await Promise.all([
+        supabase
+          .from('nao3_system_settings')
+          .select('setting_value')
+          .eq('setting_key', `STORE_EVENT_BANNER_${storeId}`)
+          .maybeSingle(),
+        supabase
+          .from('nao3_system_settings')
+          .select('setting_value')
+          .eq('setting_key', `STORE_PAYMENT_BADGES_${storeId}`)
+          .maybeSingle(),
+      ]);
+
+      let fallbackBadges: string[] | null = null;
       if (bannerRow?.setting_value) {
         try {
           const parsed = JSON.parse(bannerRow.setting_value);
@@ -1323,28 +1344,28 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             localStorage.setItem(`nao3_draft_eventSubtitle_${storeId}`, parsed.eventSubtitle);
           }
           if (Array.isArray(parsed.paymentBadges)) {
-            setPaymentBadges(parsed.paymentBadges);
-            localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(parsed.paymentBadges));
+            fallbackBadges = parsed.paymentBadges;
           }
         } catch (e) {}
+      }
+
+      if (badgeRow?.setting_value) {
+        try {
+          const parsedBadges = JSON.parse(badgeRow.setting_value);
+          if (Array.isArray(parsedBadges)) {
+            setPaymentBadges(parsedBadges);
+            localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(parsedBadges));
+          }
+        } catch (e) {}
+      } else if (fallbackBadges) {
+        setPaymentBadges(fallbackBadges);
+        localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(fallbackBadges));
       }
 
       fetchHistories();
     };
 
     loadInitData();
-
-    const handleVisibilityOrFocus = () => {
-      if (document.visibilityState === 'visible') {
-        loadInitData();
-      }
-    };
-    window.addEventListener('focus', handleVisibilityOrFocus);
-    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
-    return () => {
-      window.removeEventListener('focus', handleVisibilityOrFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
-    };
   }, [storeId]);
 
   // 상태가 변경될 때마다 로컬 스토리지에 자동 임시 저장 (새로고침 방지)
@@ -1653,11 +1674,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         return;
       }
 
-      // 행사 타이틀 & 서브 문구 & 결제수단 뱃지 저장 (nao3_system_settings)
+      // 행사 타이틀 & 서브 문구 저장 (nao3_system_settings — 결제수단과 완전 분리)
       const bannerPayload = JSON.stringify({
         eventTitle: eventTitle.trim(),
-        eventSubtitle: eventSubtitle.trim(),
-        paymentBadges
+        eventSubtitle: eventSubtitle.trim()
       });
       const { data: existingBanner } = await supabase
         .from('nao3_system_settings')
@@ -1695,7 +1715,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         if (!updatedData || updatedData.length === 0) {
            throw new Error("보안 정책(RLS) 문제로 업데이트가 차단되었습니다. 제공해드린 SQL을 Supabase에서 실행해주세요!");
         }
-        alert('진행 중인 세일에 행사 문구, 결제수단, 기간, 사장님 이야기가 즉시 반영되었습니다!');
+        alert('진행 중인 세일에 행사 문구, 기간, 사장님 이야기가 즉시 반영되었습니다!');
       } else {
         const { error } = await supabase.from('nao3_push_history').insert([{
           store_id: storeId,
@@ -1705,7 +1725,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           boss_message: bossMessage.trim() || null
         }]);
         if (error) throw error;
-        alert('새로운 세일 기본 정보(행사 문구, 결제수단, 기간, 멘트)가 성공적으로 저장되었습니다!');
+        alert('새로운 세일 기본 정보(행사 문구, 기간, 멘트)가 성공적으로 저장되었습니다!');
       }
     } catch (err: any) {
       console.error(err);
@@ -1837,11 +1857,10 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         return;
       }
 
-      // 행사 타이틀 & 서브 문구 & 결제수단 뱃지 저장 (nao3_system_settings)
+      // 행사 타이틀 & 서브 문구 저장 (nao3_system_settings — 결제수단과 완전 분리)
       const bannerPayload = JSON.stringify({
         eventTitle: eventTitle.trim(),
-        eventSubtitle: eventSubtitle.trim(),
-        paymentBadges
+        eventSubtitle: eventSubtitle.trim()
       });
       const { data: existingBanner } = await supabase
         .from('nao3_system_settings')
@@ -2208,63 +2227,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
             </div>
           </div>
 
-          {/* 1단: 세일 진행 기간 */}
-          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-purple-200 shadow-sm relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5F0080] to-[#C084FC] rounded-t-2xl"></div>
-            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
-              <span className="w-1.5 h-5 rounded-full bg-[#5F0080] inline-block shrink-0"></span>
-              <span>이번 세일 진행 기간</span>
-              <span className="text-[13px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-0.5 tracking-normal leading-tight">(기간이 자동 계산되어 고객 화면에 예쁘게 노출됩니다)</span>
-            </h3>
-            <div className="flex flex-col gap-3 mt-1">
-              <DateTimeField
-                label="시작"
-                badgeClass="bg-[#5F0080]"
-                value={saleStart}
-                onChange={setSaleStart}
-              />
-              <DateTimeField
-                label="종료"
-                badgeClass="bg-rose-600"
-                value={saleEnd}
-                onChange={setSaleEnd}
-              />
-            </div>
-          </div>
-          
-          {/* 1.5단: 행사 타이틀 & 서브 문구 설정 */}
-          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-amber-200 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-yellow-300"></div>
-            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
-              <span className="w-1.5 h-5 rounded-full bg-amber-500 inline-block shrink-0"></span>
-              <span>행사 타이틀 & 서브 문구 설정</span>
-              <span className="text-[12px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-0.5 tracking-normal leading-tight">(비워두면 기본 문구로 자동 노출 · 단어에 맞는 아이콘 자동 생성)</span>
-            </h3>
-            <div className="flex flex-col gap-3 mt-1">
-              <div>
-                <label className="block text-[12px] font-extrabold text-amber-900 mb-1.5">행사 타이틀 (큰 제목 · 엔터로 줄바꿈 가능)</label>
-                <textarea
-                  rows={2}
-                  value={eventTitle}
-                  onChange={e => setEventTitle(e.target.value)}
-                  placeholder="기본값: 오늘의 특가 찬스! (엔터를 치면 원하는 위치에서 줄바꿈됩니다)"
-                  className="w-full text-[15px] font-extrabold text-gray-900 border-2 border-amber-200 px-4 py-3 rounded-xl bg-[#FFFBEB] focus:bg-white focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug shadow-inner"
-                />
-              </div>
-              <div>
-                <label className="block text-[12px] font-extrabold text-amber-900 mb-1.5">서브 문구 (아래 설명 · 엔터로 줄바꿈 가능)</label>
-                <textarea
-                  rows={2}
-                  value={eventSubtitle}
-                  onChange={e => setEventSubtitle(e.target.value)}
-                  placeholder="기본값: 단골 고객님을 위해 준비한 깜짝 한정 세일"
-                  className="w-full text-[14px] font-bold text-gray-800 border-2 border-amber-200 px-4 py-3 rounded-xl bg-[#FFFBEB] focus:bg-white focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug shadow-inner"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 1.8단: 결제수단 · 상품권 · 지역화폐 안내 설정 */}
+          {/* 0단 (상단 독립): 결제수단 · 상품권 · 지역화폐 안내 설정 */}
           <div className="flex flex-col gap-2.5 bg-white p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-600 to-teal-400"></div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
@@ -2272,12 +2235,12 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                 <span className="w-1.5 h-4 rounded-full bg-emerald-600 inline-block shrink-0"></span>
                 <span>결제 가능 상품권 · 지역화폐 안내</span>
                 <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md tracking-normal leading-tight">
-                  클릭 시 고객 화면 즉시 반영
+                  한 번 설정해 두면 계속 유지됩니다
                 </span>
               </h3>
             </div>
             <p className="text-[12px] font-bold text-gray-500 leading-snug -mt-0.5">
-              기본 5종은 터치해서 켜고 끄실 수 있으며, 우리 동네 지역화폐는 아래에서 직접 추가·삭제(`✕`)하실 수 있습니다.
+              사용 가능한 결제수단을 선택(또는 직접 추가)하신 뒤 아래 <span className="text-emerald-700 font-extrabold">[결제수단 설정 저장하기]</span> 버튼을 눌러주세요.
             </p>
 
             {/* 프리셋 5종 + 직접 추가된 뱃지 목록 (컴팩트 사이즈) */}
@@ -2340,10 +2303,76 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
               <button
                 type="button"
                 onClick={handleAddCustomPaymentBadge}
-                className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-[12.5px] font-extrabold rounded-xl shrink-0 shadow-xs transition-colors"
+                className="px-3.5 py-2 bg-gray-800 hover:bg-gray-900 text-white text-[12.5px] font-extrabold rounded-xl shrink-0 shadow-xs transition-colors"
               >
                 + 직접 추가
               </button>
+            </div>
+
+            {/* 결제수단 전용 저장 버튼 */}
+            <button
+              type="button"
+              onClick={handleSavePaymentBadges}
+              disabled={isSavingPaymentBadges}
+              className="w-full py-3 mt-1 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 text-white font-extrabold rounded-xl shadow-[0_3px_10px_rgba(5,150,105,0.22)] transition-all text-[14.5px] tracking-tight"
+            >
+              {isSavingPaymentBadges ? '저장 중...' : '결제수단 설정 저장하기'}
+            </button>
+          </div>
+
+          {/* 1단: 세일 진행 기간 */}
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-purple-200 shadow-sm relative">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#5F0080] to-[#C084FC] rounded-t-2xl"></div>
+            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
+              <span className="w-1.5 h-5 rounded-full bg-[#5F0080] inline-block shrink-0"></span>
+              <span>이번 세일 진행 기간</span>
+              <span className="text-[13px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-0.5 tracking-normal leading-tight">(기간이 자동 계산되어 고객 화면에 예쁘게 노출됩니다)</span>
+            </h3>
+            <div className="flex flex-col gap-3 mt-1">
+              <DateTimeField
+                label="시작"
+                badgeClass="bg-[#5F0080]"
+                value={saleStart}
+                onChange={setSaleStart}
+              />
+              <DateTimeField
+                label="종료"
+                badgeClass="bg-rose-600"
+                value={saleEnd}
+                onChange={setSaleEnd}
+              />
+            </div>
+          </div>
+          
+          {/* 1.5단: 행사 타이틀 & 서브 문구 설정 */}
+          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-amber-200 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-yellow-300"></div>
+            <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
+              <span className="w-1.5 h-5 rounded-full bg-amber-500 inline-block shrink-0"></span>
+              <span>행사 타이틀 & 서브 문구 설정</span>
+              <span className="text-[12px] font-medium text-[#5F0080]/70 bg-purple-50 px-2 py-0.5 rounded-md mt-1 sm:mt-0 sm:ml-0.5 tracking-normal leading-tight">(비워두면 기본 문구로 자동 노출 · 단어에 맞는 아이콘 자동 생성)</span>
+            </h3>
+            <div className="flex flex-col gap-3 mt-1">
+              <div>
+                <label className="block text-[12px] font-extrabold text-amber-900 mb-1.5">행사 타이틀 (큰 제목 · 엔터로 줄바꿈 가능)</label>
+                <textarea
+                  rows={2}
+                  value={eventTitle}
+                  onChange={e => setEventTitle(e.target.value)}
+                  placeholder="기본값: 오늘의 특가 찬스! (엔터를 치면 원하는 위치에서 줄바꿈됩니다)"
+                  className="w-full text-[15px] font-extrabold text-gray-900 border-2 border-amber-200 px-4 py-3 rounded-xl bg-[#FFFBEB] focus:bg-white focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug shadow-inner"
+                />
+              </div>
+              <div>
+                <label className="block text-[12px] font-extrabold text-amber-900 mb-1.5">서브 문구 (아래 설명 · 엔터로 줄바꿈 가능)</label>
+                <textarea
+                  rows={2}
+                  value={eventSubtitle}
+                  onChange={e => setEventSubtitle(e.target.value)}
+                  placeholder="기본값: 단골 고객님을 위해 준비한 깜짝 한정 세일"
+                  className="w-full text-[14px] font-bold text-gray-800 border-2 border-amber-200 px-4 py-3 rounded-xl bg-[#FFFBEB] focus:bg-white focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-400/30 placeholder:text-gray-400 placeholder:font-normal transition-all resize-y leading-snug shadow-inner"
+                />
+              </div>
             </div>
           </div>
 
@@ -2364,7 +2393,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
               disabled={loading}
               className="w-full py-4 mt-3 bg-[#5F0080] text-white hover:bg-purple-900 font-extrabold rounded-xl shadow-[0_4px_14px_rgba(95,0,128,0.25)] transition-all text-[16px] tracking-tight"
             >
-              행사문구 · 결제수단 · 기간 · 멘트 즉시 반영하기
+              행사문구 · 기간 · 멘트 즉시 반영하기
             </button>
           </div>
         </div>
