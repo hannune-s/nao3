@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { matchSearch } from '@/lib/hangul';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import DemoButton from '@/components/DemoButton';
 
 const getIconForProduct = (name: string) => {
   if (!name) return '✨';
@@ -1165,9 +1166,9 @@ export default function CustomerSalePage() {
           <div className="text-center pt-4 pb-2">
             <p className="text-[15px] font-bold text-gray-500">
               Powered by{' '}
-              <Link href="/" className="font-black text-[#5F0080] hover:underline transition-colors">
+              <DemoButton className="font-black text-[#5F0080] hover:underline transition-colors cursor-pointer">
                 NAO3
-              </Link>
+              </DemoButton>
             </p>
           </div>
         </div>

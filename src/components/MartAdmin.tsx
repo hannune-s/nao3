@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { matchSearch, sortBySearchRelevance } from '@/lib/hangul';
 import { supabase } from '@/lib/supabase';
 
@@ -1867,6 +1868,11 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     );
   }
 
+  const isDemoMode =
+    storeId === 'demo' ||
+    storeId.startsWith('demo-guest-') ||
+    (storeSlug ? storeSlug === 'demo' || storeSlug.startsWith('demo-guest-') : false);
+
   let statusBadge = null;
   if (expiresAt) {
     const expiresDate = new Date(expiresAt);
@@ -1902,15 +1908,24 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         <div className="bg-amber-50 text-amber-900 border border-amber-200/70 px-3.5 py-2 rounded-xl text-[13px] font-bold flex flex-wrap items-center justify-between shadow-sm gap-2">
           <div className="flex items-center gap-1.5">
             <span className="text-base drop-shadow-sm">🎁</span>
-            <span className="tracking-tight">1개월 무료 체험 중</span>
+            <span className="tracking-tight">{isDemoMode ? '사장님 무료 체험 모드' : '1개월 무료 체험 중'}</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[12px] bg-amber-200/50 px-2 py-0.5 rounded-md text-amber-900 font-black">
               남은 기간: {diffDays}일
             </span>
-            <button className="text-[12px] font-black bg-gradient-to-r from-amber-400 to-orange-400 text-white px-2.5 py-1 rounded-lg shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap">
-              정식 구독 신청
-            </button>
+            {isDemoMode ? (
+              <Link
+                href="/register"
+                className="text-[12px] font-black bg-gradient-to-r from-amber-400 to-orange-500 text-white px-2.5 py-1 rounded-lg shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap"
+              >
+                무료 스토어 개설하기
+              </Link>
+            ) : (
+              <button className="text-[12px] font-black bg-gradient-to-r from-amber-400 to-orange-400 text-white px-2.5 py-1 rounded-lg shadow-sm hover:opacity-90 transition-opacity whitespace-nowrap">
+                정식 구독 신청
+              </button>
+            )}
           </div>
         </div>
       );
@@ -1923,8 +1938,8 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       {/* 상단 영역: 헤더 + 탭 + 입력폼 (스크롤 시 자연스럽게 올라가도록 sticky 제거) */}
       <div className="bg-white shadow-sm flex flex-col border-b border-gray-200">
         
-        {/* 어드민 앱 설치 배너 */}
-        {showAdminInstallBanner && (
+        {/* 어드민 앱 설치 배너 (체험 모드에서는 숨김) */}
+        {!isDemoMode && showAdminInstallBanner && (
           <div className="bg-gray-900 text-white p-3 flex items-center justify-between shadow-md z-50">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-black border border-gray-700 rounded-xl flex items-center justify-center font-black text-yellow-400 text-xs text-center leading-tight">
@@ -1998,15 +2013,30 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           <div className="flex flex-col gap-1 relative z-10">
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black text-white tracking-tight drop-shadow-sm">NAO3</h1>
+              {isDemoMode && (
+                <span className="px-2 py-0.5 rounded-full bg-white/15 text-purple-100 text-[10px] font-extrabold">
+                  체험판
+                </span>
+              )}
             </div>
           </div>
           
-          <button 
-            onClick={() => window.open(`/store/${storeSlug}/sale`, '_blank')}
-            className="text-[11px] font-extrabold text-[#5F0080] bg-white px-3 py-1.5 rounded-lg shadow-sm hover:bg-purple-50 transition-colors flex items-center gap-1 relative z-10"
-          >
-            고객 화면 보기
-          </button>
+          <div className="flex items-center gap-2 relative z-10">
+            <button 
+              onClick={() => window.open(`/store/${storeSlug}/sale`, '_blank')}
+              className="text-[11px] font-extrabold text-[#5F0080] bg-white px-3 py-1.5 rounded-lg shadow-sm hover:bg-purple-50 transition-colors flex items-center gap-1 whitespace-nowrap"
+            >
+              고객 화면 보기
+            </button>
+            {isDemoMode && (
+              <Link
+                href="/register"
+                className="text-[11px] font-extrabold text-gray-900 bg-yellow-400 hover:bg-yellow-300 px-3 py-1.5 rounded-lg shadow-sm transition-colors flex items-center gap-1 whitespace-nowrap"
+              >
+                🚀 스토어 개설
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* 상단 1단/2단 고정 영역: 세일 기간 & 사장님 이야기 */}
