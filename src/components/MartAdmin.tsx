@@ -806,10 +806,6 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     '온누리상품권(지류)',
     '온누리(모바일·카드)',
     '농할상품권',
-    '이음카드',
-    '김포페이',
-    '경기지역화폐',
-    '서울사랑상품권',
     '제로페이',
     '민생회복지원금',
   ];
@@ -824,7 +820,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         } catch {}
       }
       if (storeId === 'demo' || storeId.startsWith('demo-guest-')) {
-        return ['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '이음카드'];
+        return ['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '제로페이'];
       }
     }
     return [];
@@ -876,6 +872,14 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
   const handleTogglePaymentBadge = (badge: string) => {
     setPaymentBadges((prev) => {
       const next = prev.includes(badge) ? prev.filter((b) => b !== badge) : [...prev, badge];
+      persistBannerWithPaymentBadges(next);
+      return next;
+    });
+  };
+
+  const handleRemoveCustomPaymentBadge = (badge: string) => {
+    setPaymentBadges((prev) => {
+      const next = prev.filter((b) => b !== badge);
       persistBannerWithPaymentBadges(next);
       return next;
     });
@@ -1229,7 +1233,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     }
   };
 
-  // 앱 로드 시 데이터 초기화
+  // 앱 로드 시 및 화면 재진입 시 최신 DB 데이터 동기화 (직원이 수정한 내용 사장님 어드민에 즉시 반영)
   useEffect(() => {
     const loadInitData = async () => {
       const now = new Date();
@@ -1250,22 +1254,49 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         return;
       }
 
-      // 1. 진행 중인 세일이 있는지 확인해서 기간/멘트 기본값으로 깔아주기
+      // 0. 강력 추천 특가(nao3_stores) 최신 DB 값 동기화 (직원이 특가 수정 시 사장님 화면에도 즉시 반영)
+      const { data: latestStore } = await supabase
+        .from('nao3_stores')
+        .select('store_name, special_title, special_price, special_message, special_image_url')
+        .eq('id', storeId)
+        .maybeSingle();
+
+      if (latestStore) {
+        if (latestStore.store_name) setStoreName(latestStore.store_name);
+        const syncedSpecial = {
+          title: latestStore.special_title || '',
+          price: latestStore.special_price || '',
+          message: latestStore.special_message || '',
+          media_url: latestStore.special_image_url || '',
+        };
+        setSpecialForm(syncedSpecial);
+        setSpecialPreview(latestStore.special_image_url || '');
+        localStorage.setItem(`nao3_draft_special_${storeId}`, JSON.stringify(syncedSpecial));
+      }
+
+      // 1. 가장 최근 발송/반영된 세일(nao3_push_history)에서 기간 · 사장님 이야기 최신 DB 값으로 덮어쓰기
       const { data: latestPush } = await supabase
         .from('nao3_push_history')
         .select('*')
         .eq('store_id', storeId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      let isAppendingToActive = false;
-      
-      if (latestPush && latestPush.sale_end && new Date(latestPush.sale_end) > now) {
-        // 아직 종료되지 않은 세일이 있다면 그 시간을 기본값으로
-        if (!saleStart) setSaleStart(toLocalStr(latestPush.sale_start));
-        if (!saleEnd) setSaleEnd(toLocalStr(latestPush.sale_end));
-        isAppendingToActive = true;
+      if (latestPush) {
+        if (latestPush.sale_start) {
+          const startStr = toLocalStr(latestPush.sale_start);
+          setSaleStart(startStr);
+          localStorage.setItem(`nao3_draft_saleStart_${storeId}`, startStr);
+        }
+        if (latestPush.sale_end) {
+          const endStr = toLocalStr(latestPush.sale_end);
+          setSaleEnd(endStr);
+          localStorage.setItem(`nao3_draft_saleEnd_${storeId}`, endStr);
+        }
+        const msgStr = latestPush.boss_message ?? '';
+        setBossMessage(msgStr);
+        localStorage.setItem(`nao3_draft_bossMessage_${storeId}`, msgStr);
       } else {
         if (!saleStart) setSaleStart(toLocalStr(now));
         const tmrw = new Date(now);
@@ -1274,11 +1305,7 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
         if (!saleEnd) setSaleEnd(toLocalStr(tmrw));
       }
 
-      if (isAppendingToActive && latestPush?.boss_message) {
-        setBossMessage(prev => prev || latestPush.boss_message);
-      }
-
-      // 행사 타이틀 & 서브 문구 & 결제수단 뱃지 불러오기
+      // 2. 행사 타이틀 & 서브 문구 & 결제수단 뱃지 최신 DB 값으로 덮어쓰기
       const { data: bannerRow } = await supabase
         .from('nao3_system_settings')
         .select('setting_value')
@@ -1287,8 +1314,14 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
       if (bannerRow?.setting_value) {
         try {
           const parsed = JSON.parse(bannerRow.setting_value);
-          if (parsed.eventTitle) setEventTitle(prev => prev || parsed.eventTitle);
-          if (parsed.eventSubtitle) setEventSubtitle(prev => prev || parsed.eventSubtitle);
+          if (parsed.eventTitle !== undefined) {
+            setEventTitle(parsed.eventTitle);
+            localStorage.setItem(`nao3_draft_eventTitle_${storeId}`, parsed.eventTitle);
+          }
+          if (parsed.eventSubtitle !== undefined) {
+            setEventSubtitle(parsed.eventSubtitle);
+            localStorage.setItem(`nao3_draft_eventSubtitle_${storeId}`, parsed.eventSubtitle);
+          }
           if (Array.isArray(parsed.paymentBadges)) {
             setPaymentBadges(parsed.paymentBadges);
             localStorage.setItem(`nao3_draft_paymentBadges_${storeId}`, JSON.stringify(parsed.paymentBadges));
@@ -1300,7 +1333,19 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
     };
 
     loadInitData();
-  }, []);
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        loadInitData();
+      }
+    };
+    window.addEventListener('focus', handleVisibilityOrFocus);
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    return () => {
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+    };
+  }, [storeId]);
 
   // 상태가 변경될 때마다 로컬 스토리지에 자동 임시 저장 (새로고침 방지)
   useEffect(() => {
@@ -2220,47 +2265,65 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
           </div>
 
           {/* 1.8단: 결제수단 · 상품권 · 지역화폐 안내 설정 */}
-          <div className="flex flex-col gap-3 bg-white p-5 sm:p-6 rounded-2xl border border-emerald-200 shadow-sm relative overflow-hidden">
+          <div className="flex flex-col gap-2.5 bg-white p-4 sm:p-5 rounded-2xl border border-emerald-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-600 to-teal-400"></div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-              <h3 className="text-lg sm:text-xl font-black text-gray-900 tracking-tight flex items-center gap-2.5 flex-wrap">
-                <span className="w-1.5 h-5 rounded-full bg-emerald-600 inline-block shrink-0"></span>
+              <h3 className="text-[16px] sm:text-[18px] font-black text-gray-900 tracking-tight flex items-center gap-2 flex-wrap">
+                <span className="w-1.5 h-4 rounded-full bg-emerald-600 inline-block shrink-0"></span>
                 <span>결제 가능 상품권 · 지역화폐 안내</span>
-                <span className="text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md tracking-normal leading-tight">
-                  클릭 시 고객 화면 상단에 즉시 반영
+                <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md tracking-normal leading-tight">
+                  클릭 시 고객 화면 즉시 반영
                 </span>
               </h3>
             </div>
-            <p className="text-[12.5px] font-bold text-gray-500 leading-relaxed -mt-1">
-              온누리상품권, 농할상품권, 지역화폐 등 매장에서 사용 가능한 결제수단을 터치해서 켜두시면 고객 전단지 상단에 깔끔한 카드 뱃지로 노출됩니다.
+            <p className="text-[12px] font-bold text-gray-500 leading-snug -mt-0.5">
+              기본 5종은 터치해서 켜고 끄실 수 있으며, 우리 동네 지역화폐는 아래에서 직접 추가·삭제(`✕`)하실 수 있습니다.
             </p>
 
-            {/* 프리셋 + 직접 추가된 뱃지 목록 */}
-            <div className="flex flex-wrap gap-2 mt-1">
+            {/* 프리셋 5종 + 직접 추가된 뱃지 목록 (컴팩트 사이즈) */}
+            <div className="flex flex-wrap gap-1.5 mt-0.5">
               {Array.from(new Set([...DEFAULT_PAYMENT_PRESETS, ...paymentBadges])).map((badge) => {
                 const isSelected = paymentBadges.includes(badge);
+                const isPreset = DEFAULT_PAYMENT_PRESETS.includes(badge);
                 return (
-                  <button
+                  <div
                     key={badge}
-                    type="button"
-                    onClick={() => handleTogglePaymentBadge(badge)}
-                    className={`px-3.5 py-2 rounded-xl text-[13px] font-extrabold transition-all flex items-center gap-1.5 border ${
+                    className={`inline-flex items-center rounded-lg text-[12px] font-extrabold transition-all border ${
                       isSelected
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-[0_3px_10px_rgba(5,150,105,0.25)] scale-[1.01]'
-                        : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                        : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
                     }`}
                   >
-                    <span className={`text-[12px] font-black ${isSelected ? 'text-white' : 'text-gray-400'}`}>
-                      {isSelected ? '✓' : '+'}
-                    </span>
-                    <span>{badge}</span>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => handleTogglePaymentBadge(badge)}
+                      className="px-2.5 py-1.5 flex items-center gap-1 cursor-pointer"
+                    >
+                      <span className={`text-[11px] font-black ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                        {isSelected ? '✓' : '+'}
+                      </span>
+                      <span>{badge}</span>
+                    </button>
+                    {!isPreset && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveCustomPaymentBadge(badge);
+                        }}
+                        title="뱃지 삭제"
+                        className="pr-2 pl-0.5 py-1.5 text-white/80 hover:text-white text-[11px] font-black leading-none cursor-pointer"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 );
               })}
             </div>
 
             {/* 우리 동네 지역화폐 / 기타 결제수단 직접 입력 */}
-            <div className="flex gap-2 mt-1.5 pt-2.5 border-t border-gray-100">
+            <div className="flex gap-2 mt-1 pt-2 border-t border-gray-100">
               <input
                 type="text"
                 value={customPaymentInput}
@@ -2271,13 +2334,13 @@ export default function MartAdmin({ storeId, initialStoreName, storeSlug, expire
                     handleAddCustomPaymentBadge();
                   }
                 }}
-                placeholder="목록에 없는 결제수단 직접 입력 (예: 성남사랑상품권, 동백전, 제로페이 등)"
-                className="flex-1 text-[13.5px] font-bold text-gray-900 border border-gray-200 px-3.5 py-2.5 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 placeholder:font-normal"
+                placeholder="지역화폐·기타 결제수단 직접 입력 (예: 김포페이, 이음카드, 동백전 등)"
+                className="flex-1 text-[12.5px] font-bold text-gray-900 border border-gray-200 px-3 py-2 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 placeholder:text-gray-400 placeholder:font-normal"
               />
               <button
                 type="button"
                 onClick={handleAddCustomPaymentBadge}
-                className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-[13px] font-extrabold rounded-xl shrink-0 shadow-sm transition-colors"
+                className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-[12.5px] font-extrabold rounded-xl shrink-0 shadow-xs transition-colors"
               >
                 + 직접 추가
               </button>

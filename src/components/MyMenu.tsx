@@ -3,10 +3,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
-export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockPin, initialView = 'main' }: { storeData: any; onStoreUpdate?: (updated: any) => void; onPinUpdated?: () => void; onLockPin?: () => void; initialView?: 'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry' }) {
+export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockPin, initialView = 'main' }: { storeData: any; onStoreUpdate?: (updated: any) => void; onPinUpdated?: () => void; onLockPin?: () => void; initialView?: 'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry' | 'customers' }) {
   const router = useRouter();
 
-  type MenuView = 'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry';
+  type MenuView = 'main' | 'account' | 'subscription' | 'settings' | 'security' | 'notices' | 'guide' | 'qr' | 'inquiry' | 'customers';
   const [view, setViewState] = useState<MenuView>(initialView);
 
   useEffect(() => {
@@ -74,6 +74,11 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
   const [loadingNotices, setLoadingNotices] = useState(false);
   const [expandedNoticeId, setExpandedNoticeId] = useState<string | null>(null);
 
+  // 단골 고객(어플 설치) 현황 state
+  const [subscriberLogs, setSubscriberLogs] = useState<{ id: string; installedAt: number; deviceType: string }[]>([]);
+  const [loadingSubscribers, setLoadingSubscribers] = useState(false);
+  const [customerPage, setCustomerPage] = useState<number>(1);
+
   const fetchLatestStoreInfo = async () => {
     if (!storeData?.id || storeData.id.startsWith('demo-guest-')) return;
     try {
@@ -135,6 +140,98 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     }
   };
 
+  const fetchSubscribers = async () => {
+    const rawId = String(storeData?.id || storeData?.slug || '');
+    const isDemo = rawId === 'demo' || rawId.startsWith('demo-guest-');
+    if (isDemo) {
+      const now = Date.now();
+      const hour = 60 * 60 * 1000;
+      const day = 24 * hour;
+      setSubscriberLogs([
+        { id: 'demo-1', installedAt: now - 18 * 60 * 1000, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-2', installedAt: now - 2 * hour, deviceType: '아이폰 (iOS)' },
+        { id: 'demo-3', installedAt: now - 5 * hour, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-4', installedAt: now - 1 * day - 3 * hour, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-5', installedAt: now - 1 * day - 7 * hour, deviceType: '아이폰 (iOS)' },
+        { id: 'demo-6', installedAt: now - 2 * day - 4 * hour, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-7', installedAt: now - 3 * day - 2 * hour, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-8', installedAt: now - 4 * day - 6 * hour, deviceType: '아이폰 (iOS)' },
+        { id: 'demo-9', installedAt: now - 5 * day - 2 * hour, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-10', installedAt: now - 6 * day - 1 * hour, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-11', installedAt: now - 7 * day - 5 * hour, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-12', installedAt: now - 8 * day - 3 * hour, deviceType: '아이폰 (iOS)' },
+        { id: 'demo-13', installedAt: now - 9 * day - 5 * hour, deviceType: '갤럭시 / 안드로이드' },
+        { id: 'demo-14', installedAt: now - 11 * day - 3 * hour, deviceType: '아이폰 (iOS)' },
+        { id: 'demo-15', installedAt: now - 13 * day - 8 * hour, deviceType: '갤럭시 / 안드로이드' },
+      ]);
+      return;
+    }
+
+    if (!storeData?.id) return;
+    setLoadingSubscribers(true);
+    try {
+      const prefix = `PUSH_SUB_${storeData.id}_`;
+      const { data, error } = await supabase
+        .from('nao3_system_settings')
+        .select('setting_key, setting_value')
+        .like('setting_key', `${prefix}%`);
+
+      if (error) throw error;
+
+      // 동일 기기(endpoint) 중복 제거 (가장 최초 설치 또는 최신 시각 유지)
+      const byEndpoint = new Map<string, { id: string; installedAt: number; deviceType: string }>();
+
+      for (const row of data || []) {
+        const key = String(row.setting_key || '');
+        const tsPart = key.slice(prefix.length);
+        const parsedTs = Number(tsPart);
+        let installedAt = Number.isFinite(parsedTs) && parsedTs > 1000000000000 ? parsedTs : Date.now();
+        let uniqueEndpoint = key;
+        let deviceType = '스마트폰 단골 고객';
+
+        if (row.setting_value) {
+          try {
+            const parsed = JSON.parse(row.setting_value);
+            if (parsed && typeof parsed.endpoint === 'string' && parsed.endpoint) {
+              uniqueEndpoint = parsed.endpoint;
+              if (parsed.deviceType) {
+                deviceType = parsed.deviceType;
+              } else if (parsed.endpoint.includes('apple.com')) {
+                deviceType = '아이폰 (iOS)';
+              } else if (parsed.endpoint.includes('fcm.googleapis.com')) {
+                deviceType = '갤럭시 / 안드로이드';
+              }
+            }
+            if (parsed?.installedAt) {
+              const dt = new Date(parsed.installedAt).getTime();
+              if (Number.isFinite(dt) && dt > 0) installedAt = dt;
+            }
+          } catch {}
+        }
+
+        const prev = byEndpoint.get(uniqueEndpoint);
+        if (!prev || installedAt > prev.installedAt) {
+          byEndpoint.set(uniqueEndpoint, {
+            id: key,
+            installedAt,
+            deviceType,
+          });
+        }
+      }
+
+      const list = Array.from(byEndpoint.values()).sort((a, b) => b.installedAt - a.installedAt);
+      setSubscriberLogs(list);
+    } catch (err) {
+      console.warn('단골 고객 현황 조회 실패:', err);
+    } finally {
+      setLoadingSubscribers(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubscribers();
+  }, [storeData?.id]);
+
   useEffect(() => {
     if (view === 'notices') {
       fetchHqNotices();
@@ -142,6 +239,8 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
       fetchPins();
     } else if (view === 'settings' || view === 'account') {
       fetchLatestStoreInfo();
+    } else if (view === 'customers') {
+      fetchSubscribers();
     }
   }, [view]);
 
@@ -1455,6 +1554,181 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
     );
   }
 
+  if (view === 'customers') {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const weekStart = todayStart - 6 * 24 * 60 * 60 * 1000;
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    const totalCount = subscriberLogs.length;
+    const todayCount = subscriberLogs.filter((s) => s.installedAt >= todayStart).length;
+    const weekCount = subscriberLogs.filter((s) => s.installedAt >= weekStart).length;
+    const monthCount = subscriberLogs.filter((s) => s.installedAt >= monthStart).length;
+
+    // 날짜별 인원수만 집계 (YYYY. MM. DD.)
+    const dateCountMap = new Map<string, number>();
+
+    subscriberLogs.forEach((log) => {
+      const d = new Date(log.installedAt);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      const weekday = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
+      const isToday = d.getTime() >= todayStart;
+      const dateLabel = isToday ? `${y}. ${m}. ${day}. (${weekday}) · 오늘` : `${y}. ${m}. ${day}. (${weekday})`;
+
+      dateCountMap.set(dateLabel, (dateCountMap.get(dateLabel) || 0) + 1);
+    });
+
+    // 최대 5페이지(페이지당 5개 = 최대 25개 일자)까지만 보관·노출
+    const ITEMS_PER_PAGE = 5;
+    const MAX_PAGES = 5;
+    const allGroupedDates = Array.from(dateCountMap.entries())
+      .map(([dateLabel, count]) => ({ dateLabel, count }))
+      .slice(0, ITEMS_PER_PAGE * MAX_PAGES);
+
+    const totalPages = Math.max(1, Math.min(MAX_PAGES, Math.ceil(allGroupedDates.length / ITEMS_PER_PAGE)));
+    const safePage = Math.min(Math.max(1, customerPage), totalPages);
+    const pagedDates = allGroupedDates.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
+
+    const rawId = String(storeData?.id || storeData?.slug || '');
+    const isDemo = rawId === 'demo' || rawId.startsWith('demo-guest-');
+
+    return (
+      <div className="min-h-screen bg-[#F9F9F9] pb-24 font-sans animate-fade-in-up">
+        {/* Header */}
+        <div className="bg-white px-5 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 z-10">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setView('main')} className="text-gray-400 hover:text-gray-800 transition-colors p-1 -ml-1">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            <h1 className="text-[20px] font-extrabold text-gray-900 tracking-tight">단골 고객 (어플 설치) 현황</h1>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setCustomerPage(1);
+              fetchSubscribers();
+            }}
+            className="text-[12px] font-extrabold text-[#5F0080] bg-purple-50 hover:bg-purple-100 border border-purple-200 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            ↻ 새로고침
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-5 flex flex-col gap-5 max-w-lg mx-auto">
+          {isDemo && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3 text-[12.5px] font-bold text-amber-900 flex items-center gap-2">
+              <span className="text-base">💡</span>
+              <span>체험용 화면에서는 예시 단골 설치 내역이 표시됩니다. 실제 매장에서는 우리 가게 어플을 설치한 진짜 단골 수가 실시간으로 집계됩니다.</span>
+            </div>
+          )}
+
+          {/* 상단 누적 단골 요약 히어로 카드 */}
+          <div className="bg-gradient-to-br from-[#5F0080] via-[#4A0066] to-[#35004A] rounded-3xl p-6 text-white shadow-lg shadow-purple-900/15 relative overflow-hidden">
+            <div className="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none" />
+            <div className="absolute -left-6 -bottom-6 w-28 h-28 rounded-full bg-purple-400/10 pointer-events-none" />
+
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-[11.5px] font-extrabold text-purple-100 mb-3">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                실시간 푸시 알림 수신 단골
+              </div>
+              <p className="text-[13.5px] font-bold text-purple-100/90 mb-1">
+                {storeData?.store_name || '우리 매장'} 어플을 설치한 총 단골 고객
+              </p>
+              <div className="flex items-baseline gap-2 mb-5">
+                <span className="text-[42px] sm:text-[46px] font-black tracking-tight leading-none text-yellow-300 drop-shadow-sm">
+                  {totalCount.toLocaleString()}
+                </span>
+                <span className="text-[20px] font-extrabold text-white">명</span>
+              </div>
+
+              {/* 오늘 / 최근 7일 / 이번 달 미니 통계 */}
+              <div className="grid grid-cols-3 gap-2.5 bg-white/10 border border-white/15 rounded-2xl p-3.5 text-center">
+                <div>
+                  <p className="text-[11px] font-bold text-purple-200 mb-0.5">오늘 신규 설치</p>
+                  <p className="text-[17px] font-black text-emerald-300">+{todayCount}명</p>
+                </div>
+                <div className="border-x border-white/15">
+                  <p className="text-[11px] font-bold text-purple-200 mb-0.5">최근 7일</p>
+                  <p className="text-[17px] font-black text-white">+{weekCount}명</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-purple-200 mb-0.5">이번 달 누적</p>
+                  <p className="text-[17px] font-black text-white">+{monthCount}명</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 일자별 단골 설치 내역 (날짜 + 인원수만, 5개씩 최대 5페이지) */}
+          <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-[17px] font-black text-gray-900 tracking-tight">일자별 단골 설치 내역</h3>
+                <p className="text-[12px] text-gray-500 font-medium mt-0.5">최근 25일치(최대 5페이지) 일자별 설치 인원만 간편하게 보관됩니다</p>
+              </div>
+              <span className="text-[11.5px] font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full shrink-0">
+                중복 자동제외
+              </span>
+            </div>
+
+            {loadingSubscribers ? (
+              <div className="py-12 text-center text-gray-400 font-bold text-[14px]">
+                단골 고객 설치 내역을 불러오는 중...
+              </div>
+            ) : pagedDates.length === 0 ? (
+              <div className="py-12 px-4 text-center bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                <p className="text-2xl mb-2">📱</p>
+                <p className="text-[14.5px] font-extrabold text-gray-700 mb-1">아직 어플을 설치한 단골 고객이 없습니다.</p>
+                <p className="text-[12.5px] text-gray-500 leading-relaxed break-keep">
+                  고객 전단지 상단의 <span className="font-bold text-[#5F0080]">[홈 화면에 추가]</span> 버튼을 누르면 이곳에 일자별 설치 인원이 자동으로 기록됩니다!
+                </p>
+              </div>
+            ) : (
+              <>
+                <ul className="divide-y divide-gray-100 border border-gray-100 rounded-2xl overflow-hidden bg-white">
+                  {pagedDates.map((group) => (
+                    <li
+                      key={group.dateLabel}
+                      className="px-4 py-3.5 flex items-center justify-between hover:bg-gray-50/70 transition-colors"
+                    >
+                      <span className="text-[14.5px] font-extrabold text-gray-800">{group.dateLabel}</span>
+                      <span className="text-[13.5px] font-black text-[#5F0080] bg-purple-50 border border-purple-200/80 px-3 py-1 rounded-full">
+                        +{group.count}명 설치
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* 페이지네이션 (1, 2, 3, 4, 5) */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-1.5 mt-5">
+                    {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => setCustomerPage(pageNum)}
+                        className={`w-9 h-9 rounded-xl text-[13.5px] font-black transition-all ${
+                          safePage === pageNum
+                            ? 'bg-[#5F0080] text-white shadow-sm'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (view === 'inquiry') {
     return <InquiryView storeData={storeData} setView={setView} />;
   }
@@ -1525,6 +1799,25 @@ export default function MyMenu({ storeData, onStoreUpdate, onPinUpdated, onLockP
       </div>
 
       <div className="p-4 flex flex-col gap-5 mt-2">
+        {/* 단골 고객 (어플 설치) 현황 카드 */}
+        <button 
+          onClick={() => setView('customers')}
+          className="w-full bg-white rounded-2xl p-5 flex items-center justify-between shadow-sm border border-emerald-200 border-l-4 border-l-emerald-600 text-left hover:bg-emerald-50/40 transition-colors"
+        >
+          <div>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <h3 className="font-extrabold text-gray-900 text-[16px]">단골 고객 (어플 설치) 현황</h3>
+              <span className="text-[11.5px] font-black text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                🔔 총 {subscriberLogs.length.toLocaleString()}명 수신 중
+              </span>
+            </div>
+            <p className="text-[13px] text-gray-500 font-medium">언제 몇 명의 고객이 우리 매장 어플을 설치했는지 확인</p>
+          </div>
+          <span className="text-gray-300">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+          </span>
+        </button>
+
         {/* 계정 정보 카드 */}
         <button 
           onClick={() => setView('account')}

@@ -284,9 +284,20 @@ export default function CustomerSalePage() {
 
         const targetStoreUuid = storeInfo?.id;
         if (targetStoreUuid && sub) {
+          const uaStr = typeof navigator !== 'undefined' ? navigator.userAgent.toLowerCase() : '';
+          const deviceLabel = /iphone|ipad|ipod/.test(uaStr)
+            ? '아이폰 (iOS)'
+            : /android/.test(uaStr)
+            ? '갤럭시 / 안드로이드'
+            : '일반 스마트폰 / PC';
+          const payloadObj = {
+            ...(typeof sub.toJSON === 'function' ? sub.toJSON() : sub),
+            deviceType: deviceLabel,
+            installedAt: new Date().toISOString(),
+          };
           const { error: dbError } = await supabase.from('nao3_system_settings').insert({
             setting_key: 'PUSH_SUB_' + targetStoreUuid + '_' + Date.now().toString(),
-            setting_value: JSON.stringify(sub),
+            setting_value: JSON.stringify(payloadObj),
           });
           if (dbError) {
             console.error('Push DB insert error:', dbError);
@@ -456,7 +467,7 @@ export default function CustomerSalePage() {
                 if (Array.isArray(parsedBadges)) setPaymentBadges(parsedBadges);
               } catch {}
             } else if (storeSlug.startsWith('demo-guest-')) {
-              setPaymentBadges(['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '이음카드']);
+              setPaymentBadges(['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '제로페이']);
             }
           }
           
@@ -788,23 +799,23 @@ export default function CustomerSalePage() {
               </div>
             )}
 
-            {/* 결제 가능 상품권 · 지역화폐 안내 (통일감 있는 깔끔한 카드 뱃지) */}
+            {/* 결제 가능 상품권 · 지역화폐 안내 (눈에 확 띄는 선명한 에메랄드 카드 뱃지) */}
             {paymentBadges.length > 0 && (
-              <div className="mt-5 max-w-md mx-auto bg-white border border-gray-200/90 rounded-2xl px-4 py-3.5 shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
-                <div className="flex items-center justify-center gap-1.5 mb-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#5F0080]"></span>
-                  <span className="text-[12px] sm:text-[12.5px] font-extrabold text-gray-600 tracking-tight">
+              <div className="mt-4 max-w-md mx-auto bg-white border-2 border-emerald-500/30 rounded-2xl px-3.5 py-3 shadow-[0_4px_14px_rgba(5,150,105,0.08)]">
+                <div className="flex items-center justify-center gap-1.5 mb-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  <span className="text-[12px] sm:text-[12.5px] font-black text-emerald-900 tracking-tight">
                     우리 매장 사용 가능 결제수단 · 상품권
                   </span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#5F0080]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                 </div>
-                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-1.5">
                   {paymentBadges.map((badge) => (
                     <span
                       key={badge}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#F8F5FF] border border-[#E2D4F8] text-[#4A0066] text-[13px] sm:text-[13.5px] font-extrabold tracking-tight shadow-[0_1px_2px_rgba(95,0,128,0.05)]"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 text-white text-[12.5px] sm:text-[13px] font-extrabold tracking-tight shadow-[0_2px_6px_rgba(5,150,105,0.25)]"
                     >
-                      <svg className="w-3.5 h-3.5 text-[#5F0080] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <svg className="w-3.5 h-3.5 text-yellow-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                       <span>{badge}</span>

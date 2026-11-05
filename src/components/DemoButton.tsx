@@ -31,7 +31,7 @@ export default function DemoButton({ className, children }: DemoButtonProps) {
       saleStart: toLocalStr(now),
       saleEnd: toLocalStr(saleEnd),
       bossMessage: '어머님들 지금 바로 나오시면 사과한박스 천원! 선착순 2명!! 너무 더워서 눈에 뵈는게 없어요ㅋㅋㅋㅋㅋㅋㅋㅋ얼른 나오세용~~~~~',
-      paymentBadges: ['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '이음카드']
+      paymentBadges: ['온누리상품권(지류)', '온누리(모바일·카드)', '농할상품권', '제로페이']
     };
     localStorage.setItem(`nao3_staging_settings_${demoId}`, JSON.stringify(demoSettings));
 
